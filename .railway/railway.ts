@@ -6,7 +6,7 @@
 //
 // Environments map to Git Flow branches:
 //   production -> main     (releases)   https://hiddenrolegames-production.up.railway.app
-//   staging    -> develop  (integration) https://hiddenrolegames-staging.up.railway.app
+//   development    -> develop  (integration) https://hiddenrolegames-staging.up.railway.app
 //
 // The service builds from the root Dockerfile (auto-detected by Railway).
 import { defineRailway, github, postgres, project, redis, service } from "railway/iac";
@@ -16,7 +16,7 @@ const REPO = "Sggz221/HiddenRoleGames";
 export default defineRailway((ctx) => {
   const prod = ctx.isEnvironment("production");
 
-  // Service names are unique per project, so staging got suffixed names when its
+  // Service names are unique per project, so development got suffixed names when its
   // databases were created from the official templates.
   const db = postgres(prod ? "Postgres" : "Postgres-rBwq");
   const cache = redis(prod ? "Redis" : "Redis-Ikfu");

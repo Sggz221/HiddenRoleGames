@@ -5,7 +5,9 @@
 | Rama | Propósito | Despliega en | Protección |
 |---|---|---|---|
 | `main` | Código en producción. Cada merge es una versión etiquetada (`vX.Y.Z`). | Railway **production** | Solo PR desde `release/*` o `hotfix/*`; CI verde obligatorio |
-| `develop` | Integración de lo próximo a publicar. | Railway **staging** | Solo PR; CI verde obligatorio |
+| `develop` | Integración de lo próximo a publicar. | Railway **development** | Solo PR; CI verde obligatorio |
+
+**Rama por defecto del repositorio:** `develop` (Settings → General → Default branch), para que las PR apunten ahí sin elegirlo cada vez.
 
 ## Ramas temporales
 
@@ -27,7 +29,7 @@ git switch develop && git pull
 git switch -c feature/h1-witch-role
 # ... commits (Conventional Commits) ...
 git push -u origin feature/h1-witch-role
-# PR → develop (squash merge). Staging se despliega solo.
+# PR → develop (squash merge). Development se despliega solo.
 
 # Publicar al terminar un hito
 git switch develop && git pull
