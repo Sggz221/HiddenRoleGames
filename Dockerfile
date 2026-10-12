@@ -24,7 +24,7 @@ WORKDIR /app
 # Install all dependencies (cached while manifests don't change).
 FROM base AS deps
 COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
-RUN pnpm fetch --frozen-lockfile
+RUN pnpm fetch
 COPY . .
 RUN pnpm install --frozen-lockfile --offline --ignore-scripts
 
