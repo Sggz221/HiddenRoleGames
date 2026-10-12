@@ -1,0 +1,10 @@
+# Normalize line endings to LF (Docker, shell scripts and CI run on Linux).
+* text=auto eol=lf
+*.ps1 text eol=crlf
+*.png binary
+*.jpg binary
+*.webp binary
+*.mp3 binary
+*.ogg binary
+*.woff2 binary
+*.riv binary

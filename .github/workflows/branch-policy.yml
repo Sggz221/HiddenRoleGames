@@ -1,0 +1,32 @@
+name: Branch policy
+
+# Enforces the Git Flow merge directions documented in docs/git-workflow.md.
+on:
+  pull_request:
+    branches: [main, develop]
+
+permissions:
+  contents: read
+
+jobs:
+  gitflow:
+    runs-on: ubuntu-latest
+    steps:
+      - name: Check source → target branch
+        env:
+          HEAD: ${{ github.head_ref }}
+          BASE: ${{ github.base_ref }}
+        run: |
+          echo "PR: $HEAD → $BASE"
+          if [ "$BASE" = "main" ]; then
+            case "$HEAD" in
+              release/*|hotfix/*) exit 0 ;;
+              *) echo "::error::Only release/* and hotfix/* branches can merge into main."; exit 1 ;;
+            esac
+          fi
+          if [ "$BASE" = "develop" ]; then
+            case "$HEAD" in
+              feature/*|fix/*|chore/*|docs/*|refactor/*|test/*|ci/*|release/*|hotfix/*|dependabot/*) exit 0 ;;
+              *) echo "::error::Branch '$HEAD' does not follow the naming convention (feature/*, fix/*, chore/*, ...)."; exit 1 ;;
+            esac
+          fi

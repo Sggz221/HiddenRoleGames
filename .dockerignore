@@ -1,0 +1,24 @@
+# Keep the Docker build context small and reproducible.
+**/node_modules
+**/dist
+**/.turbo
+**/coverage
+**/playwright-report
+**/test-results
+**/*.tsbuildinfo
+.git
+.github
+.claude
+.railway
+.vscode
+.idea
+docs
+infra
+*.md
+!apps/**/README.md
+.env
+.env.*
+!.env.example
+docker-compose*.yml
+Dockerfile
+.dockerignore

@@ -1,0 +1,33 @@
+name: E2E
+
+# Playwright suite. Runs nightly and on PRs that touch the apps.
+on:
+  schedule:
+    - cron: "0 3 * * *"
+  pull_request:
+    branches: [develop, main]
+    paths:
+      - "apps/web/**"
+      - "apps/server/**"
+      - "packages/shared/**"
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  e2e:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    # Skipped until the web app and its Playwright config exist (Hito 3).
+    if: ${{ hashFiles('apps/web/playwright.config.ts') != '' }}
+    steps:
+      - uses: actions/checkout@v7
+      - uses: pnpm/action-setup@v6
+      - uses: actions/setup-node@v7
+        with:
+          node-version-file: .nvmrc
+          cache: pnpm
+      - run: pnpm install --frozen-lockfile
+      - run: pnpm --filter @aullidos/web exec playwright install --with-deps chromium
+      - run: pnpm turbo run test:e2e

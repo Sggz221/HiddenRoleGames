@@ -1,0 +1,47 @@
+# Local, production-like environment.
+#
+#   pnpm docker:up        -> builds the Railway image and serves it on http://localhost:3000
+#   pnpm docker:db        -> (phase 2) starts only PostgreSQL for `pnpm dev`
+#
+# For day-to-day frontend work prefer `pnpm dev` (Vite HMR); use this to verify
+# the real production build before opening a PR to `develop`/`main`.
+
+name: aullidos
+
+services:
+  app:
+    build:
+      context: .
+      dockerfile: Dockerfile
+    image: aullidos:local
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      PUBLIC_URL: http://localhost:${APP_PORT:-3000}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      SENTRY_DSN: ${SENTRY_DSN:-}
+    stop_grace_period: 20s
+    restart: unless-stopped
+
+  # Phase 2 only. Not started unless the `db` profile is requested.
+  postgres:
+    image: postgres:17-alpine
+    profiles: ["db"]
+    environment:
+      POSTGRES_USER: aullidos
+      POSTGRES_PASSWORD: aullidos
+      POSTGRES_DB: aullidos
+    ports:
+      - "5432:5432"
+    volumes:
+      - pgdata:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U aullidos"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+volumes:
+  pgdata:
