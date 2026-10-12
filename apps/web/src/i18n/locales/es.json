@@ -1,0 +1,16 @@
+{
+  "home": {
+    "tagline": "Cae la noche sobre la aldea. Alguien entre vosotros no es quien dice ser.",
+    "createRoom": "Crear partida",
+    "joinTitle": "¿Tienes un código?",
+    "joinPlaceholder": "Código de sala",
+    "join": "Unirse",
+    "comingSoon": "Muy pronto",
+    "players": "De {{min}} a {{max}} jugadores · sin instalar nada"
+  },
+  "server": {
+    "checking": "Comprobando servidor…",
+    "online": "Servidor en línea",
+    "offline": "Servidor no disponible"
+  }
+}

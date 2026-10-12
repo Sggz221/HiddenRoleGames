@@ -1,0 +1,42 @@
+@import "tailwindcss";
+
+/* Day/night theme tokens. Night is the default; a day variant arrives in Hito 4. */
+@theme {
+  --color-sky: #0b1020;
+  --color-sky-deep: #05070f;
+  --color-moon: #f4e9c8;
+  --color-ink: #e7e4f2;
+  --color-ink-muted: #9b98b3;
+  --color-blood: #c2414b;
+  --color-blood-strong: #a3323b;
+  --color-panel: rgb(255 255 255 / 0.06);
+  --color-panel-border: rgb(255 255 255 / 0.12);
+  --font-display: Georgia, "Times New Roman", serif;
+}
+
+@keyframes moon-glow {
+  0%,
+  100% {
+    box-shadow: 0 0 60px 10px rgb(244 233 200 / 0.18);
+  }
+  50% {
+    box-shadow: 0 0 90px 20px rgb(244 233 200 / 0.28);
+  }
+}
+
+@utility animate-moon-glow {
+  animation: moon-glow 6s ease-in-out infinite;
+}
+
+html,
+body,
+#root {
+  min-height: 100%;
+}
+
+body {
+  background: radial-gradient(ellipse at top, var(--color-sky) 0%, var(--color-sky-deep) 70%);
+  background-color: var(--color-sky-deep);
+  color: var(--color-ink);
+  -webkit-font-smoothing: antialiased;
+}
