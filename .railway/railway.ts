@@ -16,9 +16,10 @@ const REPO = "Sggz221/HiddenRoleGames";
 export default defineRailway((ctx) => {
   const prod = ctx.isEnvironment("production");
 
-  // PENDING: not created yet in Railway (see infra/README.md). Applying this file creates them.
-  const db = postgres("Postgres");
-  const cache = redis("Redis");
+  // Service names are unique per project, so staging got suffixed names when its
+  // databases were created from the official templates.
+  const db = postgres(prod ? "Postgres" : "Postgres-rBwq");
+  const cache = redis(prod ? "Redis" : "Redis-Ikfu");
 
   const app = service("HiddenRoleGames", {
     source: github(REPO, { branch: prod ? "main" : "develop" }),

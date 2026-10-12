@@ -24,15 +24,18 @@
 - **Variables:** `NODE_ENV=production`, `PORT=3000` (coincide con el puerto del dominio), `LOG_LEVEL` (`info` en prod, `debug` en staging), `PUBLIC_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}`.
 - **Watch patterns:** solo redepliega si cambian `apps/**`, `packages/**`, `Dockerfile` o los manifiestos de pnpm/turbo.
 
-### Pendiente: Postgres y Redis
+### Bases de datos
 
-El backend ya los usa (ver [ADR 0002](../docs/decisions/0002-postgres-redis-from-start.md)), pero **aún no existen en Railway**. Hay que hacer lo siguiente en cada entorno:
+Creadas el 2026-10-12 desde las plantillas oficiales, en `europe-west4`, con volumen persistente. Ver [ADR 0002](../docs/decisions/0002-postgres-redis-from-start.md).
 
-1. Añadir los servicios **Postgres** y **Redis** (plantillas oficiales de Railway).
-2. En `HiddenRoleGames`, añadir `DATABASE_URL=${{Postgres.DATABASE_URL}}` y `REDIS_URL=${{Redis.REDIS_URL}}`.
-3. Poner como *pre-deploy command* `node dist/persistence/migrate.js`.
+| Entorno | PostgreSQL | Redis |
+|---|---|---|
+| production | `Postgres` | `Redis` |
+| staging | `Postgres-rBwq` | `Redis-Ikfu` |
 
-Mientras no existan, el servidor arranca igual: guarda las partidas en memoria y no registra historial.
+- **Conexión:** `HiddenRoleGames` recibe `DATABASE_URL` y `REDIS_URL` como referencias (`${{Postgres.DATABASE_URL}}`, …) por la red privada.
+- **Migraciones:** *pre-deploy command* `node dist/persistence/migrate.js`. Si falla, el despliegue se cancela.
+- **Nombres de staging:** llevan sufijo porque en Railway los nombres de servicio son únicos dentro del proyecto. Se pueden renombrar en el dashboard (actualizando las referencias y `.railway/railway.ts`).
 
 ### Pendiente (manual, en el dashboard)
 
