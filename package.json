@@ -1,0 +1,33 @@
+{
+  "name": "aullidos",
+  "private": true,
+  "description": "Juego web multijugador de rol oculto (monorepo)",
+  "packageManager": "pnpm@12.11.2",
+  "engines": {
+    "node": ">=24",
+    "pnpm": ">=12"
+  },
+  "scripts": {
+    "dev": "turbo run dev",
+    "build": "turbo run build",
+    "test": "turbo run test",
+    "typecheck": "turbo run typecheck",
+    "lint": "biome check .",
+    "lint:fix": "biome check --write .",
+    "format": "biome format --write .",
+    "clean": "turbo run clean && node scripts/clean.mjs",
+    "docker:build": "docker compose build",
+    "docker:up": "docker compose up --build",
+    "docker:down": "docker compose down",
+    "docker:db": "docker compose --profile db up -d postgres",
+    "prepare": "lefthook install",
+    "railway:plan": "railway config plan",
+    "railway:apply": "railway config apply"
+  },
+  "devDependencies": {
+    "@biomejs/biome": "2.5.15",
+    "lefthook": "2.2.1",
+    "turbo": "2.11.7",
+    "railway": "3.12.0"
+  }
+}
