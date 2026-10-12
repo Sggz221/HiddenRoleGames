@@ -16,13 +16,17 @@
     "lint:fix": "biome check --write .",
     "format": "biome format --write .",
     "clean": "turbo run clean && node scripts/clean.mjs",
-    "docker:build": "docker compose build",
-    "docker:up": "docker compose up --build",
-    "docker:down": "docker compose down",
-    "docker:db": "docker compose --profile db up -d postgres",
+    "docker:build": "docker compose --profile app build",
+    "docker:up": "docker compose --profile app up --build",
+    "docker:down": "docker compose --profile app down",
     "prepare": "lefthook install",
     "railway:plan": "railway config plan",
-    "railway:apply": "railway config apply"
+    "railway:apply": "railway config apply",
+    "infra:up": "docker compose up -d --wait postgres redis",
+    "infra:down": "docker compose --profile app down",
+    "db:generate": "pnpm --filter @aullidos/server db:generate",
+    "db:migrate": "pnpm --filter @aullidos/server db:migrate",
+    "db:studio": "pnpm --filter @aullidos/server db:studio"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",
