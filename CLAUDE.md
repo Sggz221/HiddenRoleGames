@@ -8,7 +8,9 @@ Lee PLAN.md para el contexto completo antes de proponer cambios de arquitectura.
 - `pnpm dev`: web + servidor con recarga
 - `pnpm test`: tests (Vitest) de todo el monorepo
 - `pnpm lint` / `pnpm typecheck` / `pnpm build`
-- `pnpm docker:up`: imagen de producción en http://localhost:3000
+- `pnpm infra:up` / `pnpm infra:down`: PostgreSQL + Redis locales (Docker)
+- `pnpm db:generate` / `pnpm db:migrate`: migraciones Drizzle (`apps/server/drizzle/`)
+- `pnpm docker:up`: imagen de producción + infra en http://localhost:3000
 - `pnpm railway:plan` / `pnpm railway:apply`: infraestructura de Railway (`.railway/railway.ts`)
 
 ## Ramas (Git Flow, ver docs/git-workflow.md)
@@ -29,7 +31,10 @@ Lee PLAN.md para el contexto completo antes de proponer cambios de arquitectura.
 
 ## Contrato con la infraestructura
 - Paquetes: `@aullidos/{web,server,shared,game-engine,bots,tsconfig}`.
-- `server` compila a `apps/server/dist/index.js`, escucha en `$PORT`, sirve estáticos desde `$STATIC_DIR`, expone `GET /health` y maneja `SIGTERM`.
+- `server` compila a `apps/server/dist/index.js`, escucha en `$PORT`, sirve estáticos desde `$STATIC_DIR`, expone `GET /health` (liveness) y `GET /health/ready`, y maneja `SIGTERM`.
+- `DATABASE_URL` (Postgres, historial) y `REDIS_URL` (snapshots de partidas + adaptador Socket.IO) son opcionales; sin ellos todo funciona en memoria.
+- Migraciones: `node dist/persistence/migrate.js` (pre-deploy en Railway). Nunca editar una migración ya aplicada: generar otra.
+- `GameSession` (`apps/server/src/game`) es el único puente entre el motor y la red.
 - `web` compila a `apps/web/dist/`; en dev, Vite (:5173) hace proxy de `/socket.io` y `/health` a :3000.
 - Si cambias esto, actualiza `Dockerfile`, `infra/README.md` y este archivo.
 

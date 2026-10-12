@@ -1,40 +1,23 @@
-# Local, production-like environment.
+# Local environment.
 #
-#   pnpm docker:up        -> builds the Railway image and serves it on http://localhost:3000
-#   pnpm docker:db        -> (phase 2) starts only PostgreSQL for `pnpm dev`
+#   pnpm infra:up      -> only PostgreSQL + Redis (use with `pnpm dev`)
+#   pnpm docker:up     -> everything, including the production image on http://localhost:3000
+#   pnpm infra:down    -> stop all (data is kept in named volumes)
 #
-# For day-to-day frontend work prefer `pnpm dev` (Vite HMR); use this to verify
-# the real production build before opening a PR to `develop`/`main`.
+# For day-to-day frontend work prefer `pnpm dev` (Vite HMR) + `pnpm infra:up`; use the
+# app container to verify the real production build before opening a PR.
 
 name: aullidos
 
 services:
-  app:
-    build:
-      context: .
-      dockerfile: Dockerfile
-    image: aullidos:local
-    ports:
-      - "${APP_PORT:-3000}:3000"
-    environment:
-      NODE_ENV: production
-      PORT: 3000
-      PUBLIC_URL: http://localhost:${APP_PORT:-3000}
-      LOG_LEVEL: ${LOG_LEVEL:-info}
-      SENTRY_DSN: ${SENTRY_DSN:-}
-    stop_grace_period: 20s
-    restart: unless-stopped
-
-  # Phase 2 only. Not started unless the `db` profile is requested.
   postgres:
     image: postgres:17-alpine
-    profiles: ["db"]
     environment:
       POSTGRES_USER: aullidos
       POSTGRES_PASSWORD: aullidos
       POSTGRES_DB: aullidos
     ports:
-      - "5432:5432"
+      - "${POSTGRES_PORT:-5432}:5432"
     volumes:
       - pgdata:/var/lib/postgresql/data
     healthcheck:
@@ -43,5 +26,57 @@ services:
       timeout: 3s
       retries: 10
 
+  redis:
+    image: redis:8-alpine
+    command: ["redis-server", "--appendonly", "yes"]
+    ports:
+      - "${REDIS_PORT:-6379}:6379"
+    volumes:
+      - redisdata:/data
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 10
+
+  # Runs the migrations once, then exits (mirrors Railway's pre-deploy command).
+  migrate:
+    image: aullidos:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    profiles: ["app"]
+    command: ["node", "dist/persistence/migrate.js"]
+    environment:
+      DATABASE_URL: postgres://aullidos:aullidos@postgres:5432/aullidos
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  app:
+    image: aullidos:local
+    build:
+      context: .
+      dockerfile: Dockerfile
+    profiles: ["app"]
+    ports:
+      - "${APP_PORT:-3000}:3000"
+    environment:
+      NODE_ENV: production
+      PORT: 3000
+      PUBLIC_URL: http://localhost:${APP_PORT:-3000}
+      LOG_LEVEL: ${LOG_LEVEL:-info}
+      DATABASE_URL: postgres://aullidos:aullidos@postgres:5432/aullidos
+      REDIS_URL: redis://redis:6379
+      SENTRY_DSN: ${SENTRY_DSN:-}
+    depends_on:
+      migrate:
+        condition: service_completed_successfully
+      redis:
+        condition: service_healthy
+    stop_grace_period: 20s
+    restart: unless-stopped
+
 volumes:
   pgdata:
+  redisdata:
