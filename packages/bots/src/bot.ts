@@ -168,7 +168,7 @@ export class Bot {
     if (!action) return;
     this.acted.add(key);
     this.actions.push(action);
-    void this.request<AckResponse>("game:action", action);
+    this.fireAndForget("game:action", action);
   }
 
   private chatter({ view }: GameViewMessage): void {
@@ -176,8 +176,16 @@ export class Bot {
       const key = `${view.day}|${view.phase.kind}|${channel}`;
       if (this.spoke.has(key)) continue;
       this.spoke.add(key);
-      void this.say(channel, `${this.name} (${channel}, ${view.phase.kind} ${view.day})`);
+      this.fireAndForget("chat:send", {
+        channel,
+        text: `${this.name} (${channel}, ${view.phase.kind} ${view.day})`,
+      });
     }
+  }
+
+  /** Sends without awaiting: failures are already recorded by `request`. */
+  private fireAndForget(event: keyof ClientToServerEvents, payload: unknown): void {
+    this.request<AckResponse>(event, payload).catch(() => {});
   }
 
   /** Emits with an ack; failures are recorded in `errors` and also returned. */
@@ -202,7 +210,10 @@ export class Bot {
       }
       return response;
     } catch (err) {
-      this.errors.push({ event, code: "TIMEOUT", message: String(err), payload });
+      // Pending acks are rejected when we close or drop the socket ourselves: not a protocol error.
+      if (this.socket === socket) {
+        this.errors.push({ event, code: "TIMEOUT", message: String(err), payload });
+      }
       throw err;
     } finally {
       this.inFlight -= 1;
