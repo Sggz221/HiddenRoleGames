@@ -57,6 +57,7 @@ export function createGame(
     witchPoisonUsed: false,
     infectUsed: false,
     foxActive: true,
+    salvadorLast: null,
     elderLivesLost: 0,
     villagePowersLost: false,
     wolfHasDied: false,
