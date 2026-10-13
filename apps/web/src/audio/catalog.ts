@@ -1,4 +1,4 @@
-import type { GameEvent, Phase } from "@howlsinthedark/shared";
+import type { GameEventPayload, Phase } from "@howlsinthedark/shared";
 
 export type MusicId = "night" | "day" | "vote";
 export type EffectId = "howl" | "death" | "dawn" | "vote-cast";
@@ -32,7 +32,7 @@ export function musicForPhase(phase: Phase): MusicId | null {
 }
 
 /** One-shot effect for a server event, if it has one. */
-export function effectForEvent(event: GameEvent, previous: Phase | null): EffectId | null {
+export function effectForEvent(event: GameEventPayload, previous: Phase | null): EffectId | null {
   switch (event.type) {
     case "playerDied":
       return "death";

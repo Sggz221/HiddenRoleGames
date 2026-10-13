@@ -150,9 +150,9 @@
         "hidden": "{{name}} aparece sin vida. Se lleva su secreto a la tumba."
       },
       "vote": {
-        "role": "{{name}} es expulsado por la aldea. Era {{role}}.",
-        "side": "{{name}} es expulsado por la aldea. Estaba con {{side}}.",
-        "hidden": "{{name}} es expulsado por la aldea. Se lleva su secreto a la tumba."
+        "role": "La aldea expulsa a {{name}}. Era {{role}}.",
+        "side": "La aldea expulsa a {{name}}. Estaba con {{side}}.",
+        "hidden": "La aldea expulsa a {{name}}. Se lleva su secreto a la tumba."
       },
       "hunter": {
         "role": "El disparo del cazador alcanza a {{name}}. Era {{role}}.",
@@ -176,7 +176,7 @@
       "vote": "Se acabó el debate. Votad a quién expulsar."
     },
     "sheriff": {
-      "elected": "{{name}} es el nuevo alguacil. Su voto vale doble.",
+      "elected": "{{name}} recibe la estrella de alguacil. Su voto vale doble.",
       "none": "Nadie ha sido elegido alguacil.",
       "changed": "La estrella de alguacil pasa a {{name}}.",
       "vacant": "La aldea se queda sin alguacil."
@@ -190,7 +190,7 @@
     "reaction": {
       "hunter-shot": "{{name}}, el cazador, apunta con su último aliento.",
       "sheriff-successor": "{{name}} debe nombrar a quien herede su estrella de alguacil.",
-      "sheriff-tiebreak": "El alguacil {{name}} decide el empate entre {{names}}."
+      "sheriff-tiebreak": "{{name}}, con la estrella de alguacil, decide el empate entre {{names}}."
     },
     "bear": {
       "growled": "¡El oso del domador gruñe! Hay un lobo cerca."
@@ -206,7 +206,7 @@
       "wolfHoundChose": "Has elegido: estás con {{side}}.",
       "wolvesChoseVictim": "La manada ha elegido: {{name}}.",
       "wolvesNoVictim": "La manada no se ha puesto de acuerdo. No hay víctima.",
-      "playerInfected": "{{name}} ha sido infectado y se une a la manada.",
+      "playerInfected": "La infección alcanza a {{name}}, que se une a la manada.",
       "foxWolfNearby": "Tu olfato no falla: hay un lobo junto a {{name}}.",
       "foxNoWolf": "Ningún lobo junto a {{name}}. Has perdido el olfato.",
       "playersCharmed": "Encantados por la flauta: {{names}}.",
@@ -215,10 +215,10 @@
     "end": {
       "village": "¡La aldea gana! Los lobos han sido expulsados.",
       "wolves": "¡Los lobos ganan! La aldea ha caído.",
-      "lovers": "¡Los enamorados ganan! {{names}} sobreviven juntos.",
-      "white-werewolf": "¡El lobo blanco gana! {{names}} es el único superviviente.",
+      "lovers": "¡Gana la pareja! {{names}} sobreviven juntos.",
+      "white-werewolf": "¡El lobo blanco gana! {{names}} sobrevive en solitario.",
       "piper": "¡El flautista gana! Toda la aldea baila a su son.",
-      "angel": "¡El ángel gana! {{names}} consiguió que lo mataran pronto.",
+      "angel": "¡El ángel gana! {{names}} consiguió morir en el primer turno.",
       "none": "Nadie gana. La aldea queda en silencio."
     }
   },
@@ -285,10 +285,113 @@
     }
   },
   "game": {
-    "started": "La partida ha empezado",
     "yourCard": "Tu carta",
     "narrator": "El narrador",
-    "comingSoon": "La pantalla de juego completa llega pronto."
+    "timeLeft": "Tiempo restante",
+    "phase": {
+      "night": "Noche {{day}}",
+      "day": "Día {{day}}",
+      "ended": "Fin de la partida"
+    },
+    "nightStep": {
+      "cupid": "Turno de Cupido",
+      "seer": "Turno de la vidente",
+      "wild-child": "Turno del niño salvaje",
+      "wolf-hound": "Turno del perro lobo",
+      "salvador": "Turno del salvador",
+      "wolves": "Turno de los lobos",
+      "infected-father": "Turno del padre de los lobos",
+      "big-bad-wolf": "Turno del gran lobo feroz",
+      "white-werewolf": "Turno del lobo blanco",
+      "witch": "Turno de la bruja",
+      "fox": "Turno del zorro",
+      "piper": "Turno del flautista"
+    },
+    "dayStep": {
+      "sheriff-election": "Elección de alguacil",
+      "debate": "Debate",
+      "vote": "Votación",
+      "runoff": "Segunda votación"
+    },
+    "reaction": {
+      "hunter-shot": "Último disparo del cazador",
+      "sheriff-successor": "Sucesión del alguacil",
+      "sheriff-tiebreak": "Desempate del alguacil"
+    },
+    "actions": {
+      "vote": "¿A quién expulsas de la aldea?",
+      "voteSheriff": "¿Quién debe ser el alguacil?",
+      "seerInspect": "¿De quién quieres ver la carta?",
+      "wildChildModel": "Elige a tu modelo. Si muere, te unirás a la manada.",
+      "salvadorProtect": "¿A quién proteges esta noche?",
+      "wolfVote": "¿A quién devora la manada?",
+      "bigBadWolfKill": "Elige una segunda víctima.",
+      "whiteWolfKill": "¿Traicionas a un lobo esta noche?",
+      "foxSniff": "¿Alrededor de quién olfateas?",
+      "hunterShoot": "Con tu último aliento, ¿a quién disparas?",
+      "sheriffSuccessor": "¿Quién hereda tu estrella de alguacil?",
+      "sheriffTieBreak": "Hay empate. ¿A quién expulsa la aldea?",
+      "cupidLink": "Elige a los dos enamorados.",
+      "piperCharm": "Elige a uno o dos jugadores para encantar.",
+      "wolfHoundChoose": "¿De qué lado estás?",
+      "infect": "¿Infectas a la víctima de la manada en lugar de matarla?",
+      "witch": "Decide qué haces con tus pociones.",
+      "confirm": "Confirmar",
+      "skip": "Pasar",
+      "abstain": "Abstenerme",
+      "nobody": "Nadie",
+      "yes": "Sí, infectar",
+      "no": "No",
+      "changeHint": "Puedes cambiar de idea hasta que acabe el tiempo.",
+      "chosen": "Has elegido: {{choice}}",
+      "heal": "Poción de vida",
+      "poison": "Poción de muerte",
+      "noVictims": "Esta noche no hay nadie a quien salvar.",
+      "used": "Ya la has usado."
+    },
+    "sides": {
+      "village": "Con el pueblo",
+      "wolves": "Con la manada"
+    },
+    "idle": {
+      "night": "La aldea duerme. Espera a que amanezca.",
+      "debate": "Debatid: ¿quién es el lobo?",
+      "waitingVotes": "Esperando al resto de votos…",
+      "waitingFor": "Esperando a {{name}}…",
+      "dead": "Has muerto. Observa en silencio."
+    },
+    "players": {
+      "title": "La aldea",
+      "dead": "Ha muerto",
+      "sheriff": "Alguacil",
+      "wolfAlly": "Manada",
+      "lover": "Pareja",
+      "charmed": "Hechizo del flautista",
+      "you": "tú",
+      "votes_one": "{{count}} voto",
+      "votes_other": "{{count}} votos",
+      "abstained": "Se abstienen"
+    },
+    "you": {
+      "infected": "Te han infectado: ahora cazas con la manada.",
+      "lover": "Cupido te ha unido a {{name}}. Si uno muere, el otro también.",
+      "sisters": "Tu hermana: {{names}}.",
+      "wildChildModel": "Tu modelo: {{name}}.",
+      "wolfHound": "Has elegido: {{side}}.",
+      "potions": "Pociones: vida {{heal}}, muerte {{poison}}.",
+      "available": "disponible",
+      "usedUp": "gastada",
+      "foxLost": "Has perdido el olfato.",
+      "charmed": "Estás bajo el hechizo del flautista.",
+      "visions": "Lo que sabes",
+      "seerResult": "{{name}} es {{role}}.",
+      "foxWolf": "Había un lobo junto a {{name}}.",
+      "foxNoWolf": "No había ningún lobo junto a {{name}}."
+    },
+    "result": {
+      "cards": "Las cartas de todos",
+      "back": "Volver a la sala"
+    }
   },
   "errors": {
     "INVALID_PAYLOAD": "Algo no cuadra en los datos enviados.",

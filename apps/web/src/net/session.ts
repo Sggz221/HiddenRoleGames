@@ -2,6 +2,8 @@ import type {
   AckResponse,
   ClientToServerEvents,
   ErrorCode,
+  GameAction,
+  GameEventPayload,
   GameViewMessage,
   NarrationLine,
   PlayerId,
@@ -38,9 +40,17 @@ export interface SessionState {
   game: GameViewMessage | null;
   /** Narrator lines of the current game, oldest first. */
   narration: NarrationLine[];
+  /** Server clock minus ours, measured on each view: the countdown uses the server's time. */
+  clockOffset: number;
+  /** What this player chose in the current phase (the server allows changing it until it ends). */
+  choice: GameAction | null;
 }
 
 export type Result = { ok: true } | { ok: false; code: ErrorCode | "TIMEOUT" };
+
+/** Identifies a phase (and day): a choice belongs to one of them. */
+export const phaseKey = (game: GameViewMessage): string =>
+  `${game.view.day}|${JSON.stringify(game.view.phase)}`;
 
 /** Kept on the client so a long game does not grow memory without bound. */
 const NARRATION_LIMIT = 200;
@@ -53,10 +63,12 @@ const NARRATION_LIMIT = 200;
 export class SessionStore {
   private state: SessionState;
   private readonly listeners = new Set<() => void>();
+  private readonly eventListeners = new Set<(events: GameEventPayload[]) => void>();
 
   constructor(
     private readonly socket: SessionSocket,
     private readonly tokens: TokenStorage,
+    private readonly now: () => number = Date.now,
   ) {
     this.state = {
       connection: "connecting",
@@ -65,6 +77,8 @@ export class SessionStore {
       room: null,
       game: null,
       narration: [],
+      clockOffset: 0,
+      choice: null,
     };
 
     socket.on("connect", () => {
@@ -73,15 +87,27 @@ export class SessionStore {
     });
     socket.on("disconnect", () => this.update({ connection: "offline" }));
     socket.on("room:state", (room) => {
-      // A new game (or the end of one) resets the narration.
-      const newGame = room.gameId !== this.state.room?.gameId;
+      const started = room.gameId !== null && room.gameId !== this.state.room?.gameId;
+      // A finished game stays on screen (result and roles) until the player goes back.
+      const finished = this.state.game?.view.result != null;
       this.update({
         room,
-        ...(newGame ? { narration: [] } : {}),
-        ...(room.gameId === null ? { game: null } : {}),
+        ...(started ? { game: null, narration: [], choice: null } : {}),
+        ...(room.gameId === null && !finished ? { game: null, narration: [] } : {}),
       });
     });
-    socket.on("game:view", (game) => this.update({ game }));
+    socket.on("game:view", (game) => {
+      const previous = this.state.game;
+      const samePhase = previous !== null && phaseKey(previous) === phaseKey(game);
+      this.update({
+        game,
+        clockOffset: game.serverNow - this.now(),
+        ...(samePhase ? {} : { choice: null }),
+      });
+    });
+    socket.on("game:events", (events) => {
+      for (const listener of this.eventListeners) listener(events);
+    });
     socket.on("game:narration", (lines) =>
       this.update({ narration: [...this.state.narration, ...lines].slice(-NARRATION_LIMIT) }),
     );
@@ -116,6 +142,30 @@ export class SessionStore {
 
   startGame(options: RoomStart): Promise<Result> {
     return this.request<AckResponse>("room:start", options);
+  }
+
+  /** Sends an intention; the server checks it against the rules and answers with a new view. */
+  async sendAction(action: GameAction): Promise<Result> {
+    const sentIn = this.state.game && phaseKey(this.state.game);
+    const response = await this.request<AckResponse>("game:action", action);
+    // The action may close the phase (last vote): the next view can arrive before this ack,
+    // and the choice must not leak into the new phase.
+    const current = this.state.game && phaseKey(this.state.game);
+    if (response.ok && current === sentIn) {
+      this.update({ choice: action.type === "skip" ? null : action });
+    }
+    return response;
+  }
+
+  /** Leaves the end-of-game screen and goes back to the room's lobby. */
+  dismissResult(): void {
+    this.update({ game: null, narration: [], choice: null });
+  }
+
+  /** Raw game events, for sound and animation. */
+  onGameEvents(listener: (events: GameEventPayload[]) => void): () => void {
+    this.eventListeners.add(listener);
+    return () => this.eventListeners.delete(listener);
   }
 
   private async seat(event: "room:create" | "room:join", payload: unknown): Promise<Result> {

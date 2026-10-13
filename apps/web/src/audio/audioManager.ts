@@ -1,4 +1,4 @@
-import type { GameEvent, Phase } from "@howlsinthedark/shared";
+import type { GameEventPayload, Phase } from "@howlsinthedark/shared";
 import { Howl, Howler } from "howler";
 import {
   EFFECTS,
@@ -64,7 +64,7 @@ export class AudioManager {
   }
 
   /** Reacts to server events (deaths, dawn, nightfall...). */
-  handleEvents(events: readonly GameEvent[]): void {
+  handleEvents(events: readonly GameEventPayload[]): void {
     let previous = this.lastPhase;
     for (const event of events) {
       const effect = effectForEvent(event, previous);
