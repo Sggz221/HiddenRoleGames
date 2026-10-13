@@ -16,18 +16,18 @@ Contrato con la infraestructura:
   - Portada con nombre, crear sala y unirse. El enlace `/?sala=CODIGO` rellena el código.
   - Lobby: código con copiar/compartir, lista de jugadores y ajustes del anfitrión.
   - Los ajustes (`settings.ts`) se guardan en el dispositivo del anfitrión y se envían con `room:start`. Los demás no los ven todavía.
-- `src/features/game/`: la partida.
-  - `PhaseBar`: noche/día, paso y contador sincronizado con el reloj del servidor (`phaseEndsAt`, desfase `serverNow`).
-  - `ActionPanel`: pinta exactamente `view.pending`. Un formulario por tipo de acción (objetivo, pareja, hasta dos, bando, infección, bruja) y "Pasar" cuando se permite. Los objetivos son los del servidor.
-  - `PlayerList`: vivos y muertos, lo que puedes saber (alguacil, manada, pareja, hechizo, roles visibles) y los votos en vivo.
-  - `YourCard`, `NarratorFeed` y `ResultPanel` (ganadores y cartas de todos hasta volver a la sala).
-  - La lógica pura vive en `model.ts`: contador, recuento de votos y construcción de acciones.
-- Audio: la música sigue la fase y los efectos siguen los `game:events` (`net/client.ts`).
+- `src/features/game/`: la partida (HID-22).
+  - **Reloj de la aldea** (`daytime.ts`, `useGameClock.ts`): cada fase cubre un tramo del día (noche 21–05, alguacil 06–08, debate 08–15, votación 15–18). La hora avanza con el contador y da la paleta (cielo, tierra, resplandor, estrellas, ventanas). Se escribe en variables CSS sin renderizar React; los saltos de fase se deslizan con GSAP.
+  - **Tema del rol** (`roleTheme.ts`): `--accent`, `--on-accent` y `--tint`. La manada en rojo sobre negro con Grenze Gotisch; cada rol del pueblo con su color.
+  - `TopBar`: día y turno (animados), chip del rol con el objetivo, botones de efectos/música/ajustes y la esfera del reloj con el contador.
+  - `PlayersTable` + `ActionDock` comparten `useActionController`. Los objetivos se eligen tocando a los jugadores (respiran cuando se pueden elegir); el resto de controles van en el dock.
+  - `ChatDrawer` (panel lateral con pestañas por canal), `HistoryPanel` (historial abajo, desplegable), `RoleReveal` (la carta al empezar, que vuela al chip) y `ResultPanel`.
+  - Ajustes: "Reducir animaciones" (`preferences.ts`) se suma a `prefers-reduced-motion` mediante `MotionConfig` y `data-reduce-motion`.
+  - La lógica pura vive en `model.ts`, `daytime.ts` y `roleTheme.ts`, con tests.
 - `src/animations/` (Hito 4):
   - `scenesFor` convierte cada lote de `game:events` en escenas (amanecer, muertes de día) y `SceneQueue` las reproduce de una en una. Son solo visuales: el estado ya está aplicado, así que saltarlas no cambia nada.
   - `DeathOverlay` (Motion): anuncia las muertes a pantalla completa; se salta tocando o con "Saltar".
-  - `Sky` (GSAP): sol y luna; al amanecer y al anochecer se cruzan. `useTheme` pone `data-theme` en `<html>`, y los colores del cielo son `@property` para que el fondo pase de uno a otro con una transición.
-  - La carta de rol se voltea en 3D y empieza boca abajo. Mientras no la gires, tu rol tampoco aparece en la lista ni en el narrador.
-  - Con `prefers-reduced-motion` no hay movimiento: el tema cambia al instante, el sol y la luna se intercambian, la carta cambia de cara y el aviso solo hace un fundido.
+  - `Landscape`: el pueblo de fondo (cielo, estrellas, sol y luna en su arco, colinas, pino y casa con ventanas que se encienden de noche), pintado con los colores del reloj.
+  - Con `prefers-reduced-motion` (o "Reducir animaciones") no hay movimiento: el reloj salta sin deslizarse y Motion solo conserva los fundidos.
 - Textos en `src/i18n/locales/es.json`. Los tests comprueban que existen todos los textos de narración y de error.
 

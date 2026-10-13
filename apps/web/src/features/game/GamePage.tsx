@@ -1,112 +1,166 @@
 import type {
+  ChatChannel,
+  ChatMessage,
   GameAction,
   GameViewMessage,
   NarrationLine,
   PlayerView,
 } from "@howlsinthedark/shared";
-import { useEffect, useState } from "react";
-import { useTranslation } from "react-i18next";
+import { AnimatePresence, LayoutGroup, MotionConfig } from "motion/react";
+import { type CSSProperties, useEffect, useRef, useState } from "react";
 import { DeathOverlay } from "../../animations/DeathOverlay";
-import { Sky, useTheme } from "../../animations/Sky";
+import { Landscape } from "../../animations/Landscape";
 import { audioManager } from "../../audio/audioManager";
-import { AudioToggle } from "../../components/AudioToggle";
-import { scenes } from "../../net/client";
+import { scenes, session } from "../../net/client";
 import { phaseKey, type Result } from "../../net/session";
-import { ActionPanel } from "./ActionPanel";
-import { NarratorFeed } from "./NarratorFeed";
-import { PhaseBar } from "./PhaseBar";
-import { PlayerList } from "./PlayerList";
+import { readStored, writeStored } from "../../net/storage";
+import { ActionDock } from "./ActionDock";
+import { ChatDrawer } from "./ChatDrawer";
+import { HistoryPanel } from "./HistoryPanel";
+import { PlayersTable } from "./PlayersTable";
+import { useReduceMotionSetting } from "./preferences";
 import { ResultPanel } from "./ResultPanel";
-import { YourCard } from "./YourCard";
+import { RoleReveal } from "./RoleReveal";
+import { roleTheme, themeVars } from "./roleTheme";
+import { TopBar } from "./TopBar";
+import { useActionController } from "./useActionController";
+import { useGameClock } from "./useGameClock";
 
 interface Props {
+  gameId: string;
   game: GameViewMessage;
   narration: NarrationLine[];
+  chat: ChatMessage[];
   choice: GameAction | null;
   clockOffset: number;
   onAction: (action: GameAction) => Promise<Result>;
+  onChat: (channel: ChatChannel, text: string) => Promise<Result>;
   onDismissResult: () => void;
 }
 
 /** The game, phase by phase. Everything shown comes from the player's own `PlayerView`. */
-export function GamePage({
+export function GamePage(props: Props) {
+  const reduce = useReduceMotionSetting();
+  return (
+    <MotionConfig reducedMotion={reduce ? "always" : "user"}>
+      <LayoutGroup>
+        <GameScreen {...props} reduce={reduce} />
+      </LayoutGroup>
+    </MotionConfig>
+  );
+}
+
+const revealKey = (gameId: string) => `howlsinthedark.revealed.${gameId}`;
+
+function GameScreen({
+  gameId,
   game,
   narration,
+  chat,
   choice,
   clockOffset,
   onAction,
+  onChat,
   onDismissResult,
-}: Props) {
+  reduce,
+}: Props & { reduce: boolean }) {
   const { view, phaseEndsAt } = game;
+  const theme = roleTheme(view.you.role, view.you.side);
+  const [revealing, setRevealing] = useState(() => readStored(revealKey(gameId)) !== "1");
+  useGameClock(game, clockOffset);
+  useGameSounds(view);
 
-  const day = view.phase.kind !== "night";
-  const [cardRevealed, setCardRevealed] = useState(false);
-  useTheme(day);
+  const finishReveal = () => {
+    writeStored(revealKey(gameId), "1");
+    setRevealing(false);
+  };
 
-  // Background music follows the phase; music and pending announcements stop when leaving.
+  return (
+    <div
+      style={themeVars(theme) as CSSProperties}
+      data-reduce-motion={reduce || undefined}
+      className="relative min-h-dvh pb-8"
+    >
+      <Landscape />
+      {theme.font === "wolf" && (
+        // The pack sees the world through a red haze.
+        <div
+          aria-hidden="true"
+          className="pointer-events-none fixed inset-0 -z-[5] bg-[radial-gradient(ellipse_at_center,transparent_45%,rgb(90_0_12/0.5))]"
+        />
+      )}
+
+      <TopBar
+        view={view}
+        phaseEndsAt={phaseEndsAt}
+        clockOffset={clockOffset}
+        showRole={!revealing}
+        onReplayReveal={() => setRevealing(true)}
+      />
+
+      <main className="mx-auto mt-6 flex w-full max-w-4xl flex-col gap-5 px-3 sm:mt-10 sm:px-6">
+        {view.result ? (
+          <ResultPanel view={view} result={view.result} onBack={onDismissResult} />
+        ) : (
+          <ActionArea key={phaseKey(game)} view={view} choice={choice} onAction={onAction} />
+        )}
+        <HistoryPanel lines={narration} />
+      </main>
+
+      <ChatDrawer view={view} messages={chat} onSend={onChat} />
+      <DeathOverlay queue={scenes} view={view} />
+      <AnimatePresence>
+        {revealing && <RoleReveal you={view.you} onDone={finishReveal} />}
+      </AnimatePresence>
+    </div>
+  );
+}
+
+/** The table and the action dock share one controller, reset every phase. */
+function ActionArea({
+  view,
+  choice,
+  onAction,
+}: {
+  view: PlayerView;
+  choice: GameAction | null;
+  onAction: (action: GameAction) => Promise<Result>;
+}) {
+  const controller = useActionController(view, choice, onAction);
+  return (
+    <section className="glass flex flex-col gap-7 rounded-[2rem] px-4 py-6 sm:px-8 sm:py-8">
+      <PlayersTable view={view} controller={controller} />
+      <ActionDock view={view} choice={choice} controller={controller} />
+    </section>
+  );
+}
+
+/** Music follows the phase; a stinger at the end; a pop for others' chat lines. */
+function useGameSounds(view: PlayerView): void {
+  const ended = useRef(view.result !== null);
+
   useEffect(() => audioManager.setPhase(view.phase), [view.phase]);
+
+  useEffect(() => {
+    if (!view.result || ended.current) return;
+    ended.current = true;
+    const won = view.result.winners.includes(view.you.id);
+    audioManager.playEffect(won ? "stinger-win" : "stinger-lose");
+  }, [view.result, view.you.id]);
+
+  useEffect(
+    () =>
+      session.onChat((message) => {
+        if (message.from !== view.you.id) audioManager.playEffect("chat-pop");
+      }),
+    [view.you.id],
+  );
+
   useEffect(
     () => () => {
       audioManager.stop();
       scenes.clear();
     },
     [],
-  );
-
-  return (
-    <div className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-5 px-4 pb-8">
-      <Sky day={day} />
-      <DeathOverlay queue={scenes} view={view} />
-      <PhaseBar
-        phase={view.phase}
-        day={view.day}
-        phaseEndsAt={phaseEndsAt}
-        clockOffset={clockOffset}
-      />
-      {view.result ? (
-        <ResultPanel view={view} result={view.result} onBack={onDismissResult} />
-      ) : (
-        <>
-          {view.pending ? (
-            <ActionPanel key={phaseKey(game)} view={view} choice={choice} onSend={onAction} />
-          ) : (
-            <IdleMessage view={view} />
-          )}
-          <YourCard
-            view={view}
-            revealed={cardRevealed}
-            onToggle={() => setCardRevealed(!cardRevealed)}
-          />
-        </>
-      )}
-      <NarratorFeed lines={narration} hideOwnRole={!cardRevealed && !view.result} />
-      {!view.result && <PlayerList view={view} showOwnRole={cardRevealed} />}
-      <footer className="mt-auto flex justify-center pt-2">
-        <AudioToggle />
-      </footer>
-    </div>
-  );
-}
-
-/** What to show when there is nothing to do right now. */
-function IdleMessage({ view }: { view: PlayerView }) {
-  const { t } = useTranslation();
-  const { phase } = view;
-  let text: string;
-  if (!view.you.alive) text = t("game.idle.dead");
-  else if (phase.kind === "night") text = t("game.idle.night");
-  else if (phase.kind === "reaction") {
-    const actor = view.players.find((player) => player.id === phase.decision.actor);
-    text = t("game.idle.waitingFor", { name: actor?.name ?? "" });
-  } else if (phase.kind === "day" && phase.step === "debate") text = t("game.idle.debate");
-  else text = t("game.idle.waitingVotes");
-
-  return (
-    <p
-      className="rounded-2xl border border-panel-border bg-panel p-5 text-center text-ink-muted"
-      aria-live="polite"
-    >
-      {text}
-    </p>
   );
 }

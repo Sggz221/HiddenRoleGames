@@ -202,6 +202,24 @@ describe("SessionStore", () => {
     expect(received).toEqual([{ type: "bearGrowled" }]);
   });
 
+  it("collects chat lines once each and sends new ones", async () => {
+    const store = new SessionStore(socket, tokens);
+    const heard: string[] = [];
+    store.onChat((message) => heard.push(message.text));
+    const line = { id: "m1", channel: "general", from: "p1", name: "Ana", text: "hola", sentAt: 1 };
+    socket.fire("chat:message", line);
+    socket.fire("chat:message", line);
+    expect(store.getState().chat).toHaveLength(1);
+    expect(heard).toEqual(["hola"]);
+
+    socket.replies.set("chat:send", { ok: true });
+    await expect(store.sendChat("general", "buenas")).resolves.toEqual({ ok: true });
+    expect(socket.sent.at(-1)).toEqual({
+      event: "chat:send",
+      args: [{ channel: "general", text: "buenas" }],
+    });
+  });
+
   it("leaving frees the seat locally even if the server already dropped it", async () => {
     tokens.token = "tok";
     const store = new SessionStore(socket, tokens);

@@ -1,5 +1,7 @@
 import type {
   AckResponse,
+  ChatChannel,
+  ChatMessage,
   ClientToServerEvents,
   ErrorCode,
   GameAction,
@@ -44,6 +46,8 @@ export interface SessionState {
   clockOffset: number;
   /** What this player chose in the current phase (the server allows changing it until it ends). */
   choice: GameAction | null;
+  /** Chat lines this player may read, oldest first (no history from before joining). */
+  chat: ChatMessage[];
 }
 
 export type Result = { ok: true } | { ok: false; code: ErrorCode | "TIMEOUT" };
@@ -54,6 +58,7 @@ export const phaseKey = (game: GameViewMessage): string =>
 
 /** Kept on the client so a long game does not grow memory without bound. */
 const NARRATION_LIMIT = 200;
+const CHAT_LIMIT = 300;
 
 /**
  * Client side of a player's seat: one connection, the room, the game view and the narration.
@@ -64,6 +69,7 @@ export class SessionStore {
   private state: SessionState;
   private readonly listeners = new Set<() => void>();
   private readonly eventListeners = new Set<(events: GameEventPayload[]) => void>();
+  private readonly chatListeners = new Set<(message: ChatMessage) => void>();
 
   constructor(
     private readonly socket: SessionSocket,
@@ -79,6 +85,7 @@ export class SessionStore {
       narration: [],
       clockOffset: 0,
       choice: null,
+      chat: [],
     };
 
     socket.on("connect", () => {
@@ -92,7 +99,7 @@ export class SessionStore {
       const finished = this.state.game?.view.result != null;
       this.update({
         room,
-        ...(started ? { game: null, narration: [], choice: null } : {}),
+        ...(started ? { game: null, narration: [], choice: null, chat: [] } : {}),
         ...(room.gameId === null && !finished ? { game: null, narration: [] } : {}),
       });
     });
@@ -104,6 +111,12 @@ export class SessionStore {
         clockOffset: game.serverNow - this.now(),
         ...(samePhase ? {} : { choice: null }),
       });
+    });
+    socket.on("chat:message", (message) => {
+      // Several tabs or a resend can deliver the same line twice.
+      if (this.state.chat.some((line) => line.id === message.id)) return;
+      this.update({ chat: [...this.state.chat, message].slice(-CHAT_LIMIT) });
+      for (const listener of this.chatListeners) listener(message);
     });
     socket.on("game:events", (events) => {
       for (const listener of this.eventListeners) listener(events);
@@ -136,7 +149,7 @@ export class SessionStore {
     const response = await this.request<AckResponse>("room:leave");
     // Leaving always frees the seat locally, even if the server had already dropped it.
     this.tokens.set(null);
-    this.update({ playerId: null, room: null, game: null, narration: [] });
+    this.update({ playerId: null, room: null, game: null, narration: [], chat: [] });
     return response;
   }
 
@@ -155,6 +168,17 @@ export class SessionStore {
       this.update({ choice: action.type === "skip" ? null : action });
     }
     return response;
+  }
+
+  /** Says something in a channel; the server decides whether this player may write there. */
+  sendChat(channel: ChatChannel, text: string): Promise<Result> {
+    return this.request<AckResponse>("chat:send", { channel, text });
+  }
+
+  /** New chat lines as they arrive (for sounds and unread badges). */
+  onChat(listener: (message: ChatMessage) => void): () => void {
+    this.chatListeners.add(listener);
+    return () => this.chatListeners.delete(listener);
   }
 
   /** Leaves the end-of-game screen and goes back to the room's lobby. */
