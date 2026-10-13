@@ -4,6 +4,7 @@ import { Check, Copy, Crown, LogOut, QrCode, Share2, WifiOff } from "lucide-reac
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AudioToggle } from "../../components/AudioToggle";
+import { VolumeControls } from "../../components/VolumeControls";
 import { session } from "../../net/client";
 import type { Connection } from "../../net/session";
 import { readStored, writeStored } from "../../net/storage";
@@ -100,8 +101,9 @@ export function LobbyPage({ room, playerId, connection }: Props) {
         </p>
       )}
 
-      <footer className="mt-auto flex justify-center pt-4">
+      <footer className="mt-auto flex flex-wrap items-center justify-center gap-4 pt-4">
         <AudioToggle />
+        <VolumeControls className="w-56" />
       </footer>
     </div>
   );

@@ -16,6 +16,7 @@ import { useTranslation } from "react-i18next";
 import { AudioToggle } from "../../components/AudioToggle";
 import { Moon, NightScene } from "../../components/NightScene";
 import { ServerStatusBadge } from "../../components/ServerStatusBadge";
+import { VolumeControls } from "../../components/VolumeControls";
 import { EntryPanel } from "./EntryPanel";
 
 const STEPS = ["step1", "step2", "step3", "step4"] as const;
@@ -125,6 +126,7 @@ export function HomePage() {
       <footer className="mt-auto flex flex-col items-center gap-4 border-panel-border border-t px-6 py-8 text-center">
         <div className="flex flex-wrap items-center justify-center gap-4">
           <AudioToggle />
+          <VolumeControls className="w-56" />
           <ServerStatusBadge />
         </div>
         <p className="text-ink-muted text-xs">

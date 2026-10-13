@@ -74,3 +74,13 @@ export function effectForEvent(event: GameEventPayload, previous: Phase | null):
       return null;
   }
 }
+
+/** Default level of each channel (music, effects) before the player moves its slider. */
+export const DEFAULT_LEVEL = 1;
+
+/** A stored channel level (0-1), or the default when missing or malformed. */
+export function parseLevel(value: string | null | undefined): number {
+  if (value === null || value === undefined || value.trim() === "") return DEFAULT_LEVEL;
+  const level = Number(value);
+  return Number.isFinite(level) ? Math.min(1, Math.max(0, level)) : DEFAULT_LEVEL;
+}

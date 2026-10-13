@@ -1,6 +1,6 @@
 import type { GameEvent, Phase } from "@howlsinthedark/shared";
 import { describe, expect, it } from "vitest";
-import { effectForEvent, musicForPhase } from "./catalog";
+import { DEFAULT_LEVEL, effectForEvent, musicForPhase, parseLevel } from "./catalog";
 
 const night: Phase = { kind: "night", step: "wolves" };
 const day: Phase = { kind: "day", step: "debate" };
@@ -49,5 +49,17 @@ describe("effectForEvent", () => {
     expect(effectForEvent({ type: "playerDied", player: "p1", cause: "vote" }, null)).toBe("death");
     expect(effectForEvent({ type: "voteCast", voter: "p1" }, null)).toBe("vote-cast");
     expect(effectForEvent({ type: "bearGrowled" }, null)).toBeNull();
+  });
+});
+
+describe("parseLevel", () => {
+  it("reads a stored volume, clamped to 0-1, or falls back to the default", () => {
+    expect(parseLevel("0.35")).toBe(0.35);
+    expect(parseLevel("0")).toBe(0);
+    expect(parseLevel("3")).toBe(1);
+    expect(parseLevel("-1")).toBe(0);
+    expect(parseLevel(null)).toBe(DEFAULT_LEVEL);
+    expect(parseLevel("")).toBe(DEFAULT_LEVEL);
+    expect(parseLevel("loud")).toBe(DEFAULT_LEVEL);
   });
 });
