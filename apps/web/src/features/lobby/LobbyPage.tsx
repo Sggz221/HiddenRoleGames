@@ -1,6 +1,6 @@
 import { APP_NAME, MIN_PLAYERS, type RoomStateMessage } from "@howlsinthedark/shared";
 import type { TFunction } from "i18next";
-import { Check, Copy, Crown, LogOut, Share2, WifiOff } from "lucide-react";
+import { Check, Copy, Crown, LogOut, QrCode, Share2, WifiOff } from "lucide-react";
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AudioToggle } from "../../components/AudioToggle";
@@ -9,6 +9,7 @@ import type { Connection } from "../../net/session";
 import { readStored, writeStored } from "../../net/storage";
 import { ROOM_QUERY_PARAM } from "./EntryPanel";
 import { HostSettings } from "./HostSettings";
+import { QrDialog } from "./QrDialog";
 import {
   type LobbySettings,
   parseSettings,
@@ -180,10 +181,11 @@ function problemText(t: TFunction, problem: StartProblem): string {
   }
 }
 
-/** The code, big and spaced out, with copy-link and native share. */
+/** The code, big and spaced out, with copy-link, native share and a join QR. */
 function RoomCode({ code }: { code: string }) {
   const { t } = useTranslation();
   const [copied, setCopied] = useState(false);
+  const [qrOpen, setQrOpen] = useState(false);
   const link = `${location.origin}/?${ROOM_QUERY_PARAM}=${code}`;
   const canShare = typeof navigator.share === "function";
 
@@ -213,7 +215,7 @@ function RoomCode({ code }: { code: string }) {
     <div className="flex flex-col gap-2">
       <p className="text-ink-muted text-xs uppercase tracking-widest">{t("lobby.codeLabel")}</p>
       <p className="font-bold font-mono text-4xl text-moon tracking-[0.3em]">{code}</p>
-      <div className="flex gap-2">
+      <div className="flex flex-wrap gap-2">
         <button type="button" onClick={() => void copy()} className={action}>
           {copied ? (
             <Check aria-hidden="true" className="size-4" />
@@ -228,7 +230,12 @@ function RoomCode({ code }: { code: string }) {
             {t("lobby.share")}
           </button>
         )}
+        <button type="button" onClick={() => setQrOpen(true)} className={action}>
+          <QrCode aria-hidden="true" className="size-4" />
+          {t("lobby.qr.show")}
+        </button>
       </div>
+      <QrDialog open={qrOpen} code={code} link={link} onClose={() => setQrOpen(false)} />
     </div>
   );
 }
