@@ -30,6 +30,7 @@ export interface NightInputs {
   seerTarget: PlayerId | null;
   wildChildModel: PlayerId | null;
   wolfHoundSide: Side | null;
+  salvadorTarget: PlayerId | null;
   wolfVotes: Record<PlayerId, PlayerId>;
   wolvesVictim: PlayerId | null;
   infect: boolean;
@@ -71,6 +72,8 @@ export interface GameState {
   witchPoisonUsed: boolean;
   infectUsed: boolean;
   foxActive: boolean;
+  /** Player the Salvador protected last night; he cannot protect them two nights in a row. */
+  salvadorLast: PlayerId | null;
   elderLivesLost: number;
   villagePowersLost: boolean;
   /** True once any member of the wolf pack has died (disables the Big Bad Wolf). */
@@ -97,6 +100,7 @@ export const emptyNight = (): NightInputs => ({
   seerTarget: null,
   wildChildModel: null,
   wolfHoundSide: null,
+  salvadorTarget: null,
   wolfVotes: {},
   wolvesVictim: null,
   infect: false,

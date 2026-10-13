@@ -17,6 +17,8 @@ export const gameActionSchema = z.discriminatedUnion("type", [
   z.object({ type: z.literal("seerInspect"), target }),
   z.object({ type: z.literal("wildChildModel"), target }),
   z.object({ type: z.literal("wolfHoundChoose"), side: sideSchema }),
+  /** The Salvador shields one player from the wolves tonight (not the same one twice in a row). */
+  z.object({ type: z.literal("salvadorProtect"), target }),
   z.object({ type: z.literal("wolfVote"), target }),
   z.object({ type: z.literal("infect"), infect: z.boolean() }),
   z.object({ type: z.literal("bigBadWolfKill"), target }),

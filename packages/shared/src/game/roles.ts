@@ -17,6 +17,7 @@ export const ROLE_IDS = [
   "little-girl",
   "sister",
   "fox",
+  "salvador",
   "knight",
   "elder",
   "bear-tamer",
@@ -71,6 +72,7 @@ export const ROLES: Readonly<Record<RoleId, RoleInfo>> = {
   "little-girl": info("little-girl", "villager", "village"),
   sister: info("sister", "villager", "village", 2, 2),
   fox: info("fox", "villager", "village"),
+  salvador: info("salvador", "villager", "village"),
   knight: info("knight", "villager", "village"),
   elder: info("elder", "villager", "village"),
   "bear-tamer": info("bear-tamer", "villager", "village"),
@@ -87,6 +89,7 @@ export const VILLAGE_POWER_ROLES: readonly RoleId[] = [
   "hunter",
   "little-girl",
   "fox",
+  "salvador",
   "knight",
   "bear-tamer",
 ];

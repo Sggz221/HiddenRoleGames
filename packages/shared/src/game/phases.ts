@@ -6,6 +6,7 @@ export const NIGHT_STEPS = [
   "seer",
   "wild-child",
   "wolf-hound",
+  "salvador",
   "wolves",
   "infected-father",
   "big-bad-wolf",

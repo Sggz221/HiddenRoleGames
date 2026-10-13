@@ -222,6 +222,16 @@ function finishNightStep(draft: Draft, step: NightStep): void {
       break;
     }
 
+    case "salvador": {
+      const salvador = holder("salvador");
+      if (!salvador || !hasPower(state, salvador)) break;
+      // Skipping (or no valid target) clears the memory: any player may be shielded next night.
+      const target = night.salvadorTarget;
+      state.salvadorLast = target && isAlive(state, target) ? target : null;
+      if (!state.salvadorLast) night.salvadorTarget = null;
+      break;
+    }
+
     case "wolves": {
       const pack = packIds(draft);
       const votes = Object.entries(night.wolfVotes)
@@ -237,6 +247,8 @@ function finishNightStep(draft: Draft, step: NightStep): void {
       const father = holder("infected-father");
       const victim = night.wolvesVictim ? findPlayer(state, night.wolvesVictim) : undefined;
       if (father?.side !== "wolves" || state.infectUsed || !night.infect || !victim) break;
+      // A shielded victim cannot be infected either; the power is not spent.
+      if (victim.id === night.salvadorTarget) break;
       state.infectUsed = true;
       // The Elder is immune: the attack goes on as a normal wolf attack.
       if (victim.role === "elder") break;

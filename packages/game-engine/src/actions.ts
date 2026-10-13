@@ -82,6 +82,11 @@ function record(state: GameState, actor: PlayerId, action: GameAction) {
       night.wolfHoundSide = action.side;
       break;
 
+    case "salvadorProtect":
+      requireTarget(action.target);
+      night.salvadorTarget = action.target;
+      break;
+
     case "wolfVote":
       requireTarget(action.target);
       night.wolfVotes[actor] = action.target;
