@@ -13,6 +13,8 @@ import { GameRegistry } from "../game/registry.js";
 import { MemoryGameStore } from "../game/store.js";
 import { NoopGameHistory } from "../persistence/game-history.js";
 import { RoomManager } from "../rooms/manager.js";
+import { SessionManager } from "../sessions/session-manager.js";
+import { FakeClock } from "../testing/fake-clock.js";
 import { createRealtime } from "./io.js";
 
 const silentLog = { info: () => {}, warn: () => {}, error: () => {} };
@@ -22,6 +24,7 @@ type Client = Socket<ServerToClientEvents, ClientToServerEvents>;
 describe("room handlers", () => {
   let realtime: ReturnType<typeof createRealtime>;
   let rooms: RoomManager;
+  let clock: FakeClock;
   let url: string;
   let clients: Client[];
 
@@ -34,7 +37,9 @@ describe("room handlers", () => {
       log: silentLog,
       publisher: { sendEvents: () => {}, sendView: () => {} },
     });
-    realtime = createRealtime(httpServer, { registry, rooms, log: silentLog });
+    clock = new FakeClock();
+    const sessions = new SessionManager({ graceMs: 30_000, clock });
+    realtime = createRealtime(httpServer, { registry, rooms, sessions, log: silentLog });
     await new Promise<void>((resolve) => httpServer.listen(0, resolve));
     url = `http://localhost:${(httpServer.address() as AddressInfo).port}`;
     clients = [];
@@ -72,7 +77,7 @@ describe("room handlers", () => {
     const { created } = await hostWithRoom();
     expect(created.room.code).toMatch(/^[A-HJ-NP-Z2-9]{6}$/);
     expect(created.room.hostId).toBe(created.playerId);
-    expect(created.room.players).toEqual([{ id: created.playerId, name: "Ana" }]);
+    expect(created.room.players).toEqual([{ id: created.playerId, name: "Ana", connected: true }]);
   });
 
   it("lets a second player join with a lowercase code and notifies the room", async () => {
@@ -97,17 +102,26 @@ describe("room handlers", () => {
     await expect(leave(host)).resolves.toEqual({ ok: true });
     const state = await update;
     expect(state.hostId).toBe(joined.playerId);
-    expect(state.players).toEqual([{ id: joined.playerId, name: "Bea" }]);
+    expect(state.players).toEqual([{ id: joined.playerId, name: "Bea", connected: true }]);
   });
 
-  it("treats a disconnect as leaving (no grace period yet)", async () => {
+  it("keeps a disconnected player's seat (marked offline) until the grace period ends", async () => {
     const { host, created } = await hostWithRoom();
     const guest = await connectClient();
     await join(guest, { code: created.room.code, name: "Bea" });
 
-    const update = nextState(guest);
+    const offline = nextState(guest);
     host.close();
-    expect((await update).players.map((p) => p.name)).toEqual(["Bea"]);
+    expect((await offline).players).toEqual([
+      { id: created.playerId, name: "Ana", connected: false },
+      expect.objectContaining({ name: "Bea", connected: true }),
+    ]);
+
+    const released = nextState(guest);
+    clock.advance(30_000);
+    const state = await released;
+    expect(state.players.map((p) => p.name)).toEqual(["Bea"]);
+    expect(state.hostId).toBe(state.players[0]?.id);
   });
 
   it("destroys the room when the last player leaves", async () => {

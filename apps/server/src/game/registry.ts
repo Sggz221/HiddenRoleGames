@@ -24,7 +24,7 @@ export class GameRegistry {
     config: GameConfig,
     players: NewPlayer[],
     seed: number,
-    id = randomUUID(),
+    id: string = randomUUID(),
   ): Promise<GameSession> {
     const session = await GameSession.start(id, config, players, seed, this.sessionDeps());
     this.sessions.set(id, session);

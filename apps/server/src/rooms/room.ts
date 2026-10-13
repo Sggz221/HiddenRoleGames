@@ -5,9 +5,10 @@ export type AddMemberError = "FULL" | "NAME_TAKEN";
 /** Locale-independent comparison key, so "Ana", " ana " and a decomposed "Ána" clash predictably. */
 const normalizeName = (name: string) => name.trim().normalize("NFC").toLowerCase();
 
-/** A pre-game lobby: members in join order and a host (the oldest member present). */
+/** A pre-game lobby: members in join order and a host (the oldest member still seated). */
 export class Room {
   private readonly members: RoomMember[] = [];
+  private readonly offline = new Set<PlayerId>();
   private host: PlayerId | null = null;
   lastActivity: number;
 
@@ -50,8 +51,17 @@ export class Room {
     const index = this.members.findIndex((member) => member.id === id);
     if (index === -1) return false;
     this.members.splice(index, 1);
+    this.offline.delete(id);
     if (this.host === id) this.host = this.members[0]?.id ?? null;
     this.lastActivity = now;
+    return true;
+  }
+
+  /** Presence only: the seat stays, other players see who is reconnecting. */
+  setConnected(id: PlayerId, connected: boolean): boolean {
+    if (!this.has(id)) return false;
+    if (connected) this.offline.delete(id);
+    else this.offline.add(id);
     return true;
   }
 
@@ -61,7 +71,10 @@ export class Room {
       code: this.code,
       hostId: this.host,
       maxPlayers: this.maxPlayers,
-      players: this.members.map((member) => ({ ...member })),
+      players: this.members.map((member) => ({
+        ...member,
+        connected: !this.offline.has(member.id),
+      })),
     };
   }
 }

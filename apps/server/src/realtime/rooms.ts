@@ -7,6 +7,7 @@ import {
   roomJoinSchema,
 } from "@aullidos/shared";
 import type { RoomManager } from "../rooms/manager.js";
+import type { SessionManager } from "../sessions/session-manager.js";
 import type { IoServer, IoSocket } from "./io.js";
 
 export const roomChannel = (code: string) => `room:${code}`;
@@ -31,18 +32,30 @@ export function clientKey(socket: IoSocket): string {
 }
 
 /** Takes the socket out of its room, tells the others and drops the room if it is empty. */
-function leaveCurrentRoom(socket: IoSocket, io: IoServer, rooms: RoomManager): boolean {
+export function leaveCurrentRoom(
+  socket: IoSocket,
+  io: IoServer,
+  rooms: RoomManager,
+  sessions: SessionManager,
+): boolean {
   const { roomCode, playerId } = socket.data;
   if (!roomCode || !playerId) return false;
   delete socket.data.roomCode;
   delete socket.data.playerId;
   void socket.leave(roomChannel(roomCode));
+  // Leaving on purpose gives the seat up at once: no grace period, the token stops working.
+  sessions.revoke(playerId);
   const room = rooms.leave(roomCode, playerId);
   if (room) io.to(roomChannel(roomCode)).emit("room:state", room.state());
   return true;
 }
 
-export function registerRoomHandlers(socket: IoSocket, io: IoServer, rooms: RoomManager): void {
+export function registerRoomHandlers(
+  socket: IoSocket,
+  io: IoServer,
+  rooms: RoomManager,
+  sessions: SessionManager,
+): void {
   socket.on("room:create", (payload, ack) => {
     const parsed = roomCreateSchema.safeParse(payload);
     if (!parsed.success) return fail(ack, "INVALID_PAYLOAD", "Malformed room request");
@@ -52,7 +65,8 @@ export function registerRoomHandlers(socket: IoSocket, io: IoServer, rooms: Room
     socket.data.roomCode = room.code;
     socket.data.playerId = member.id;
     void socket.join(roomChannel(room.code));
-    reply(ack, { ok: true, playerId: member.id, room: room.state() });
+    const sessionToken = sessions.issue(member.id, room.code);
+    reply(ack, { ok: true, playerId: member.id, sessionToken, room: room.state() });
   });
 
   socket.on("room:join", (payload, ack) => {
@@ -67,19 +81,15 @@ export function registerRoomHandlers(socket: IoSocket, io: IoServer, rooms: Room
     socket.data.roomCode = room.code;
     socket.data.playerId = member.id;
     void socket.join(roomChannel(room.code));
-    reply(ack, { ok: true, playerId: member.id, room: room.state() });
+    const sessionToken = sessions.issue(member.id, room.code);
+    reply(ack, { ok: true, playerId: member.id, sessionToken, room: room.state() });
     socket.to(roomChannel(room.code)).emit("room:state", room.state());
   });
 
   socket.on("room:leave", (ack: Ack) => {
-    const left = leaveCurrentRoom(socket, io, rooms);
+    const left = leaveCurrentRoom(socket, io, rooms, sessions);
     if (typeof ack !== "function") return;
     ack(left ? { ok: true } : { ok: false, code: "NOT_IN_ROOM", message: "You are not in a room" });
-  });
-
-  // Until reconnection with a grace period lands (HID-5), losing the connection means leaving.
-  socket.on("disconnect", () => {
-    leaveCurrentRoom(socket, io, rooms);
   });
 }
 

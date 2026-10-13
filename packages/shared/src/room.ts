@@ -33,11 +33,16 @@ export interface RoomMember {
   name: string;
 }
 
+/** A lobby member plus whether they currently have a live connection (false during the grace period). */
+export interface RoomPlayer extends RoomMember {
+  connected: boolean;
+}
+
 /** Public lobby state, identical for every member (nothing secret lives in a lobby). */
 export interface RoomStateMessage {
   code: string;
   hostId: PlayerId;
   maxPlayers: number;
   /** In join order; the host is the oldest member still present. */
-  players: RoomMember[];
+  players: RoomPlayer[];
 }

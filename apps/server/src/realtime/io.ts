@@ -11,7 +11,9 @@ import { Server, type Socket } from "socket.io";
 import type { GameRegistry } from "../game/registry.js";
 import type { GamePublisher, Logger } from "../game/session.js";
 import type { RoomManager } from "../rooms/manager.js";
+import type { SessionManager } from "../sessions/session-manager.js";
 import { registerRoomHandlers } from "./rooms.js";
+import { attachRoomToGame, registerSessionHandlers, releaseExpiredSeats } from "./sessions.js";
 
 /** Identity attached to a socket once it joins a room (and later a game). */
 export interface SocketData {
@@ -39,6 +41,7 @@ export const playerRoom = (gameId: string, playerId: string) => `game:${gameId}:
 export interface RealtimeDeps {
   registry: GameRegistry;
   rooms: RoomManager;
+  sessions: SessionManager;
   log: Logger;
   /** When given, uses the Redis adapter so several instances can share rooms. */
   redis?: Redis;
@@ -59,14 +62,22 @@ export function createRealtime(httpServer: HttpServer, deps: RealtimeDeps) {
   const [pub, sub] = adapterClients;
   if (pub && sub) io.adapter(createAdapter(pub, sub));
 
+  const session = { io, rooms: deps.rooms, sessions: deps.sessions, registry: deps.registry };
+  const stopReleasing = releaseExpiredSeats(session);
+
   io.on("connection", (socket) => {
     registerGameHandlers(socket, deps);
-    registerRoomHandlers(socket, io, deps.rooms);
+    registerRoomHandlers(socket, io, deps.rooms, deps.sessions);
+    registerSessionHandlers(socket, session);
   });
 
   return {
     io,
+    /** Marks the room's game as started: seats stop expiring and members join their channels. */
+    attachRoomToGame: (roomCode: string, gameId: string) =>
+      attachRoomToGame(session, roomCode, gameId),
     async close() {
+      stopReleasing();
       io.disconnectSockets(true);
       await new Promise<void>((resolve) => io.close(() => resolve()));
       await Promise.all(adapterClients.map((client) => client.quit().catch(() => undefined)));
