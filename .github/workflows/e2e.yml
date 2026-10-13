@@ -19,15 +19,30 @@ jobs:
   e2e:
     runs-on: ubuntu-latest
     timeout-minutes: 30
-    # Skipped until the web app and its Playwright config exist (Hito 3).
-    if: ${{ hashFiles('apps/web/playwright.config.ts') != '' }}
     steps:
       - uses: actions/checkout@v7
-      - uses: pnpm/action-setup@v6
-      - uses: actions/setup-node@v7
+
+      # hashFiles() is not available in job-level `if`, so the guard lives in a step.
+      # Skipped until the web app and its Playwright config exist (Hito 3).
+      - name: Check for Playwright config
+        id: guard
+        run: |
+          if [ -f apps/web/playwright.config.ts ]; then
+            echo "run=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "No apps/web/playwright.config.ts yet; skipping E2E."
+          fi
+
+      - if: steps.guard.outputs.run == 'true'
+        uses: pnpm/action-setup@v6
+      - if: steps.guard.outputs.run == 'true'
+        uses: actions/setup-node@v7
         with:
           node-version-file: .nvmrc
           cache: pnpm
-      - run: pnpm install --frozen-lockfile
-      - run: pnpm --filter @aullidos/web exec playwright install --with-deps chromium
-      - run: pnpm turbo run test:e2e
+      - if: steps.guard.outputs.run == 'true'
+        run: pnpm install --frozen-lockfile
+      - if: steps.guard.outputs.run == 'true'
+        run: pnpm --filter @aullidos/web exec playwright install --with-deps chromium
+      - if: steps.guard.outputs.run == 'true'
+        run: pnpm turbo run test:e2e
