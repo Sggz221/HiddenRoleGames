@@ -10,10 +10,13 @@ import type { Redis } from "ioredis";
 import { Server, type Socket } from "socket.io";
 import type { GameRegistry } from "../game/registry.js";
 import type { GamePublisher, Logger } from "../game/session.js";
+import type { RoomManager } from "../rooms/manager.js";
+import { registerRoomHandlers } from "./rooms.js";
 
-/** Identity attached to a socket once it joins a game (set by the lobby/auth layer, next milestone). */
+/** Identity attached to a socket once it joins a room (and later a game). */
 export interface SocketData {
   playerId?: string;
+  roomCode?: string;
   gameId?: string;
 }
 
@@ -35,6 +38,7 @@ export const playerRoom = (gameId: string, playerId: string) => `game:${gameId}:
 
 export interface RealtimeDeps {
   registry: GameRegistry;
+  rooms: RoomManager;
   log: Logger;
   /** When given, uses the Redis adapter so several instances can share rooms. */
   redis?: Redis;
@@ -55,7 +59,10 @@ export function createRealtime(httpServer: HttpServer, deps: RealtimeDeps) {
   const [pub, sub] = adapterClients;
   if (pub && sub) io.adapter(createAdapter(pub, sub));
 
-  io.on("connection", (socket) => registerGameHandlers(socket, deps));
+  io.on("connection", (socket) => {
+    registerGameHandlers(socket, deps);
+    registerRoomHandlers(socket, io, deps.rooms);
+  });
 
   return {
     io,

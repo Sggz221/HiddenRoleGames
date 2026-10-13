@@ -2,7 +2,7 @@
 
 Transporte: **Socket.IO** en el mismo origen (`/socket.io`). Los tipos viven en `packages/shared` (`protocol.ts`, `game/*`). Todo payload del cliente se valida con Zod en el servidor.
 
-> Pendiente para el próximo hito: autenticación/sesión, salas (`room:*`) y chat. Hasta entonces, un socket no está asociado a ninguna partida y `game:*` responde `NOT_IN_GAME`.
+> Pendiente: autenticación/sesión, reconexión con `sessionToken` (HID-5), configuración y arranque de partida desde la sala, y chat. Hasta que el lobby arranque partidas, un socket no está asociado a ninguna partida y `game:*` responde `NOT_IN_GAME`.
 
 ## Cliente → servidor
 
@@ -10,6 +10,19 @@ Transporte: **Socket.IO** en el mismo origen (`/socket.io`). Los tipos viven en 
 |---|---|---|
 | `game:action` | `GameAction` (ver abajo) | `{ ok: true }` o `{ ok: false, code, message }` |
 | `game:sync` | — | `{ ok }` y además un `game:view` con el estado actual |
+| `room:create` | `{ name }` | `{ ok: true, playerId, room }` o error |
+| `room:join` | `{ code, name }` | `{ ok: true, playerId, room }` o error |
+| `room:leave` | — | `{ ok: true }` o `NOT_IN_ROOM` |
+
+### Salas
+
+- **Nombre:** 1-24 caracteres, sin caracteres de control; se recorta. Único en la sala sin distinguir mayúsculas.
+- **Código:** 6 caracteres de `ABCDEFGHJKLMNPQRSTUVWXYZ23456789` (sin `0/O/1/I`), generado con `crypto.randomInt`, por tanto impredecible. Al unirse se acepta en minúsculas y con espacios alrededor.
+- **Host:** quien crea la sala. Si se va, pasa al jugador más antiguo que queda. Si se va el último, la sala se destruye. Las salas sin actividad (entradas/salidas) durante 2 h se eliminan.
+- **Capacidad:** `maxPlayers` = 20 (`MAX_PLAYERS`).
+- **Límite de intentos:** solo cuentan los **fallos por código inexistente**: 10 en 60 s por cliente (IP; se usa la última entrada de `X-Forwarded-For`, la que añade el proxy de Railway). Superado, `TOO_MANY_ATTEMPTS` también para códigos válidos hasta que expire la ventana.
+- **Un socket, una sala:** crear o unirse estando ya en una sala devuelve `ALREADY_IN_ROOM`.
+- **Desconexión:** hasta que exista la gracia de reconexión (HID-5), perder la conexión equivale a salir de la sala.
 
 ### `GameAction`
 
@@ -41,6 +54,7 @@ Transporte: **Socket.IO** en el mismo origen (`/socket.io`). Los tipos viven en 
 | Evento | Payload |
 |---|---|
 | `game:view` | `{ view: PlayerView, phaseEndsAt, serverNow }` |
+| `room:state` | `{ code, hostId, maxPlayers, players: [{ id, name }] }` a todos los miembros cuando cambia el lobby (entra o sale alguien, cambia el host). El jugador que se une lo recibe en el ack |
 | `game:events` | `GameEventPayload[]` ya filtrados para ese jugador, en orden, para animar o narrar |
 | `error` | `{ code, message }` |
 
@@ -49,4 +63,4 @@ Transporte: **Socket.IO** en el mismo origen (`/socket.io`). Los tipos viven en 
 
 ## Códigos de error
 
-`INVALID_PAYLOAD`, `NOT_IN_GAME`, `NOT_ALLOWED`, `INVALID_TARGET`, `DUPLICATE_TARGET`, `POTION_USED`, `RATE_LIMITED`, `INTERNAL`.
+`INVALID_PAYLOAD`, `NOT_IN_GAME`, `NOT_ALLOWED`, `INVALID_TARGET`, `DUPLICATE_TARGET`, `POTION_USED`, `RATE_LIMITED`, `ROOM_NOT_FOUND`, `ROOM_FULL`, `NAME_TAKEN`, `ALREADY_IN_ROOM`, `NOT_IN_ROOM`, `TOO_MANY_ATTEMPTS`, `INTERNAL`.

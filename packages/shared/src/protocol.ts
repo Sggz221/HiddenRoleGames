@@ -1,5 +1,6 @@
 import type { GameEventPayload } from "./game/events.js";
 import type { PlayerView } from "./game/view.js";
+import type { RoomStateMessage } from "./room.js";
 
 export const ERROR_CODES = [
   "INVALID_PAYLOAD",
@@ -9,12 +10,24 @@ export const ERROR_CODES = [
   "DUPLICATE_TARGET",
   "POTION_USED",
   "RATE_LIMITED",
+  "ROOM_NOT_FOUND",
+  "ROOM_FULL",
+  "NAME_TAKEN",
+  "ALREADY_IN_ROOM",
+  "NOT_IN_ROOM",
+  "TOO_MANY_ATTEMPTS",
   "INTERNAL",
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
 
 export type AckResponse = { ok: true } | { ok: false; code: ErrorCode; message: string };
 export type Ack = (response: AckResponse) => void;
+
+/** Reply to `room:create` / `room:join`: who you are in the room plus its current state. */
+export type RoomAckResponse =
+  | { ok: true; playerId: string; room: RoomStateMessage }
+  | { ok: false; code: ErrorCode; message: string };
+export type RoomAck = (response: RoomAckResponse) => void;
 
 export interface GameViewMessage {
   view: PlayerView;
@@ -29,6 +42,8 @@ export interface ServerToClientEvents {
   "game:view": (message: GameViewMessage) => void;
   /** Ordered narration events for animations; already filtered for the receiver. */
   "game:events": (events: GameEventPayload[]) => void;
+  /** Lobby changed (someone joined/left, host changed). Sent to every member of the room. */
+  "room:state": (room: RoomStateMessage) => void;
   error: (error: { code: ErrorCode; message: string }) => void;
 }
 
@@ -37,4 +52,7 @@ export interface ClientToServerEvents {
   "game:action": (action: unknown, ack: Ack) => void;
   /** Asks for the current view again (e.g. after a reconnection). */
   "game:sync": (ack: Ack) => void;
+  "room:create": (payload: unknown, ack: RoomAck) => void;
+  "room:join": (payload: unknown, ack: RoomAck) => void;
+  "room:leave": (ack: Ack) => void;
 }
