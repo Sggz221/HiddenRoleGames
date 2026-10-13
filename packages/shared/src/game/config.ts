@@ -47,25 +47,51 @@ export const gameConfigSchema = gameConfigBaseSchema.superRefine((config, ctx) =
 export type GameConfig = z.infer<typeof gameConfigSchema>;
 export type GameConfigInput = z.input<typeof gameConfigSchema>;
 
-/** Returns human-readable (developer-facing) deck problems; empty when the deck is valid. */
-export function validateDeck(roles: readonly RoleId[]): string[] {
-  const issues: string[] = [];
+/** A deck rule broken by a deck. The lobby translates these; the server only needs to reject. */
+export type DeckIssue =
+  | { kind: "tooManyCopies"; role: RoleId; count: number; max: number }
+  | { kind: "exactCopies"; role: RoleId; count: number; required: number }
+  | { kind: "noWolves" }
+  | { kind: "wolvesMajority"; wolves: number; others: number };
+
+/** Every deck rule the deck breaks; empty when it is valid. Same rules the server enforces. */
+export function deckIssues(roles: readonly RoleId[]): DeckIssue[] {
+  const issues: DeckIssue[] = [];
   const counts = new Map<RoleId, number>();
   for (const role of roles) counts.set(role, (counts.get(role) ?? 0) + 1);
 
   for (const [role, count] of counts) {
     const { maxCopies, exactCopies } = ROLES[role];
-    if (count > maxCopies) issues.push(`Role "${role}" appears ${count} times (max ${maxCopies})`);
+    if (count > maxCopies) issues.push({ kind: "tooManyCopies", role, count, max: maxCopies });
     if (exactCopies !== undefined && count !== exactCopies) {
-      issues.push(`Role "${role}" must appear exactly ${exactCopies} times`);
+      issues.push({ kind: "exactCopies", role, count, required: exactCopies });
     }
   }
 
   const wolves = roles.filter((role) => ROLES[role].initialSide === "wolves").length;
-  if (wolves === 0) issues.push("The deck needs at least one wolf");
-  if (wolves >= roles.length - wolves) issues.push("Wolves must be a minority of the deck");
+  const others = roles.length - wolves;
+  if (wolves === 0) issues.push({ kind: "noWolves" });
+  if (wolves >= others) issues.push({ kind: "wolvesMajority", wolves, others });
 
   return issues;
+}
+
+/** Returns human-readable (developer-facing) deck problems; empty when the deck is valid. */
+export function validateDeck(roles: readonly RoleId[]): string[] {
+  return deckIssues(roles).map(describeDeckIssue);
+}
+
+function describeDeckIssue(issue: DeckIssue): string {
+  switch (issue.kind) {
+    case "tooManyCopies":
+      return `Role "${issue.role}" appears ${issue.count} times (max ${issue.max})`;
+    case "exactCopies":
+      return `Role "${issue.role}" must appear exactly ${issue.required} times`;
+    case "noWolves":
+      return "The deck needs at least one wolf";
+    case "wolvesMajority":
+      return "Wolves must be a minority of the deck";
+  }
 }
 
 /**
