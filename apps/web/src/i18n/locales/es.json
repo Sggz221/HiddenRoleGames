@@ -85,5 +85,137 @@
   "audio": {
     "mute": "Silenciar sonido",
     "unmute": "Activar sonido"
+  },
+  "roles": {
+    "villager": "Aldeano",
+    "werewolf": "Lobo",
+    "infected-father": "Padre de los lobos",
+    "big-bad-wolf": "Gran lobo feroz",
+    "white-werewolf": "Lobo blanco",
+    "seer": "Vidente",
+    "witch": "Bruja",
+    "hunter": "Cazador",
+    "cupid": "Cupido",
+    "little-girl": "Niña",
+    "sister": "Hermana",
+    "fox": "Zorro",
+    "salvador": "Salvador",
+    "knight": "Caballero de la espada oxidada",
+    "elder": "Anciano",
+    "bear-tamer": "Domador de osos",
+    "wild-child": "Niño salvaje",
+    "wolf-hound": "Perro lobo",
+    "piper": "Flautista",
+    "angel": "Ángel"
+  },
+  "sides": {
+    "village": "el pueblo",
+    "wolves": "la manada"
+  },
+  "narration": {
+    "game": {
+      "started": "{{count}} vecinos se reúnen en la aldea. Entre ellos se esconden los lobos.",
+      "yourRole": "Tu carta: {{role}}. No se la enseñes a nadie."
+    },
+    "night": {
+      "falls": "Cae la noche {{day}}. La aldea entera se duerme.",
+      "wakes": {
+        "cupid": "Cupido se despierta y elige a dos enamorados.",
+        "seer": "La vidente se despierta y escoge a quién desenmascarar.",
+        "wild-child": "El niño salvaje se despierta y elige a su modelo.",
+        "wolf-hound": "El perro lobo se despierta y decide de qué lado está.",
+        "salvador": "El salvador se despierta y elige a quién proteger.",
+        "wolves": "Se despiertan los lobos y eligen a su víctima.",
+        "infected-father": "El padre de los lobos se despierta. ¿Infectará a la víctima?",
+        "big-bad-wolf": "El gran lobo feroz se despierta, hambriento.",
+        "white-werewolf": "El lobo blanco se despierta. Esta noche puede traicionar a la manada.",
+        "witch": "La bruja se despierta y contempla sus pociones.",
+        "fox": "El zorro se despierta y olfatea el aire.",
+        "piper": "El flautista se despierta y toca su melodía."
+      }
+    },
+    "dawn": {
+      "nobody": "Amanece. Milagro: esta noche no ha muerto nadie.",
+      "one": "Amanece. La aldea descubre una víctima.",
+      "many": "Amanece. Esta noche han muerto {{count}} vecinos."
+    },
+    "death": {
+      "night": {
+        "role": "{{name}} aparece sin vida. Era {{role}}.",
+        "side": "{{name}} aparece sin vida. Estaba con {{side}}.",
+        "hidden": "{{name}} aparece sin vida. Se lleva su secreto a la tumba."
+      },
+      "vote": {
+        "role": "{{name}} es expulsado por la aldea. Era {{role}}.",
+        "side": "{{name}} es expulsado por la aldea. Estaba con {{side}}.",
+        "hidden": "{{name}} es expulsado por la aldea. Se lleva su secreto a la tumba."
+      },
+      "hunter": {
+        "role": "El disparo del cazador alcanza a {{name}}. Era {{role}}.",
+        "side": "El disparo del cazador alcanza a {{name}}. Estaba con {{side}}.",
+        "hidden": "El disparo del cazador alcanza a {{name}}. Se lleva su secreto a la tumba."
+      },
+      "grief": {
+        "role": "{{name}} muere de pena por su amor. Era {{role}}.",
+        "side": "{{name}} muere de pena por su amor. Estaba con {{side}}.",
+        "hidden": "{{name}} muere de pena por su amor. Se lleva su secreto a la tumba."
+      },
+      "rust": {
+        "role": "{{name}} muere por la herida oxidada del caballero. Era {{role}}.",
+        "side": "{{name}} muere por la herida oxidada del caballero. Estaba con {{side}}.",
+        "hidden": "{{name}} muere por la herida oxidada del caballero. Se lleva su secreto a la tumba."
+      }
+    },
+    "day": {
+      "sheriffElection": "La aldea debe elegir a su alguacil.",
+      "debate": "Día {{day}}: es hora de debatir. ¿Quién miente?",
+      "vote": "Se acabó el debate. Votad a quién expulsar."
+    },
+    "sheriff": {
+      "elected": "{{name}} es el nuevo alguacil. Su voto vale doble.",
+      "none": "Nadie ha sido elegido alguacil.",
+      "changed": "La estrella de alguacil pasa a {{name}}.",
+      "vacant": "La aldea se queda sin alguacil."
+    },
+    "vote": {
+      "eliminated": "La aldea ha decidido: {{name}} debe irse.",
+      "tie": "Empate entre {{names}}. Nadie es expulsado.",
+      "nobody": "La aldea no se pone de acuerdo. Nadie es expulsado.",
+      "runoff": "Empate entre {{names}}. Habrá una segunda votación."
+    },
+    "reaction": {
+      "hunter-shot": "{{name}}, el cazador, apunta con su último aliento.",
+      "sheriff-successor": "{{name}} debe nombrar a quien herede su estrella de alguacil.",
+      "sheriff-tiebreak": "El alguacil {{name}} decide el empate entre {{names}}."
+    },
+    "bear": {
+      "growled": "¡El oso del domador gruñe! Hay un lobo cerca."
+    },
+    "elder": {
+      "villagePowersLost": "La aldea ha matado a su anciano. Los aldeanos pierden sus poderes."
+    },
+    "private": {
+      "loversLinked": "Cupido ha unido a {{names}}. Si uno muere, el otro le sigue.",
+      "seerResult": "Tu visión: {{name}} es {{role}}.",
+      "wildChildModel": "Tu modelo es {{name}}. Si muere, te unirás a la manada.",
+      "wildChildTransformed": "Tu modelo ha muerto. Ahora cazas con la manada.",
+      "wolfHoundChose": "Has elegido: estás con {{side}}.",
+      "wolvesChoseVictim": "La manada ha elegido: {{name}}.",
+      "wolvesNoVictim": "La manada no se ha puesto de acuerdo. No hay víctima.",
+      "playerInfected": "{{name}} ha sido infectado y se une a la manada.",
+      "foxWolfNearby": "Tu olfato no falla: hay un lobo junto a {{name}}.",
+      "foxNoWolf": "Ningún lobo junto a {{name}}. Has perdido el olfato.",
+      "playersCharmed": "Encantados por la flauta: {{names}}.",
+      "elderResisted": "Los lobos te han atacado, pero has resistido."
+    },
+    "end": {
+      "village": "¡La aldea gana! Los lobos han sido expulsados.",
+      "wolves": "¡Los lobos ganan! La aldea ha caído.",
+      "lovers": "¡Los enamorados ganan! {{names}} sobreviven juntos.",
+      "white-werewolf": "¡El lobo blanco gana! {{names}} es el único superviviente.",
+      "piper": "¡El flautista gana! Toda la aldea baila a su son.",
+      "angel": "¡El ángel gana! {{names}} consiguió que lo mataran pronto.",
+      "none": "Nadie gana. La aldea queda en silencio."
+    }
   }
 }

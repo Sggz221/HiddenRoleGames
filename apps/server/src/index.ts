@@ -55,6 +55,7 @@ const registry = new GameRegistry({
     sendEvents: (...args) => publish?.sendEvents(...args),
     sendView: (...args) => publish?.sendView(...args),
     sendChat: (...args) => publish?.sendChat(...args),
+    sendNarration: (...args) => publish?.sendNarration(...args),
   },
 });
 
