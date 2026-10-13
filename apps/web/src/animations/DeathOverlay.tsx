@@ -42,7 +42,7 @@ export function DeathOverlay({ queue, view }: { queue: SceneQueue; view: PlayerV
           animate={{ opacity: 1 }}
           exit={{ opacity: 0 }}
           transition={fade}
-          className="fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 bg-sky-deep/90 px-6 text-center backdrop-blur-sm"
+          className="glass-strong fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 rounded-none border-0 px-6 text-center"
         >
           <h2 id="overlay-title" className="flex items-center gap-3 font-display text-3xl">
             {scene.kind === "dawn" && <Sun aria-hidden="true" className="size-8 text-amber-200" />}
@@ -58,7 +58,7 @@ export function DeathOverlay({ queue, view }: { queue: SceneQueue; view: PlayerV
                   initial={reduce ? { opacity: 0 } : { opacity: 0, y: 24, rotateX: -40 }}
                   animate={{ opacity: 1, y: 0, rotateX: 0 }}
                   transition={{ ...fade, delay: reduce ? 0 : 0.5 + index * 1.2 }}
-                  className="flex items-center gap-4 rounded-2xl border border-blood/50 bg-panel px-4 py-3 text-left"
+                  className="glass flex items-center gap-4 rounded-2xl border-blood/60 px-4 py-3 text-left shadow-[0_0_30px_-10px_rgb(194_65_75/0.8)]"
                 >
                   <Skull aria-hidden="true" className="size-7 shrink-0 text-blood" />
                   <div>
