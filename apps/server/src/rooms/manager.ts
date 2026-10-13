@@ -80,6 +80,12 @@ export class RoomManager {
     return { ok: true, room, member };
   }
 
+  /** Updates a member's presence. Returns the room when something changed. */
+  setConnected(code: string, playerId: PlayerId, connected: boolean): Room | null {
+    const room = this.rooms.get(code);
+    return room?.setConnected(playerId, connected) ? room : null;
+  }
+
   /** Removes a member. Returns the room, or `null` if it was destroyed (last member left). */
   leave(code: string, playerId: PlayerId): Room | null {
     const room = this.rooms.get(code);

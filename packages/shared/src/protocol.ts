@@ -1,6 +1,7 @@
 import type { GameEventPayload } from "./game/events.js";
 import type { PlayerView } from "./game/view.js";
 import type { RoomStateMessage } from "./room.js";
+import type { SessionResumeAck } from "./session.js";
 
 export const ERROR_CODES = [
   "INVALID_PAYLOAD",
@@ -16,6 +17,7 @@ export const ERROR_CODES = [
   "ALREADY_IN_ROOM",
   "NOT_IN_ROOM",
   "TOO_MANY_ATTEMPTS",
+  "SESSION_NOT_FOUND",
   "INTERNAL",
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
@@ -23,9 +25,12 @@ export type ErrorCode = (typeof ERROR_CODES)[number];
 export type AckResponse = { ok: true } | { ok: false; code: ErrorCode; message: string };
 export type Ack = (response: AckResponse) => void;
 
-/** Reply to `room:create` / `room:join`: who you are in the room plus its current state. */
+/**
+ * Reply to `room:create` / `room:join`: who you are in the room, its current state and the
+ * `sessionToken` the client must keep (localStorage) to resume after a disconnection.
+ */
 export type RoomAckResponse =
-  | { ok: true; playerId: string; room: RoomStateMessage }
+  | { ok: true; playerId: string; sessionToken: string; room: RoomStateMessage }
   | { ok: false; code: ErrorCode; message: string };
 export type RoomAck = (response: RoomAckResponse) => void;
 
@@ -55,4 +60,6 @@ export interface ClientToServerEvents {
   "room:create": (payload: unknown, ack: RoomAck) => void;
   "room:join": (payload: unknown, ack: RoomAck) => void;
   "room:leave": (ack: Ack) => void;
+  /** Reattaches a new connection to an existing seat using the `sessionToken`. */
+  "session:resume": (payload: unknown, ack: SessionResumeAck) => void;
 }

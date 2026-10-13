@@ -11,6 +11,7 @@ import {
 import { createRealtime, socketPublisher } from "./realtime/io.js";
 import { connectRedis, pingRedis } from "./realtime/redis.js";
 import { RoomManager } from "./rooms/manager.js";
+import { SessionManager } from "./sessions/session-manager.js";
 
 const SHUTDOWN_TIMEOUT_MS = 15_000;
 const ROOM_SWEEP_INTERVAL_MS = 5 * 60 * 1000;
@@ -57,13 +58,21 @@ const registry = new GameRegistry({
 });
 
 const rooms = new RoomManager();
+const sessions = new SessionManager({ graceMs: env.RECONNECT_GRACE_SECONDS * 1000 });
 const roomSweeper = setInterval(() => {
   const removed = rooms.sweep();
+  for (const code of removed) sessions.revokeRoom(code);
   if (removed.length) log.info({ removed: removed.length }, "removed idle rooms");
 }, ROOM_SWEEP_INTERVAL_MS);
 roomSweeper.unref();
 
-const realtime = createRealtime(app.server, { registry, rooms, log, ...(redis ? { redis } : {}) });
+const realtime = createRealtime(app.server, {
+  registry,
+  rooms,
+  sessions,
+  log,
+  ...(redis ? { redis } : {}),
+});
 publish = socketPublisher(realtime.io);
 
 let shuttingDown = false;
@@ -82,6 +91,7 @@ async function shutdown(signal: NodeJS.Signals): Promise<void> {
   try {
     // Snapshots stay in Redis, so the next instance resumes running games.
     clearInterval(roomSweeper);
+    sessions.dispose();
     await registry.disposeAll();
     await realtime.close();
     await app.close();

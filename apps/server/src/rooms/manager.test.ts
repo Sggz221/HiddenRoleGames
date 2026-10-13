@@ -39,7 +39,7 @@ describe("RoomManager", () => {
       code: room.code,
       hostId: member.id,
       maxPlayers: 20,
-      players: [{ id: member.id, name: "Ana" }],
+      players: [{ id: member.id, name: "Ana", connected: true }],
     });
     expect(rooms.get(room.code)).toBe(room);
   });
