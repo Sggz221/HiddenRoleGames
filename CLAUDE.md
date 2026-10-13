@@ -1,6 +1,7 @@
-# Aullidos: instrucciones para Claude
+# Howls in the Dark: instrucciones para Claude
 
 ## Qué es
+Nombre público: **Howls in the Dark** (constante `APP_NAME` en `packages/shared`). "Aullidos" fue el nombre de trabajo y se mantiene en el código interno (`@aullidos/*`).
 Juego web multijugador de rol oculto (tipo "Hombres Lobo"). Monorepo pnpm + Turborepo.
 Lee PLAN.md para el contexto completo antes de proponer cambios de arquitectura.
 
