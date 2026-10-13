@@ -12,5 +12,9 @@
     "checking": "Comprobando servidor…",
     "online": "Servidor en línea",
     "offline": "Servidor no disponible"
+  },
+  "audio": {
+    "mute": "Silenciar sonido",
+    "unmute": "Activar sonido"
   }
 }
