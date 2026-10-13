@@ -70,6 +70,7 @@ describe("game action area", () => {
     expect(html).toContain("Has elegido: Carla");
     expect(html).toMatch(/aria-pressed="true"[^>]*aria-label="Carla/);
     expect(html).toContain("2 de 3 han votado");
+    expect(html).toContain("Bea, ha votado");
     expect(html).toContain("Los votos se revelan al final");
   });
 

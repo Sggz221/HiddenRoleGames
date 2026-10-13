@@ -385,7 +385,8 @@
       "votes_one": "{{count}} voto",
       "votes_other": "{{count}} votos",
       "abstained": "Se abstienen",
-      "done": "listo"
+      "ready": "listo",
+      "voted": "ha votado"
     },
     "you": {
       "infected": "Te han infectado: ahora cazas con la manada.",

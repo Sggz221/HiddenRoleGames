@@ -36,6 +36,7 @@ export function PlayersTable({
   const seatOf = (id: PlayerId) => view.players.find((player) => player.id === id)?.seat ?? 0;
   // Ballots are secret until the close: the table only shows who is done.
   const done = new Set(view.phase.kind === "day" ? view.voted : []);
+  const doneLabel = view.phase.kind === "day" && view.phase.step === "debate" ? "ready" : "voted";
 
   return (
     <ul className="flex flex-wrap justify-center gap-x-3 gap-y-5 sm:gap-x-6">
@@ -50,7 +51,7 @@ export function PlayersTable({
             player={player}
             isYou={player.id === view.you.id}
             voters={votersOf(player.id).map(seatOf)}
-            done={done.has(player.id)}
+            done={done.has(player.id) ? doneLabel : null}
             pickable={controller.canPick(player.id)}
             picked={controller.isPicked(player.id)}
             onPick={() => controller.pick(player.id)}
@@ -74,8 +75,8 @@ function Avatar({
   isYou: boolean;
   /** Seats of the players voting for this one. */
   voters: number[];
-  /** Has voted (or, in the debate, is ready to vote). */
-  done: boolean;
+  /** Has voted, or (in the debate) is ready to vote; `null` = not yet. */
+  done: "voted" | "ready" | null;
   pickable: boolean;
   picked: boolean;
   onPick: () => void;
@@ -184,7 +185,7 @@ function Avatar({
       {done && (
         <span className="-mt-1 flex items-center gap-0.5 text-emerald-300 text-xs">
           <Check aria-hidden="true" className="size-3" />
-          {t("game.players.done")}
+          {t(`game.players.${done}`)}
         </span>
       )}
 
@@ -243,7 +244,7 @@ function avatarLabel(
   t: ReturnType<typeof useTranslation>["t"],
   player: PublicPlayer,
   isYou: boolean,
-  done: boolean,
+  done: "voted" | "ready" | null,
 ): string {
   const parts = [player.name];
   if (isYou) parts.push(`(${t("game.youShort")})`);
@@ -252,7 +253,7 @@ function avatarLabel(
       player.role ? t("game.dead", { role: t(`roles.${player.role}`) }) : t("game.players.dead"),
     );
   if (player.isSheriff) parts.push(t("game.players.sheriff"));
-  if (done) parts.push(t("game.players.done"));
+  if (done) parts.push(t(`game.players.${done}`));
   if (player.isWolfAlly) parts.push(t("game.players.wolfAlly"));
   if (player.isLover) parts.push(t("game.players.lover"));
   if (player.charmed) parts.push(t("game.players.charmed"));
