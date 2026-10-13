@@ -4,6 +4,7 @@
     "tagline": "Cae la noche sobre la aldea. Alguien entre vosotros no es quien dice ser.",
     "createRoom": "Crear partida",
     "joinTitle": "¿Tienes un código?",
+    "invited": "Te han invitado a la sala {{code}}. Escribe tu nombre y pulsa «Unirse».",
     "joinPlaceholder": "Código de sala",
     "join": "Unirse",
     "players": "De {{min}} a {{max}} jugadores · sin instalar nada",
@@ -228,6 +229,13 @@
     "copied": "¡Copiado!",
     "share": "Compartir",
     "shareText": "Únete a mi partida de {{app}} con el código {{code}}",
+    "qr": {
+      "show": "Código QR",
+      "title": "Escanea para unirte",
+      "hint": "Apunta con la cámara del móvil y entrarás directo a la sala.",
+      "alt": "Código QR para unirse a la sala {{code}}",
+      "close": "Cerrar"
+    },
     "leave": "Salir de la sala",
     "players": "Jugadores ({{count}}/{{max}})",
     "you": "tú",

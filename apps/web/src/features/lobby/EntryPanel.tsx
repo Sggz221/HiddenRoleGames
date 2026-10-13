@@ -35,6 +35,8 @@ export function EntryPanel() {
   const errorId = useId();
   const [name, setName] = useState(() => readStored(NAME_KEY) ?? "");
   const [code, setCode] = useState(codeFromUrl);
+  // Arrived through a shared link or a scanned QR: only the name is missing.
+  const [invitedTo] = useState(codeFromUrl);
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
@@ -60,6 +62,11 @@ export function EntryPanel() {
 
   return (
     <div className="flex flex-col gap-4 rounded-2xl border border-panel-border bg-sky/80 p-5 text-left shadow-2xl shadow-black/50 backdrop-blur-md">
+      {invitedTo.length === ROOM_CODE_LENGTH && (
+        <p className="rounded-lg border border-moon/30 bg-moon/10 px-4 py-2 text-center text-sm">
+          {t("home.invited", { code: invitedTo })}
+        </p>
+      )}
       <div className="flex flex-col gap-2">
         <label htmlFor={nameId} className="font-medium text-ink-muted text-sm">
           {t("home.nameLabel")}
@@ -71,6 +78,8 @@ export function EntryPanel() {
           maxLength={PLAYER_NAME_MAX_LENGTH}
           placeholder={t("home.namePlaceholder")}
           autoComplete="nickname"
+          // biome-ignore lint/a11y/noAutofocus: invited players land here only to type their name
+          autoFocus={invitedTo.length === ROOM_CODE_LENGTH}
           aria-describedby={error ? errorId : undefined}
           className="rounded-lg border border-panel-border bg-sky-deep px-4 py-3 text-lg placeholder:text-ink-muted/60 focus:border-moon focus:outline-none"
         />
