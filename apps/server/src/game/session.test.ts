@@ -21,12 +21,14 @@ const fakeClock: Clock = {
 
 class RecordingPublisher implements GamePublisher {
   views = new Map<string, GameViewMessage>();
+  viewsSent: string[] = [];
   events: { playerId: string; events: GameEventPayload[] }[] = [];
   sendEvents(_gameId: string, playerId: string, events: GameEventPayload[]) {
     this.events.push({ playerId, events });
   }
   sendView(_gameId: string, playerId: string, message: GameViewMessage) {
     this.views.set(playerId, message);
+    this.viewsSent.push(playerId);
   }
   chats: { playerId: string; message: ChatMessage }[] = [];
   sendChat(_gameId: string, playerId: string, message: ChatMessage) {
@@ -77,6 +79,18 @@ describe("GameSession", () => {
     }
     expect(await store.load("g1")).toMatchObject({ id: "g1", phaseEndsAt: 1_010_000 });
     expect(JSON.stringify([...publisher.views.values()])).not.toContain('"rngState"');
+    await session.dispose();
+  });
+
+  it("does not resend a view that did not change: a wolf's vote reaches only the pack", async () => {
+    const session = await GameSession.start("g1", config, players, 1, deps());
+    await vi.advanceTimersByTimeAsync(10_000);
+    expect(session.state.phase).toEqual({ kind: "night", step: "wolves" });
+    const wolf = session.state.players.find((p) => p.role === "werewolf")!;
+    const victim = session.state.players.find((p) => p.side === "village")!;
+    publisher.viewsSent = [];
+    await session.handleAction(wolf.id, { type: "wolfVote", target: victim.id });
+    expect(publisher.viewsSent).toEqual([wolf.id]);
     await session.dispose();
   });
 

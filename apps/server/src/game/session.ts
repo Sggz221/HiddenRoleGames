@@ -74,6 +74,8 @@ export class GameSession {
   private timer: unknown = null;
   private disposed = false;
   private readonly clock: Clock;
+  /** Last view published to each player, to skip resending one that did not change. */
+  private readonly lastViews = new Map<string, string>();
 
   private constructor(
     private snapshot: GameSnapshot,
@@ -221,8 +223,20 @@ export class GameSession {
         const lines = narrate(state, visible);
         if (lines.length) this.deps.publisher.sendNarration(this.id, player.id, lines);
       }
-      if (publishView) this.deps.publisher.sendView(this.id, player.id, this.viewFor(player.id));
+      if (publishView) this.publishView(player.id);
     }
+  }
+
+  /**
+   * Sends the player's view only if it changed. Besides saving traffic, this keeps one
+   * player's action from making everyone else's screen react (e.g. a wolf voting at night).
+   */
+  private publishView(playerId: string): void {
+    const message = this.viewFor(playerId);
+    const key = JSON.stringify([message.view, message.phaseEndsAt]);
+    if (this.lastViews.get(playerId) === key) return;
+    this.lastViews.set(playerId, key);
+    this.deps.publisher.sendView(this.id, playerId, message);
   }
 
   private schedule(): void {
