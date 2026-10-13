@@ -28,6 +28,38 @@
   animation: moon-glow 6s ease-in-out infinite;
 }
 
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@utility animate-twinkle {
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+@keyframes fog-drift {
+  0%,
+  100% {
+    transform: translateX(-40px);
+  }
+  50% {
+    transform: translateX(40px);
+  }
+}
+
+@utility animate-fog {
+  animation: fog-drift 18s ease-in-out infinite;
+}
+
+@utility animate-fog-slow {
+  animation: fog-drift 30s ease-in-out infinite reverse;
+}
+
 html,
 body,
 #root {

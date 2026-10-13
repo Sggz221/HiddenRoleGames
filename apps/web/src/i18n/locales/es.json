@@ -1,12 +1,81 @@
 {
   "home": {
+    "kicker": "Un juego de rol oculto para jugar en grupo",
     "tagline": "Cae la noche sobre la aldea. Alguien entre vosotros no es quien dice ser.",
     "createRoom": "Crear partida",
     "joinTitle": "¿Tienes un código?",
     "joinPlaceholder": "Código de sala",
     "join": "Unirse",
     "comingSoon": "Muy pronto",
-    "players": "De {{min}} a {{max}} jugadores · sin instalar nada"
+    "players": "De {{min}} a {{max}} jugadores · sin instalar nada",
+    "howTo": {
+      "title": "Cómo se juega",
+      "intro": "Cada noche la manada elige una víctima. Cada día la aldea intenta desenmascararla.",
+      "step1": {
+        "title": "Reúne a la aldea",
+        "text": "Crea una sala y comparte el código. Cada uno entra desde su móvil."
+      },
+      "step2": {
+        "title": "Recibe tu carta",
+        "text": "El narrador reparte los roles en secreto. Solo tú sabes quién eres."
+      },
+      "step3": {
+        "title": "Sobrevive a la noche",
+        "text": "Los lobos cazan, la vidente espía y la bruja decide a quién salvar."
+      },
+      "step4": {
+        "title": "Debate y vota",
+        "text": "Al amanecer se descubren las víctimas. Acusad, defendeos y votad a quién expulsar."
+      }
+    },
+    "roles": {
+      "title": "Algunos de los personajes",
+      "more": "Y {{count}} roles más para cuando la aldea crezca.",
+      "werewolf": {
+        "name": "Lobo",
+        "text": "Caza de noche con la manada y finge inocencia de día."
+      },
+      "seer": {
+        "name": "Vidente",
+        "text": "Cada noche descubre la verdadera identidad de un jugador."
+      },
+      "witch": {
+        "name": "Bruja",
+        "text": "Guarda una poción para salvar una vida y otra para quitarla."
+      },
+      "hunter": {
+        "name": "Cazador",
+        "text": "Si muere, se lleva a alguien con su último disparo."
+      },
+      "cupid": {
+        "name": "Cupido",
+        "text": "Enamora a dos jugadores: si uno muere, el otro le sigue."
+      },
+      "little-girl": {
+        "name": "Niña",
+        "text": "Espía la conversación de los lobos sin saber quién habla."
+      }
+    },
+    "features": {
+      "title": "Pensado para jugar en persona o a distancia",
+      "narrator": {
+        "title": "Narrador automático",
+        "text": "Nadie tiene que quedarse fuera para dirigir la partida."
+      },
+      "mobile": {
+        "title": "Desde el móvil",
+        "text": "Entra con un código, sin cuentas ni descargas."
+      },
+      "chat": {
+        "title": "Chat por canales",
+        "text": "Uno para la aldea, otro para la manada, otro para los muertos."
+      },
+      "fair": {
+        "title": "Sin trampas",
+        "text": "El servidor decide las reglas: nadie puede mirar las cartas de los demás."
+      }
+    },
+    "footer": "Hecho con nocturnidad."
   },
   "server": {
     "checking": "Comprobando servidor…",
