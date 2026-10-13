@@ -1,6 +1,7 @@
 import { APP_NAME, MAX_PLAYERS, MIN_PLAYERS } from "@aullidos/shared";
 import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { AudioToggle } from "../../components/AudioToggle";
 import { ServerStatusBadge } from "../../components/ServerStatusBadge";
 
 const ROOM_CODE_LENGTH = 6;
@@ -77,7 +78,8 @@ export function HomePage() {
         </div>
       </div>
 
-      <footer className="pt-8">
+      <footer className="flex flex-col items-center gap-4 pt-8">
+        <AudioToggle />
         <ServerStatusBadge />
       </footer>
     </main>
