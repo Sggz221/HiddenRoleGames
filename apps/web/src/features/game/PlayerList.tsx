@@ -7,7 +7,7 @@ import { tally } from "./model";
  * Everyone at the table with what the viewer is allowed to know (the server already filtered
  * it) and, during votes, who voted for whom. The pack sees its own wolf votes at night.
  */
-export function PlayerList({ view }: { view: PlayerView }) {
+export function PlayerList({ view, showOwnRole }: { view: PlayerView; showOwnRole: boolean }) {
   const { t } = useTranslation();
   const votes = view.wolfVotes ?? view.votes;
   const groups = tally(votes);
@@ -23,6 +23,8 @@ export function PlayerList({ view }: { view: PlayerView }) {
       <ul className="flex flex-col gap-1.5">
         {view.players.map((player) => {
           const voters = votersOf(player.id);
+          // Your own card stays hidden until you turn it over.
+          const role = player.id === view.you.id && !showOwnRole ? undefined : player.role;
           return (
             <li
               key={player.id}
@@ -62,9 +64,9 @@ export function PlayerList({ view }: { view: PlayerView }) {
                   )}
                 </span>
               </div>
-              {(player.role || voters.length > 0) && (
+              {(role || voters.length > 0) && (
                 <div className="flex flex-wrap items-center gap-x-3 text-ink-muted text-sm">
-                  {player.role && <span className="text-moon">{t(`roles.${player.role}`)}</span>}
+                  {role && <span className="text-moon">{t(`roles.${role}`)}</span>}
                   {voters.length > 0 && (
                     <span>
                       {t("game.players.votes", { count: voters.length })}:{" "}

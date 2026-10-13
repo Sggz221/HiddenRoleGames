@@ -4,10 +4,13 @@ import type {
   NarrationLine,
   PlayerView,
 } from "@howlsinthedark/shared";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { DeathOverlay } from "../../animations/DeathOverlay";
+import { Sky, useTheme } from "../../animations/Sky";
 import { audioManager } from "../../audio/audioManager";
 import { AudioToggle } from "../../components/AudioToggle";
+import { scenes } from "../../net/client";
 import { phaseKey, type Result } from "../../net/session";
 import { ActionPanel } from "./ActionPanel";
 import { NarratorFeed } from "./NarratorFeed";
@@ -36,12 +39,24 @@ export function GamePage({
 }: Props) {
   const { view, phaseEndsAt } = game;
 
-  // Background music follows the phase; it stops when leaving the game.
+  const day = view.phase.kind !== "night";
+  const [cardRevealed, setCardRevealed] = useState(false);
+  useTheme(day);
+
+  // Background music follows the phase; music and pending announcements stop when leaving.
   useEffect(() => audioManager.setPhase(view.phase), [view.phase]);
-  useEffect(() => () => audioManager.stop(), []);
+  useEffect(
+    () => () => {
+      audioManager.stop();
+      scenes.clear();
+    },
+    [],
+  );
 
   return (
     <div className="mx-auto flex min-h-dvh w-full max-w-xl flex-col gap-5 px-4 pb-8">
+      <Sky day={day} />
+      <DeathOverlay queue={scenes} view={view} />
       <PhaseBar
         phase={view.phase}
         day={view.day}
@@ -57,11 +72,15 @@ export function GamePage({
           ) : (
             <IdleMessage view={view} />
           )}
-          <YourCard view={view} />
+          <YourCard
+            view={view}
+            revealed={cardRevealed}
+            onToggle={() => setCardRevealed(!cardRevealed)}
+          />
         </>
       )}
-      <NarratorFeed lines={narration} />
-      {!view.result && <PlayerList view={view} />}
+      <NarratorFeed lines={narration} hideOwnRole={!cardRevealed && !view.result} />
+      {!view.result && <PlayerList view={view} showOwnRole={cardRevealed} />}
       <footer className="mt-auto flex justify-center pt-2">
         <AudioToggle />
       </footer>

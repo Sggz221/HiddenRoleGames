@@ -23,5 +23,11 @@ Contrato con la infraestructura:
   - `YourCard`, `NarratorFeed` y `ResultPanel` (ganadores y cartas de todos hasta volver a la sala).
   - La lógica pura vive en `model.ts`: contador, recuento de votos y construcción de acciones.
 - Audio: la música sigue la fase y los efectos siguen los `game:events` (`net/client.ts`).
+- `src/animations/` (Hito 4):
+  - `scenesFor` convierte cada lote de `game:events` en escenas (amanecer, muertes de día) y `SceneQueue` las reproduce de una en una. Son solo visuales: el estado ya está aplicado, así que saltarlas no cambia nada.
+  - `DeathOverlay` (Motion): anuncia las muertes a pantalla completa; se salta tocando o con "Saltar".
+  - `Sky` (GSAP): sol y luna; al amanecer y al anochecer se cruzan. `useTheme` pone `data-theme` en `<html>`, y los colores del cielo son `@property` para que el fondo pase de uno a otro con una transición.
+  - La carta de rol se voltea en 3D y empieza boca abajo. Mientras no la gires, tu rol tampoco aparece en la lista ni en el narrador.
+  - Con `prefers-reduced-motion` no hay movimiento: el tema cambia al instante, el sol y la luna se intercambian, la carta cambia de cara y el aviso solo hace un fundido.
 - Textos en `src/i18n/locales/es.json`. Los tests comprueban que existen todos los textos de narración y de error.
 

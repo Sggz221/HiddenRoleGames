@@ -60,6 +60,40 @@
   animation: fog-drift 30s ease-in-out infinite reverse;
 }
 
+/*
+ * Day/night: the game sets `data-theme="day"` on <html>. The sky colours are registered
+ * properties so the background gradient can transition between them.
+ */
+@property --color-sky {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #0b1020;
+}
+
+@property --color-sky-deep {
+  syntax: "<color>";
+  inherits: true;
+  initial-value: #05070f;
+}
+
+:root {
+  transition:
+    --color-sky 1.6s ease,
+    --color-sky-deep 1.6s ease;
+}
+
+/* A dusky daylight: light text keeps its contrast. */
+:root[data-theme="day"] {
+  --color-sky: #2a4467;
+  --color-sky-deep: #142640;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  :root {
+    transition: none;
+  }
+}
+
 html,
 body,
 #root {

@@ -4,9 +4,17 @@ import { useTranslation } from "react-i18next";
 import { narrationText } from "./narration";
 
 /** What the narrator has said this game, newest at the bottom (scrolled into view). */
-export function NarratorFeed({ lines }: { lines: NarrationLine[] }) {
+export function NarratorFeed({
+  lines: all,
+  hideOwnRole,
+}: {
+  lines: NarrationLine[];
+  /** While your card is face down, the line that names it is left out. */
+  hideOwnRole: boolean;
+}) {
   const { t } = useTranslation();
   const list = useRef<HTMLOListElement>(null);
+  const lines = hideOwnRole ? all.filter((line) => line.key !== "game.yourRole") : all;
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: scroll whenever a line arrives
   useEffect(() => {
