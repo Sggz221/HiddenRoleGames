@@ -3,6 +3,7 @@ import {
   type GameEventPayload,
   type GameViewMessage,
   gameConfigSchema,
+  type NarrationLine,
 } from "@aullidos/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FinishedGame, GameHistory } from "../persistence/game-history.js";
@@ -30,6 +31,10 @@ class RecordingPublisher implements GamePublisher {
   chats: { playerId: string; message: ChatMessage }[] = [];
   sendChat(_gameId: string, playerId: string, message: ChatMessage) {
     this.chats.push({ playerId, message });
+  }
+  narration: { playerId: string; lines: NarrationLine[] }[] = [];
+  sendNarration(_gameId: string, playerId: string, lines: NarrationLine[]) {
+    this.narration.push({ playerId, lines });
   }
 }
 
@@ -82,6 +87,23 @@ describe("GameSession", () => {
     expect(session.state.phase).toEqual({ kind: "night", step: "wolves" });
     await vi.advanceTimersByTimeAsync(10_000);
     expect(session.state.phase).toEqual({ kind: "day", step: "debate" });
+    await session.dispose();
+  });
+
+  it("narrates the game itself: each seat hears its own lines, no player involved", async () => {
+    const session = await GameSession.start("g1", config, players, 1, deps());
+    await vi.advanceTimersByTimeAsync(20_000); // seer, wolves (no victim) -> dawn
+    const heard = (id: string) =>
+      publisher.narration
+        .filter((n) => n.playerId === id)
+        .flatMap((n) => n.lines.map((l) => l.key));
+
+    for (const player of session.state.players) {
+      expect(heard(player.id)).toEqual(
+        expect.arrayContaining(["game.started", "game.yourRole", "night.falls", "dawn.nobody"]),
+      );
+      expect(heard(player.id).includes("private.wolvesNoVictim")).toBe(player.role === "werewolf");
+    }
     await session.dispose();
   });
 

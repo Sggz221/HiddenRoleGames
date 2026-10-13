@@ -101,6 +101,14 @@ Los pasos de puro reconocimiento (enamorados, hermanas, encantados, domador de o
 - **`revealOnDeath`:** se revela el rol (por defecto), solo el bando o nada.
 - **`deadSeeEverything`:** los muertos ven todos los roles y eventos (por defecto, sí).
 
+## Narrador
+
+- **La partida narra, no un jugador.** Nadie se queda fuera para dirigir: el servidor narra cada lote de eventos con textos predefinidos (`narration.*` en `apps/web/src/i18n/locales/es.json`).
+- **Qué se narra:** inicio y carta propia, caída de la noche, cada rol que despierta (aunque esté muerto, para no filtrar nada), amanecer (nadie, una o varias muertes), cada muerte según su causa y `revealOnDeath`, alguacil, debate, votación, empates y segunda vuelta, reacciones (cazador, sucesión, desempate), el oso, la pérdida de poderes y el final según el equipo ganador.
+- **Líneas privadas:** visiones, elección de la manada, infección, zorro, flautista, enamorados, niño salvaje, perro lobo y anciano solo llegan a quien recibió el evento.
+- **Sin narración:** los votos uno a uno (ya se ven en la interfaz).
+- Lista completa de textos: `NARRATION_KEYS` en `packages/shared`. Los tests fallan si falta alguno. Ver ADR 0005.
+
 ## Condiciones de victoria (en este orden)
 
 1. Ángel (instantánea al morir en el primer turno).
@@ -117,6 +125,7 @@ Los pasos de puro reconocimiento (enamorados, hermanas, encantados, domador de o
   - `createGame` y `applyAction`: crear la partida y registrar la intención de un jugador.
   - `advancePhase`, `canAdvanceEarly` y `phaseDurationSeconds`: control de fases y tiempos.
   - `projectFor` y `eventsFor`: lo que ve y recibe cada jugador.
+  - `narrate`: lo que dice el narrador sobre los eventos que recibió un jugador.
 - **Funciones puras:** cada función trabaja sobre una copia profunda. El estado es JSON serializable, apto para Redis o Postgres.
 - **Aleatoriedad:** solo a través del RNG con semilla guardado en el estado. Las partidas son reproducibles.
 - **Acciones:** `applyAction` solo registra la intención (se puede cambiar de idea). Los efectos se aplican al cerrar el paso.

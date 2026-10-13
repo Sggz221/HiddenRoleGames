@@ -98,7 +98,8 @@ Decisión completa en [ADR 0003](decisions/0003-reconexion-sessiontoken.md).
 |---|---|
 | `game:view` | `{ view: PlayerView, phaseEndsAt, serverNow }` |
 | `room:state` | `{ code, hostId, maxPlayers, gameId, players: [{ id, name, connected }] }` a todos los miembros cuando cambia el lobby (entra o sale alguien, cambia el host, empieza o acaba una partida). El jugador que se une lo recibe en el ack |
-| `game:events` | `GameEventPayload[]` ya filtrados para ese jugador, en orden, para animar o narrar |
+| `game:events` | `GameEventPayload[]` ya filtrados para ese jugador, en orden, para animar o narrar. `dawn` marca el fin de la noche; las muertes que siguen en el mismo lote son las de esa noche |
+| `game:narration` | `NarrationLine[]` (`{ key, params }`): lo que dice el narrador sobre ese mismo lote. Se construye solo con los eventos que recibió el jugador. El texto es `narration.<key>` en i18n; `params` trae jugadores (`{ id, name }`), `role`, `side`, `count` y `day` |
 | `chat:message` | `{ id, channel, from, name, text, sentAt }` solo a quien puede leer ese canal. `from`/`name` a `null` cuando el lector no puede saber el autor (Niña) |
 | `error` | `{ code, message }` |
 

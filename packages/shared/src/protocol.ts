@@ -1,5 +1,6 @@
 import type { ChatMessage } from "./chat.js";
 import type { GameEventPayload } from "./game/events.js";
+import type { NarrationLine } from "./game/narration.js";
 import type { PlayerView } from "./game/view.js";
 import type { RoomStateMessage } from "./room.js";
 import type { SessionResumeAck } from "./session.js";
@@ -51,6 +52,8 @@ export interface ServerToClientEvents {
   "game:view": (message: GameViewMessage) => void;
   /** Ordered narration events for animations; already filtered for the receiver. */
   "game:events": (events: GameEventPayload[]) => void;
+  /** What the narrator says about those same events, in order (texts: `narration.<key>`). */
+  "game:narration": (lines: NarrationLine[]) => void;
   /** Lobby changed (someone joined/left, host changed). Sent to every member of the room. */
   "room:state": (room: RoomStateMessage) => void;
   /** A chat line the receiver is allowed to read (membership decided by the server). */

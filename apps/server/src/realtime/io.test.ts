@@ -22,7 +22,12 @@ describe("realtime", () => {
       store: new MemoryGameStore(),
       history: new NoopGameHistory(),
       log: silentLog,
-      publisher: { sendEvents: () => {}, sendView: () => {}, sendChat: () => {} },
+      publisher: {
+        sendEvents: () => {},
+        sendView: () => {},
+        sendChat: () => {},
+        sendNarration: () => {},
+      },
     });
     realtime = createRealtime(httpServer, {
       registry,

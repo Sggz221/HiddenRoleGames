@@ -2,6 +2,7 @@ import {
   type GameAction,
   type GameEvent,
   gameConfigSchema,
+  NARRATION_KEYS,
   type PlayerView,
   ROLE_IDS,
   type RoleId,
@@ -12,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import { applyAction } from "./actions.js";
 import { advancePhase, canAdvanceEarly } from "./advance.js";
 import { createGame } from "./create.js";
+import { narrate } from "./narration.js";
 import { RngCursor } from "./rng.js";
 import type { GameState } from "./state.js";
 import { eventsFor, projectFor } from "./view.js";
@@ -131,6 +133,21 @@ function assertEventsPrivate(state: GameState, viewerId: string, events: GameEve
   }
 }
 
+/** The narrator only names roles a living player may know: their own, the seer's visions, the dead. */
+function assertNarrationPrivate(state: GameState, viewerId: string, events: GameEvent[]): void {
+  const lines = narrate(state, eventsFor(state, viewerId, events));
+  const viewer = state.players.find((p) => p.id === viewerId);
+  for (const line of lines) {
+    expect(NARRATION_KEYS).toContain(line.key);
+    if (!viewer?.alive || state.phase.kind === "ended" || line.params.role === undefined) continue;
+    const allowed =
+      line.key === "game.yourRole" ||
+      line.key.startsWith("death.") ||
+      (line.key === "private.seerResult" && viewer.role === "seer");
+    expect(allowed, `${viewer.role} hears a role in ${line.key}`).toBe(true);
+  }
+}
+
 describe("random games with bots", () => {
   it("always end with a valid result and never leak secrets", () => {
     fc.assert(
@@ -143,6 +160,7 @@ describe("random games with bots", () => {
         for (let tick = 0; tick < 3000 && state.phase.kind !== "ended"; tick++) {
           for (const player of state.players) {
             assertEventsPrivate(state, player.id, events);
+            assertNarrationPrivate(state, player.id, events);
             const view = projectFor(state, player.id);
             assertNoLeaks(state, view);
             const action = botAction(view, rng);
