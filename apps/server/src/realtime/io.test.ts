@@ -6,6 +6,7 @@ import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { GameRegistry } from "../game/registry.js";
 import { MemoryGameStore } from "../game/store.js";
 import { NoopGameHistory } from "../persistence/game-history.js";
+import { RoomManager } from "../rooms/manager.js";
 import { createRealtime, socketPublisher } from "./io.js";
 
 const silentLog = { info: () => {}, warn: () => {}, error: () => {} };
@@ -22,7 +23,7 @@ describe("realtime", () => {
       log: silentLog,
       publisher: { sendEvents: () => {}, sendView: () => {} },
     });
-    realtime = createRealtime(httpServer, { registry, log: silentLog });
+    realtime = createRealtime(httpServer, { registry, rooms: new RoomManager(), log: silentLog });
     socketPublisher(realtime.io);
     await new Promise<void>((resolve) => httpServer.listen(0, resolve));
     const { port } = httpServer.address() as AddressInfo;
