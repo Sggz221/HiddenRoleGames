@@ -102,4 +102,20 @@ describe("SessionManager", () => {
     sessions.dispose();
     expect(clock.pending).toBe(0);
   });
+
+  it("when the game ends, offline players get a fresh lobby grace period", () => {
+    const { sessions, clock, expired } = setup(1_000);
+    sessions.issue("p1", "ROOM01");
+    sessions.issue("p2", "ROOM01");
+    sessions.issue("p3", "OTHER1");
+    sessions.bindGame("ROOM01", "g1");
+    sessions.disconnect("p1");
+    clock.advance(10_000);
+    expect(expired).toEqual([]);
+
+    expect(sessions.unbindGame("g1")).toEqual(["p1", "p2"]);
+    expect(sessions.get("p2")?.gameId).toBeNull();
+    clock.advance(1_000);
+    expect(expired.map((record) => record.playerId)).toEqual(["p1"]);
+  });
 });

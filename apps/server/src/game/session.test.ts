@@ -1,4 +1,9 @@
-import { type GameEventPayload, type GameViewMessage, gameConfigSchema } from "@aullidos/shared";
+import {
+  type ChatMessage,
+  type GameEventPayload,
+  type GameViewMessage,
+  gameConfigSchema,
+} from "@aullidos/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FinishedGame, GameHistory } from "../persistence/game-history.js";
 import { GameRegistry } from "./registry.js";
@@ -21,6 +26,10 @@ class RecordingPublisher implements GamePublisher {
   }
   sendView(_gameId: string, playerId: string, message: GameViewMessage) {
     this.views.set(playerId, message);
+  }
+  chats: { playerId: string; message: ChatMessage }[] = [];
+  sendChat(_gameId: string, playerId: string, message: ChatMessage) {
+    this.chats.push({ playerId, message });
   }
 }
 
@@ -118,5 +127,49 @@ describe("GameSession", () => {
     await vi.advanceTimersByTimeAsync(0);
     expect(registry.get("g1")?.state.phase).toEqual({ kind: "night", step: "wolves" });
     await registry.disposeAll();
+  });
+
+  it("delivers chat lines only to the channel's readers and rejects closed channels", async () => {
+    const session = await GameSession.start("g1", config, players, 1, deps());
+    const wolf = session.state.players.find((p) => p.role === "werewolf");
+    const villager = session.state.players.find((p) => p.role === "villager");
+    if (!wolf || !villager) throw new Error("roles not dealt");
+
+    expect(session.chat(villager.id, "general", "hola")).toMatchObject({ code: "NOT_ALLOWED" });
+    expect(session.chat(wolf.id, "wolves", "auu")).toEqual({ ok: true });
+    expect(publisher.chats).toEqual([
+      {
+        playerId: wolf.id,
+        message: {
+          id: expect.any(String),
+          channel: "wolves",
+          from: wolf.id,
+          name: wolf.name,
+          text: "auu",
+          sentAt: 1_000_000,
+        },
+      },
+    ]);
+    expect(session.chat("nobody", "general", "hi")).toMatchObject({ code: "NOT_ALLOWED" });
+    await session.dispose();
+  });
+
+  it("tells registry listeners when a game ends", async () => {
+    const registry = new GameRegistry({
+      store,
+      publisher,
+      history,
+      log: silentLog,
+      clock: fakeClock,
+    });
+    const ended: string[] = [];
+    const stop = registry.onGameEnded((id) => ended.push(id));
+    const session = await registry.start(config, players, 1, "g1");
+    for (let day = 0; day < 50 && registry.get("g1"); day++) {
+      await vi.advanceTimersByTimeAsync(60_000);
+    }
+    expect(session.state.phase).toEqual({ kind: "ended" });
+    expect(ended).toEqual(["g1"]);
+    stop();
   });
 });

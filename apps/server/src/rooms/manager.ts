@@ -4,7 +4,12 @@ import { AttemptLimiter, type AttemptLimiterOptions } from "./attempt-limiter.js
 import { generateRoomCode, type RandomInt } from "./code.js";
 import { Room } from "./room.js";
 
-export type RoomError = "ROOM_NOT_FOUND" | "ROOM_FULL" | "NAME_TAKEN" | "TOO_MANY_ATTEMPTS";
+export type RoomError =
+  | "ROOM_NOT_FOUND"
+  | "ROOM_FULL"
+  | "NAME_TAKEN"
+  | "TOO_MANY_ATTEMPTS"
+  | "GAME_IN_PROGRESS";
 
 export type JoinResult =
   | { ok: true; room: Room; member: RoomMember }
@@ -73,6 +78,7 @@ export class RoomManager {
       this.limiter.recordFailure(clientKey);
       return { ok: false, error: "ROOM_NOT_FOUND" };
     }
+    if (room.gameId) return { ok: false, error: "GAME_IN_PROGRESS" };
     const member = { id: this.newPlayerId(), name };
     const added = room.add(member, this.now());
     if (!added.ok)
@@ -98,10 +104,23 @@ export class RoomManager {
     return room;
   }
 
-  /** Removes rooms nobody has touched for `idleTtlMs`; returns their codes. */
+  /** Marks the room playing `gameId` as back in the lobby. Returns it, if it still exists. */
+  endGame(gameId: string): Room | null {
+    for (const room of this.rooms.values()) {
+      if (room.gameId !== gameId) continue;
+      room.gameId = null;
+      room.lastActivity = this.now();
+      return room;
+    }
+    return null;
+  }
+
+  /** Removes lobbies nobody has touched for `idleTtlMs` (never one in a game); returns their codes. */
   sweep(): string[] {
     const cutoff = this.now() - this.idleTtlMs;
-    const removed = [...this.rooms.values()].filter((room) => room.lastActivity < cutoff);
+    const removed = [...this.rooms.values()].filter(
+      (room) => room.gameId === null && room.lastActivity < cutoff,
+    );
     for (const room of removed) this.rooms.delete(room.code);
     this.limiter.prune();
     return removed.map((room) => room.code);

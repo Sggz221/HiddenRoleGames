@@ -10,6 +10,8 @@ export class Room {
   private readonly members: RoomMember[] = [];
   private readonly offline = new Set<PlayerId>();
   private host: PlayerId | null = null;
+  /** Game being played by this room; while set, nobody can join or start another one. */
+  gameId: string | null = null;
   lastActivity: number;
 
   constructor(
@@ -71,6 +73,7 @@ export class Room {
       code: this.code,
       hostId: this.host,
       maxPlayers: this.maxPlayers,
+      gameId: this.gameId,
       players: this.members.map((member) => ({
         ...member,
         connected: !this.offline.has(member.id),

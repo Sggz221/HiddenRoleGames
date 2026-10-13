@@ -1,3 +1,4 @@
+import type { ChatAccess } from "../chat.js";
 import type { GameActionType, PlayerId } from "./actions.js";
 import type { RevealOnDeath } from "./config.js";
 import type { GameResult, Phase } from "./phases.js";
@@ -62,4 +63,6 @@ export interface PlayerView {
   /** Tonight's wolf victims, only for the Witch during her step. */
   nightVictims: PlayerId[] | null;
   result: GameResult | null;
+  /** Chat channels the viewer may write to / read right now. */
+  chat: ChatAccess;
 }

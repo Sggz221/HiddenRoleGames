@@ -1,7 +1,10 @@
+import { randomUUID } from "node:crypto";
 import {
   advancePhase,
   applyAction,
   canAdvanceEarly,
+  chatAccessFor,
+  chatRecipients,
   createGame,
   eventsFor,
   type GameState,
@@ -11,6 +14,8 @@ import {
 } from "@aullidos/game-engine";
 import type {
   AckResponse,
+  ChatChannel,
+  ChatMessage,
   GameAction,
   GameConfig,
   GameEvent,
@@ -24,6 +29,7 @@ import type { GameSnapshot, GameStore } from "./store.js";
 export interface GamePublisher {
   sendEvents(gameId: string, playerId: string, events: GameEventPayload[]): void;
   sendView(gameId: string, playerId: string, message: GameViewMessage): void;
+  sendChat(gameId: string, playerId: string, message: ChatMessage): void;
 }
 
 export interface Logger {
@@ -130,6 +136,28 @@ export class GameSession {
     });
   }
 
+  /**
+   * Posts a chat line if the engine lets `playerId` write in `channel` right now and delivers
+   * it to the channel's readers (anonymously where the rules say so). Chat never changes the
+   * game state, so it does not go through the action queue.
+   */
+  chat(playerId: string, channel: ChatChannel, text: string): AckResponse {
+    const { state } = this.snapshot;
+    const author = state.players.find((player) => player.id === playerId);
+    if (!author || !chatAccessFor(state, playerId).write.includes(channel)) {
+      return { ok: false, code: "NOT_ALLOWED", message: "You cannot write in that channel now" };
+    }
+    const line = { id: randomUUID(), channel, text, sentAt: this.clock.now() };
+    for (const { id, anonymous } of chatRecipients(state, channel)) {
+      this.deps.publisher.sendChat(this.id, id, {
+        ...line,
+        from: anonymous ? null : author.id,
+        name: anonymous ? null : author.name,
+      });
+    }
+    return { ok: true };
+  }
+
   /** Current message for one player (reconnection / sync). */
   viewFor(playerId: string): GameViewMessage {
     return {
@@ -141,6 +169,11 @@ export class GameSession {
 
   hasPlayer(playerId: string): boolean {
     return this.snapshot.state.players.some((player) => player.id === playerId);
+  }
+
+  /** Resolves once every queued action and phase change has been processed (tests, shutdown). */
+  async whenIdle(): Promise<void> {
+    await this.queue;
   }
 
   /** Stops timers; the snapshot stays in the store so another process can resume it. */

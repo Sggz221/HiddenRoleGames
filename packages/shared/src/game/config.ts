@@ -24,24 +24,25 @@ export const timersSchema = z.object({
 });
 export type Timers = z.infer<typeof timersSchema>;
 
-export const gameConfigSchema = z
-  .object({
-    /** The deck: one card per player. */
-    roles: z.array(roleIdSchema).min(MIN_PLAYERS).max(MAX_PLAYERS),
-    sheriff: z.boolean().default(true),
-    revealOnDeath: revealOnDeathSchema.default("role"),
-    voteTieRule: voteTieRuleSchema.default("runoff"),
-    /** Dead players see every role and secret event (they "keep their eyes open"). */
-    deadSeeEverything: z.boolean().default(true),
-    /** Safety valve: after this many days the game ends without a winner. */
-    maxDays: z.number().int().min(5).max(100).default(40),
-    timers: timersSchema.prefault({}),
-  })
-  .superRefine((config, ctx) => {
-    for (const issue of validateDeck(config.roles)) {
-      ctx.addIssue({ code: "custom", path: ["roles"], message: issue });
-    }
-  });
+/** Config fields without the deck-wide checks (lets `room:start` omit or override fields). */
+export const gameConfigBaseSchema = z.object({
+  /** The deck: one card per player. */
+  roles: z.array(roleIdSchema).min(MIN_PLAYERS).max(MAX_PLAYERS),
+  sheriff: z.boolean().default(true),
+  revealOnDeath: revealOnDeathSchema.default("role"),
+  voteTieRule: voteTieRuleSchema.default("runoff"),
+  /** Dead players see every role and secret event (they "keep their eyes open"). */
+  deadSeeEverything: z.boolean().default(true),
+  /** Safety valve: after this many days the game ends without a winner. */
+  maxDays: z.number().int().min(5).max(100).default(40),
+  timers: timersSchema.prefault({}),
+});
+
+export const gameConfigSchema = gameConfigBaseSchema.superRefine((config, ctx) => {
+  for (const issue of validateDeck(config.roles)) {
+    ctx.addIssue({ code: "custom", path: ["roles"], message: issue });
+  }
+});
 
 export type GameConfig = z.infer<typeof gameConfigSchema>;
 export type GameConfigInput = z.input<typeof gameConfigSchema>;

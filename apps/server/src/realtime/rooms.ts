@@ -8,7 +8,7 @@ import {
 } from "@aullidos/shared";
 import type { RoomManager } from "../rooms/manager.js";
 import type { SessionManager } from "../sessions/session-manager.js";
-import type { IoServer, IoSocket } from "./io.js";
+import { type IoServer, type IoSocket, playerRoom } from "./io.js";
 
 export const roomChannel = (code: string) => `room:${code}`;
 
@@ -38,11 +38,14 @@ export function leaveCurrentRoom(
   rooms: RoomManager,
   sessions: SessionManager,
 ): boolean {
-  const { roomCode, playerId } = socket.data;
+  const { roomCode, playerId, gameId } = socket.data;
   if (!roomCode || !playerId) return false;
   delete socket.data.roomCode;
   delete socket.data.playerId;
+  delete socket.data.gameId;
   void socket.leave(roomChannel(roomCode));
+  // In a game the seat stays in the engine: missing actions count as "no action".
+  if (gameId) void socket.leave(playerRoom(gameId, playerId));
   // Leaving on purpose gives the seat up at once: no grace period, the token stops working.
   sessions.revoke(playerId);
   const room = rooms.leave(roomCode, playerId);
@@ -98,4 +101,5 @@ const MESSAGES = {
   ROOM_FULL: "The room is full",
   NAME_TAKEN: "That name is already taken in the room",
   TOO_MANY_ATTEMPTS: "Too many failed attempts, try again in a minute",
+  GAME_IN_PROGRESS: "That room is in the middle of a game",
 } as const;

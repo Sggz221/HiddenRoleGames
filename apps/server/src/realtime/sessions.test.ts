@@ -46,6 +46,7 @@ describe("session resume", () => {
       publisher: {
         sendEvents: (...args) => publish?.sendEvents(...args),
         sendView: (...args) => publish?.sendView(...args),
+        sendChat: (...args) => publish?.sendChat(...args),
       },
     });
     realtime = createRealtime(httpServer, { registry, rooms, sessions, log: silentLog });

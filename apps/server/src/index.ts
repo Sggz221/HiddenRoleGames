@@ -54,6 +54,7 @@ const registry = new GameRegistry({
   publisher: {
     sendEvents: (...args) => publish?.sendEvents(...args),
     sendView: (...args) => publish?.sendView(...args),
+    sendChat: (...args) => publish?.sendChat(...args),
   },
 });
 

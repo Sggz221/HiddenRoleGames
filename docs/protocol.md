@@ -2,7 +2,7 @@
 
 Transporte: **Socket.IO** en el mismo origen (`/socket.io`). Los tipos viven en `packages/shared` (`protocol.ts`, `game/*`). Todo payload del cliente se valida con Zod en el servidor.
 
-> Pendiente: autenticación con cuentas, configuración y arranque de partida desde la sala, y chat. Hasta que el lobby arranque partidas, un socket no está asociado a ninguna partida y `game:*` responde `NOT_IN_GAME`.
+> Pendiente: autenticación con cuentas e historial de chat al reconectar. Un socket que no está en una partida en curso recibe `NOT_IN_GAME` en `game:*`.
 
 ## Cliente → servidor
 
@@ -13,6 +13,8 @@ Transporte: **Socket.IO** en el mismo origen (`/socket.io`). Los tipos viven en 
 | `room:create` | `{ name }` | `{ ok: true, playerId, sessionToken, room }` o error |
 | `room:join` | `{ code, name }` | `{ ok: true, playerId, sessionToken, room }` o error |
 | `room:leave` | — | `{ ok: true }` o `NOT_IN_ROOM` |
+| `room:start` | `RoomStart` (ver abajo) | `{ ok: true }` o error. Solo el anfitrión |
+| `chat:send` | `{ channel, text }` | `{ ok: true }` o error |
 | `session:resume` | `{ token }` | `{ ok: true, playerId, room, gameId }` o error; si hay partida, después llega un `game:view` |
 
 ### Salas
@@ -23,6 +25,35 @@ Transporte: **Socket.IO** en el mismo origen (`/socket.io`). Los tipos viven en 
 - **Capacidad:** `maxPlayers` = 20 (`MAX_PLAYERS`).
 - **Límite de intentos:** solo cuentan los **fallos por código inexistente**: 10 en 60 s por cliente (IP; se usa la última entrada de `X-Forwarded-For`, la que añade el proxy de Railway). Superado, `TOO_MANY_ATTEMPTS` también para códigos válidos hasta que expire la ventana.
 - **Un socket, una sala:** crear o unirse estando ya en una sala devuelve `ALREADY_IN_ROOM`.
+
+### Arranque de partida (`room:start`)
+
+- **Quién:** solo el anfitrión, con al menos `MIN_PLAYERS` (5) jugadores sentados. Entran todos los miembros de la sala, también los que están dentro de su periodo de gracia.
+- **Payload:** cualquier campo de `GameConfig`, todos opcionales (`roles`, `sheriff`, `revealOnDeath`, `voteTieRule`, `deadSeeEverything`, `maxDays`, `timers`). Sin `roles` se usa `recommendedDeck(jugadores)`. Si se manda la baraja, debe tener **una carta por jugador** y cumplir las reglas (`validateDeck`).
+- **Orden de los asientos:** el de entrada en la sala. El motor baraja las cartas.
+- **Qué llega:** un `room:state` con `gameId` y después el primer `game:view` de cada jugador.
+- **Durante la partida:** nadie puede unirse (`GAME_IN_PROGRESS`) ni arrancar otra. La sala no caduca por inactividad.
+- **Al terminar:** tras el último `game:view` (con `result`), la sala vuelve al lobby: `room:state` con `gameId: null`. El anfitrión puede arrancar la revancha. Los jugadores desconectados vuelven a tener el periodo de gracia del lobby.
+- **Errores:** `INVALID_PAYLOAD` (campo mal formado o fuera de rango), `NOT_IN_ROOM`, `NOT_ALLOWED` (no eres el anfitrión), `GAME_IN_PROGRESS`, `NOT_ENOUGH_PLAYERS`, `INVALID_CONFIG` (baraja que no encaja o rompe reglas).
+
+### Chat (`chat:send`)
+
+Decisión completa en [ADR 0004](decisions/0004-chat-por-canales.md).
+
+| Canal | Escriben | Leen |
+|---|---|---|
+| `general` | Los vivos, de día (y en reacciones: disparo del Cazador, sucesión del Alguacil). En el lobby y al acabar, todos | Todos, vivos y muertos |
+| `wolves` | La manada viva (lobos, infectados, Niño salvaje transformado...), de noche | La manada viva. La **Niña** lo lee **de forma anónima** (`from` y `name` a `null`) mientras conserve su poder. Los muertos si `deadSeeEverything` |
+| `dead` | Los muertos | Los muertos |
+| `lovers` | Los dos enamorados vivos | Los enamorados. Los muertos si `deadSeeEverything`. Cupido no |
+
+- **Quién puede escribir/leer ahora:** `view.chat = { write, read }` en cada `game:view`. El cliente solo pinta esas pestañas; el servidor vuelve a comprobarlo en cada mensaje.
+- **Lobby:** solo existe `general`, para todos los miembros de la sala.
+- **Al acabar la partida:** todos leen todos los canales y solo `general` queda abierto.
+- **Texto:** se recorta; de 1 a `CHAT_MESSAGE_MAX_LENGTH` (300) caracteres. Sin caracteres de control (tampoco saltos de línea) ni marcas de dirección bidi. Los emoji, incluidos los compuestos, sí.
+- **Límite de ritmo:** por socket, ráfaga de 5 mensajes y después 1 cada 2 s (`RATE_LIMITED`).
+- **Sin historial:** los mensajes no se guardan. Quien reconecta solo recibe los nuevos.
+- **Errores:** `INVALID_PAYLOAD`, `NOT_IN_ROOM`, `RATE_LIMITED`, `NOT_ALLOWED` (canal cerrado para ti ahora mismo; también si el estado cambió entre tu vista y el mensaje).
 
 ### Reconexión (`sessionToken`)
 
@@ -66,8 +97,9 @@ Decisión completa en [ADR 0003](decisions/0003-reconexion-sessiontoken.md).
 | Evento | Payload |
 |---|---|
 | `game:view` | `{ view: PlayerView, phaseEndsAt, serverNow }` |
-| `room:state` | `{ code, hostId, maxPlayers, players: [{ id, name, connected }] }` a todos los miembros cuando cambia el lobby (entra o sale alguien, cambia el host). El jugador que se une lo recibe en el ack |
+| `room:state` | `{ code, hostId, maxPlayers, gameId, players: [{ id, name, connected }] }` a todos los miembros cuando cambia el lobby (entra o sale alguien, cambia el host, empieza o acaba una partida). El jugador que se une lo recibe en el ack |
 | `game:events` | `GameEventPayload[]` ya filtrados para ese jugador, en orden, para animar o narrar |
+| `chat:message` | `{ id, channel, from, name, text, sentAt }` solo a quien puede leer ese canal. `from`/`name` a `null` cuando el lector no puede saber el autor (Niña) |
 | `error` | `{ code, message }` |
 
 - **Contador:** `phaseEndsAt` y `serverNow` permiten pintarlo bien aunque el reloj del móvil esté desfasado: `restante = phaseEndsAt - (serverNow + (Date.now() - recibidoEn))`.
@@ -75,4 +107,4 @@ Decisión completa en [ADR 0003](decisions/0003-reconexion-sessiontoken.md).
 
 ## Códigos de error
 
-`INVALID_PAYLOAD`, `NOT_IN_GAME`, `NOT_ALLOWED`, `INVALID_TARGET`, `DUPLICATE_TARGET`, `POTION_USED`, `RATE_LIMITED`, `ROOM_NOT_FOUND`, `ROOM_FULL`, `NAME_TAKEN`, `ALREADY_IN_ROOM`, `NOT_IN_ROOM`, `TOO_MANY_ATTEMPTS`, `SESSION_NOT_FOUND`, `INTERNAL`.
+`INVALID_PAYLOAD`, `NOT_IN_GAME`, `NOT_ALLOWED`, `INVALID_TARGET`, `DUPLICATE_TARGET`, `POTION_USED`, `RATE_LIMITED`, `ROOM_NOT_FOUND`, `ROOM_FULL`, `NAME_TAKEN`, `ALREADY_IN_ROOM`, `NOT_IN_ROOM`, `TOO_MANY_ATTEMPTS`, `GAME_IN_PROGRESS`, `NOT_ENOUGH_PLAYERS`, `INVALID_CONFIG`, `SESSION_NOT_FOUND`, `INTERNAL`.
