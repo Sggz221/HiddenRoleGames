@@ -1,5 +1,6 @@
 import type { ClientToServerEvents, ServerToClientEvents } from "@howlsinthedark/shared";
 import { io, type Socket } from "socket.io-client";
+import { audioManager } from "../audio/audioManager";
 import { type SessionSocket, SessionStore, type TokenStorage } from "./session";
 
 const ACK_TIMEOUT_MS = 8_000;
@@ -43,3 +44,6 @@ function browserSocket(): SessionSocket {
 
 /** The player's seat for this tab. Call `session.start()` once at boot. */
 export const session = new SessionStore(browserSocket(), localTokens);
+
+// Sound effects follow the game events (deaths, nightfall, votes...).
+session.onGameEvents((events) => audioManager.handleEvents(events));

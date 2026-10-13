@@ -41,12 +41,10 @@ describe("effectForEvent", () => {
   });
 
   it("reacts to deaths and votes, ignores private events", () => {
-    expect(
-      effectForEvent({ type: "playerDied", player: "p1", cause: "night", audience: all }, null),
-    ).toBe("death");
-    expect(
-      effectForEvent({ type: "voteCast", voter: "p1", target: null, audience: all }, null),
-    ).toBe("vote-cast");
-    expect(effectForEvent({ type: "bearGrowled", audience: all }, null)).toBeNull();
+    expect(effectForEvent({ type: "playerDied", player: "p1", cause: "night" }, null)).toBe(
+      "death",
+    );
+    expect(effectForEvent({ type: "voteCast", voter: "p1", target: null }, null)).toBe("vote-cast");
+    expect(effectForEvent({ type: "bearGrowled" }, null)).toBeNull();
   });
 });
