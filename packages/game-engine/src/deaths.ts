@@ -125,6 +125,7 @@ export function resolveDawn(draft: Draft): void {
     [night.bigBadWolfVictim, "big-bad-wolf"],
   ] as const) {
     if (!victim || victim === healed || !isAlive(state, victim)) continue;
+    if (victim === night.salvadorTarget) continue;
     if (elderResists(draft, victim)) continue;
     kill(draft, victim, cause);
   }

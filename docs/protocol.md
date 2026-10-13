@@ -20,6 +20,7 @@ Transporte: **Socket.IO** en el mismo origen (`/socket.io`). Los tipos viven en 
 | `seerInspect` | `target` | Vidente |
 | `wildChildModel` | `target` | Niño salvaje, noche 1 |
 | `wolfHoundChoose` | `side: "village" \| "wolves"` | Perro lobo, noche 1 |
+| `salvadorProtect` | `target` | Salvador (no el mismo dos noches seguidas) |
 | `wolfVote` | `target` | Manada |
 | `infect` | `infect: boolean` | Padre de los lobos (una vez) |
 | `bigBadWolfKill` | `target` | Gran lobo feroz |
