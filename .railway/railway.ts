@@ -21,7 +21,7 @@ export default defineRailway((ctx) => {
   const db = postgres(prod ? "Postgres" : "Postgres-rBwq");
   const cache = redis(prod ? "Redis" : "Redis-Ikfu");
 
-  const app = service("howlsinthedark", {
+  const app = service("HowlsInTheDark", {
     source: github(REPO, { branch: prod ? "main" : "develop" }),
     healthcheck: "/health",
     healthcheckTimeout: 60,
@@ -45,7 +45,7 @@ export default defineRailway((ctx) => {
   });
 
   // Railway project name; rename it in the dashboard and here together.
-  return project("howlsinthedark", {
+  return project("Howls in the dark", {
     resources: [app, db, cache],
   });
 });
