@@ -39,6 +39,7 @@ describe("RoomManager", () => {
       code: room.code,
       hostId: member.id,
       maxPlayers: 20,
+      gameId: null,
       players: [{ id: member.id, name: "Ana", connected: true }],
     });
     expect(rooms.get(room.code)).toBe(room);
@@ -184,6 +185,36 @@ describe("RoomManager", () => {
       rooms.join(room.code, "Bea", "ip");
       advance(900);
       expect(rooms.sweep()).toEqual([]);
+    });
+
+    it("never removes a room in the middle of a game", () => {
+      const { rooms, advance } = manager({ idleTtlMs: 1_000 });
+      const { room } = rooms.create("Ana");
+      room.gameId = "g1";
+      advance(5_000);
+      expect(rooms.sweep()).toEqual([]);
+    });
+  });
+
+  describe("games", () => {
+    it("nobody can join while the room plays a game", () => {
+      const { rooms } = manager();
+      const { room } = rooms.create("Ana");
+      room.gameId = "g1";
+      expect(rooms.join(room.code, "Bea", "ip")).toEqual({ ok: false, error: "GAME_IN_PROGRESS" });
+      expect(room.state().gameId).toBe("g1");
+    });
+
+    it("endGame sends the room back to the lobby and refreshes its activity", () => {
+      const { rooms, advance } = manager({ idleTtlMs: 1_000 });
+      const { room } = rooms.create("Ana");
+      room.gameId = "g1";
+      advance(5_000);
+      expect(rooms.endGame("g1")).toBe(room);
+      expect(room.gameId).toBeNull();
+      expect(rooms.sweep()).toEqual([]);
+      expect(rooms.endGame("g1")).toBeNull();
+      expect(rooms.join(room.code, "Bea", "ip")).toMatchObject({ ok: true });
     });
   });
 });

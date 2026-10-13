@@ -96,8 +96,8 @@ export function releaseExpiredSeats(deps: Deps): () => void {
 }
 
 /**
- * Called when a room's game starts: seats stop expiring and every connected member joins their
- * private game channel. (The `room:start` flow that calls it arrives with the lobby UI.)
+ * Called when a room's game starts (`room:start`): seats stop expiring and every connected
+ * member joins their private game channel.
  */
 export function attachRoomToGame(deps: Deps, roomCode: string, gameId: string): void {
   const bound = new Set(deps.sessions.bindGame(roomCode, gameId));

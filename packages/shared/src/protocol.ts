@@ -1,3 +1,4 @@
+import type { ChatMessage } from "./chat.js";
 import type { GameEventPayload } from "./game/events.js";
 import type { PlayerView } from "./game/view.js";
 import type { RoomStateMessage } from "./room.js";
@@ -17,6 +18,9 @@ export const ERROR_CODES = [
   "ALREADY_IN_ROOM",
   "NOT_IN_ROOM",
   "TOO_MANY_ATTEMPTS",
+  "GAME_IN_PROGRESS",
+  "NOT_ENOUGH_PLAYERS",
+  "INVALID_CONFIG",
   "SESSION_NOT_FOUND",
   "INTERNAL",
 ] as const;
@@ -49,6 +53,8 @@ export interface ServerToClientEvents {
   "game:events": (events: GameEventPayload[]) => void;
   /** Lobby changed (someone joined/left, host changed). Sent to every member of the room. */
   "room:state": (room: RoomStateMessage) => void;
+  /** A chat line the receiver is allowed to read (membership decided by the server). */
+  "chat:message": (message: ChatMessage) => void;
   error: (error: { code: ErrorCode; message: string }) => void;
 }
 
@@ -60,6 +66,9 @@ export interface ClientToServerEvents {
   "room:create": (payload: unknown, ack: RoomAck) => void;
   "room:join": (payload: unknown, ack: RoomAck) => void;
   "room:leave": (ack: Ack) => void;
+  /** Host only: deals the cards and starts the game with the current members. */
+  "room:start": (payload: unknown, ack: Ack) => void;
+  "chat:send": (payload: unknown, ack: Ack) => void;
   /** Reattaches a new connection to an existing seat using the `sessionToken`. */
   "session:resume": (payload: unknown, ack: SessionResumeAck) => void;
 }

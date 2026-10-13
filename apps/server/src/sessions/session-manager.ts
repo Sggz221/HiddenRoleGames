@@ -105,6 +105,21 @@ export class SessionManager {
     return bound;
   }
 
+  /**
+   * The game ended: its players are back in the lobby, so offline ones get a fresh grace period.
+   * Returns the affected players.
+   */
+  unbindGame(gameId: string): PlayerId[] {
+    const unbound: PlayerId[] = [];
+    for (const record of this.records.values()) {
+      if (record.gameId !== gameId) continue;
+      record.gameId = null;
+      if (record.connections === 0) this.startGrace(record);
+      unbound.push(record.playerId);
+    }
+    return unbound;
+  }
+
   revoke(playerId: PlayerId): void {
     this.cancelGrace(playerId);
     const hash = this.tokens.get(playerId);

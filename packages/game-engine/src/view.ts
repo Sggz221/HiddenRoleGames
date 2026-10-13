@@ -1,4 +1,5 @@
 import type { GameEvent, PlayerId, PlayerView, PublicPlayer } from "@aullidos/shared";
+import { chatAccessFor } from "./chat.js";
 import { pendingActionFor, witchHealable } from "./pending.js";
 import { findPlayer, type GameState, hasPower, loverOf, type PlayerState } from "./state.js";
 
@@ -93,6 +94,7 @@ export function projectFor(state: GameState, viewerId: PlayerId): PlayerView {
         ? witchHealable(state)
         : null,
     result: state.result,
+    chat: chatAccessFor(state, viewer.id),
   };
 }
 
