@@ -20,7 +20,7 @@ Decisiones clave:
 
 ### Nota sobre nombre y arte (importante)
 
-"Los Hombres Lobo de Castronegro" es un juego comercial con marca registrada y arte propio. Para publicar, usa **nombre propio, textos propios e ilustraciones propias o con licencia**. Las mecánicas (reglas de un juego) no están protegidas, pero el nombre, las ilustraciones y los textos sí. En este documento se usa el nombre de trabajo **"Aullidos"** (cámbialo cuando quieras; está centralizado en una constante).
+"Los Hombres Lobo de Castronegro" es un juego comercial con marca registrada y arte propio. Para publicar, usa **nombre propio, textos propios e ilustraciones propias o con licencia**. Las mecánicas (reglas de un juego) no están protegidas, pero el nombre, las ilustraciones y los textos sí. En este documento se usa el nombre de trabajo **"Aullidos"**; el nombre público es **"Howls in the Dark"** (centralizado en la constante `APP_NAME`).
 
 ---
 

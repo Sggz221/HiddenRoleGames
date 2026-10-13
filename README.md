@@ -1,4 +1,4 @@
-# Aullidos
+# Howls in the Dark
 
 Juego web multijugador de rol oculto (5-20 jugadores) en tiempo real. Ver [PLAN.md](PLAN.md).
 
