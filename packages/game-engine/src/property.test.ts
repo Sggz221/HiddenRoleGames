@@ -2,6 +2,7 @@ import {
   type GameAction,
   type GameEvent,
   gameConfigSchema,
+  NARRATION_KEYS,
   type PlayerView,
   ROLE_IDS,
   type RoleId,
@@ -12,6 +13,7 @@ import { describe, expect, it } from "vitest";
 import { applyAction } from "./actions.js";
 import { advancePhase, canAdvanceEarly } from "./advance.js";
 import { createGame } from "./create.js";
+import { narrate } from "./narration.js";
 import { RngCursor } from "./rng.js";
 import type { GameState } from "./state.js";
 import { eventsFor, projectFor } from "./view.js";
@@ -131,6 +133,24 @@ function assertEventsPrivate(state: GameState, viewerId: string, events: GameEve
   }
 }
 
+const KNOWN_KEYS: ReadonlySet<string> = new Set(NARRATION_KEYS);
+
+/** The narrator only names roles a living player may know: their own, the seer's visions, the dead. */
+function assertNarrationPrivate(state: GameState, viewerId: string, events: GameEvent[]): void {
+  const lines = narrate(state, eventsFor(state, viewerId, events));
+  const viewer = state.players.find((p) => p.id === viewerId);
+  // Plain checks: calling `expect` for every line makes this test several times slower.
+  for (const line of lines) {
+    if (!KNOWN_KEYS.has(line.key)) expect.fail(`Unknown narration key ${line.key}`);
+    if (!viewer?.alive || state.phase.kind === "ended" || line.params.role === undefined) continue;
+    const allowed =
+      line.key === "game.yourRole" ||
+      line.key.startsWith("death.") ||
+      (line.key === "private.seerResult" && viewer.role === "seer");
+    if (!allowed) expect.fail(`${viewer.role} hears a role in ${line.key}`);
+  }
+}
+
 describe("random games with bots", () => {
   it("always end with a valid result and never leak secrets", () => {
     fc.assert(
@@ -139,6 +159,10 @@ describe("random games with bots", () => {
         const players = deck.map((_, i) => ({ id: `p${i}`, name: `P${i}` }));
         const rng = new RngCursor(botSeed);
         let { state, events } = createGame(config, players, seed);
+        const checkNarration = () => {
+          for (const player of state.players) assertNarrationPrivate(state, player.id, events);
+        };
+        checkNarration();
 
         for (let tick = 0; tick < 3000 && state.phase.kind !== "ended"; tick++) {
           for (const player of state.players) {
@@ -154,6 +178,7 @@ describe("random games with bots", () => {
           if (state.phase.kind !== "night" && !canAdvanceEarly(state) && rng.float() < 0.3)
             continue;
           ({ state, events } = advancePhase(state));
+          checkNarration();
         }
 
         expect(state.phase.kind).toBe("ended");

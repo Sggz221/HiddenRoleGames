@@ -112,6 +112,7 @@ function firstWolfToTheLeft(draft: Draft, knightId: PlayerId): PlayerId | null {
 export function resolveDawn(draft: Draft): void {
   const { state } = draft;
   const night = state.night;
+  draft.emit({ type: "dawn", day: state.day }, ALL);
 
   if (state.rustVictim) {
     const victim = state.rustVictim;

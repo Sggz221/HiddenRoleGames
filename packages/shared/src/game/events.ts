@@ -13,6 +13,8 @@ export type GameEventPayload =
   | { type: "gameStarted"; players: PlayerId[] }
   | { type: "roleAssigned"; role: RoleId }
   | { type: "phaseChanged"; phase: Phase; day: number }
+  /** The night is over; the deaths it caused follow in the same batch. */
+  | { type: "dawn"; day: number }
   | { type: "playerDied"; player: PlayerId; cause: PublicDeathCause; role?: RoleId; side?: Side }
   | { type: "voteCast"; voter: PlayerId; target: PlayerId | null }
   | { type: "voteResult"; eliminated: PlayerId | null; tied: PlayerId[] }

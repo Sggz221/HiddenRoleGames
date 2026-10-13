@@ -112,6 +112,8 @@ export function socketPublisher(io: IoServer): GamePublisher {
       io.to(playerRoom(gameId, playerId)).emit("game:view", message),
     sendChat: (gameId, playerId, message) =>
       io.to(playerRoom(gameId, playerId)).emit("chat:message", message),
+    sendNarration: (gameId, playerId, lines) =>
+      io.to(playerRoom(gameId, playerId)).emit("game:narration", lines),
   };
 }
 

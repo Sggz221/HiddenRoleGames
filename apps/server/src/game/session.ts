@@ -9,6 +9,7 @@ import {
   eventsFor,
   type GameState,
   type NewPlayer,
+  narrate,
   phaseDurationSeconds,
   projectFor,
 } from "@howlsinthedark/game-engine";
@@ -21,6 +22,7 @@ import type {
   GameEvent,
   GameEventPayload,
   GameViewMessage,
+  NarrationLine,
 } from "@howlsinthedark/shared";
 import type { GameHistory } from "../persistence/game-history.js";
 import type { GameSnapshot, GameStore } from "./store.js";
@@ -30,6 +32,7 @@ export interface GamePublisher {
   sendEvents(gameId: string, playerId: string, events: GameEventPayload[]): void;
   sendView(gameId: string, playerId: string, message: GameViewMessage): void;
   sendChat(gameId: string, playerId: string, message: ChatMessage): void;
+  sendNarration(gameId: string, playerId: string, lines: NarrationLine[]): void;
 }
 
 export interface Logger {
@@ -212,7 +215,12 @@ export class GameSession {
     const { state } = this.snapshot;
     for (const player of state.players) {
       const visible = eventsFor(state, player.id, events).map(stripAudience);
-      if (visible.length) this.deps.publisher.sendEvents(this.id, player.id, visible);
+      if (visible.length) {
+        this.deps.publisher.sendEvents(this.id, player.id, visible);
+        // The game is the narrator: no player runs it, every seat hears its own version.
+        const lines = narrate(state, visible);
+        if (lines.length) this.deps.publisher.sendNarration(this.id, player.id, lines);
+      }
       if (publishView) this.deps.publisher.sendView(this.id, player.id, this.viewFor(player.id));
     }
   }

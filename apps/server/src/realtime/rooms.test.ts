@@ -35,7 +35,12 @@ describe("room handlers", () => {
       store: new MemoryGameStore(),
       history: new NoopGameHistory(),
       log: silentLog,
-      publisher: { sendEvents: () => {}, sendView: () => {}, sendChat: () => {} },
+      publisher: {
+        sendEvents: () => {},
+        sendView: () => {},
+        sendChat: () => {},
+        sendNarration: () => {},
+      },
     });
     clock = new FakeClock();
     const sessions = new SessionManager({ graceMs: 30_000, clock });

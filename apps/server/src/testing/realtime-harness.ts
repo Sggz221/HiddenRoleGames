@@ -26,6 +26,7 @@ export async function startTestServer(overrides: Partial<RealtimeDeps> = {}) {
       sendEvents: (...args) => publish?.sendEvents(...args),
       sendView: (...args) => publish?.sendView(...args),
       sendChat: (...args) => publish?.sendChat(...args),
+      sendNarration: (...args) => publish?.sendNarration(...args),
     },
   });
   const httpServer = createServer();
