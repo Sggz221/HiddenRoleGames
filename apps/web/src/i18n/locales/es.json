@@ -391,6 +391,25 @@
     "result": {
       "cards": "Las cartas de todos",
       "back": "Volver a la sala"
+    },
+    "overlay": {
+      "dawn": "Amanece",
+      "deaths": "La aldea pierde a…",
+      "nobody": "Esta noche no ha muerto nadie.",
+      "cause": {
+        "night": "Esta noche",
+        "vote": "Expulsión",
+        "hunter": "Disparo del cazador",
+        "grief": "Muerte de pena",
+        "rust": "Herida oxidada"
+      },
+      "side": "Estaba con {{side}}",
+      "hidden": "Su carta queda en secreto",
+      "skip": "Saltar"
+    },
+    "card": {
+      "reveal": "Toca para ver tu carta",
+      "hide": "Toca para ocultarla"
     }
   },
   "errors": {
