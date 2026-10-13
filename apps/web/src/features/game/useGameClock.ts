@@ -1,9 +1,8 @@
 import type { GameViewMessage } from "@howlsinthedark/shared";
-import { gsap } from "gsap";
 import { useReducedMotionConfig } from "motion/react";
 import { useEffect, useRef } from "react";
 import { phaseKey } from "../../net/session";
-import { dialAngle, gameHour, paletteAt } from "./daytime";
+import { dialAngle, gameHour, glide, nearestHour, paletteAt } from "./daytime";
 
 /** Where the sun and the moon sit on their arc (percent of the screen) at `hour`. */
 function bodyPosition(
@@ -20,7 +19,10 @@ function bodyPosition(
   };
 }
 
-/** Writes the colours and positions of `hour` as CSS variables: no React render per tick. */
+/**
+ * Writes the colours and positions of `hour` as CSS variables: no React render per frame.
+ * Positions are viewport units for `transform` (composited, sub-pixel smooth), not `left`/`top`.
+ */
 function paint(hour: number): void {
   const style = document.documentElement.style;
   const palette = paletteAt(hour);
@@ -33,23 +35,28 @@ function paint(hour: number): void {
   style.setProperty("--dial-angle", `${dialAngle(hour).toFixed(2)}deg`);
   const sun = bodyPosition(hour, 5.5, 14.5);
   const moon = bodyPosition(hour, 19.5, 11);
-  style.setProperty("--sun-x", `${sun.x}%`);
-  style.setProperty("--sun-y", `${sun.y}%`);
+  style.setProperty("--sun-x", `${sun.x.toFixed(3)}vw`);
+  style.setProperty("--sun-y", `${sun.y.toFixed(3)}vh`);
   style.setProperty("--sun-up", sun.up.toFixed(3));
-  style.setProperty("--moon-x", `${moon.x}%`);
-  style.setProperty("--moon-y", `${moon.y}%`);
+  style.setProperty("--moon-x", `${moon.x.toFixed(3)}vw`);
+  style.setProperty("--moon-y", `${moon.y.toFixed(3)}vh`);
   style.setProperty("--moon-up", moon.up.toFixed(3));
 }
 
+/** Below this change (in hours, ~1 s of game time) a frame is not repainted. */
+const PAINT_EPSILON = 1 / 3600;
+
 /**
- * Runs the game clock while the game screen is mounted: the hour follows the phase timer
- * and glides (GSAP) when a new phase jumps it forward, e.g. from 05:00 to the 06:00 dawn.
+ * Runs the game clock while the game screen is mounted: the hour follows the phase timer,
+ * frame by frame, and eases (instead of jumping) when a new phase moves it forward, e.g.
+ * from 05:00 to the 06:00 dawn. One animation loop for the whole screen: new views of the
+ * same phase only update what it reads.
  */
 export function useGameClock(game: GameViewMessage, clockOffset: number): void {
   const reduce = useReducedMotionConfig() ?? false;
   const phase = useRef<{ key: string; start: number; duration: number } | null>(null);
+  const latest = useRef({ phase: game.view.phase, clockOffset });
   const held = useRef(19);
-  const shown = useRef<{ h: number } | null>(null);
 
   // A new phase starts its stretch of the day; later views of the same phase keep it.
   const key = phaseKey(game);
@@ -57,53 +64,41 @@ export function useGameClock(game: GameViewMessage, clockOffset: number): void {
     const duration = game.phaseEndsAt === null ? 0 : game.phaseEndsAt - game.serverNow;
     phase.current = { key, start: game.serverNow, duration: Math.max(1, duration) };
   }
+  latest.current = { phase: game.view.phase, clockOffset };
 
   useEffect(() => {
     const target = () => {
       const current = phase.current;
+      const { phase: now, clockOffset: offset } = latest.current;
       if (!current) return held.current;
-      const progress = (Date.now() + clockOffset - current.start) / current.duration;
-      const hour = gameHour(game.view.phase, progress, held.current);
-      if (game.view.phase.kind !== "reaction") held.current = hour;
+      const progress = (Date.now() + offset - current.start) / current.duration;
+      const hour = gameHour(now, progress, held.current);
+      if (now.kind !== "reaction") held.current = hour;
       return hour;
     };
 
-    if (!shown.current) {
-      // First paint (or a resumed game): start at the right hour, no sunrise replay.
-      shown.current = { h: target() };
-      paint(shown.current.h);
-    }
-    const proxy = shown.current;
-    let tween: gsap.core.Tween | null = null;
+    // First paint (or a resumed game): start at the right hour, no sunrise replay.
+    let shown = target();
+    let painted = shown;
+    paint(shown);
+    let last = performance.now();
+    let frame = 0;
 
-    const step = () => {
+    const tick = (time: number) => {
+      const dt = Math.min(0.25, (time - last) / 1000);
+      last = time;
       // Always move forward in time: 21:00 → 05:00 goes through midnight, not back.
-      let next = target();
-      while (next < proxy.h - 12) next += 24;
-      while (next > proxy.h + 12) next -= 24;
-      // While gliding, let it land; the next step picks up the few minutes it missed.
-      if (tween?.isActive()) return;
-      if (Math.abs(next - proxy.h) > 0.2 && !reduce) {
-        // A new phase jumped the clock (05:00 → the 06:00 dawn): glide there.
-        tween = gsap.to(proxy, {
-          h: next,
-          duration: 2.4,
-          ease: "power2.inOut",
-          onUpdate: () => paint(proxy.h),
-        });
-      } else {
-        // Within a phase the hour creeps forward with the timer: follow it directly.
-        proxy.h = next;
-        paint(next);
+      const next = nearestHour(target(), shown);
+      shown = reduce ? next : glide(shown, next, dt);
+      if (Math.abs(shown - painted) >= PAINT_EPSILON) {
+        painted = shown;
+        paint(shown);
       }
+      frame = requestAnimationFrame(tick);
     };
-    step();
-    const id = setInterval(step, 500);
-    return () => {
-      clearInterval(id);
-      tween?.kill();
-    };
-  }, [game.view.phase, clockOffset, reduce]);
+    frame = requestAnimationFrame(tick);
+    return () => cancelAnimationFrame(frame);
+  }, [reduce]);
 
   // Back to the default night colours when leaving the game.
   useEffect(

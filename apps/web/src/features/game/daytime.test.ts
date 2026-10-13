@@ -1,5 +1,13 @@
 import { describe, expect, it } from "vitest";
-import { dialAngle, formatHour, gameHour, isDaylight, paletteAt } from "./daytime";
+import {
+  dialAngle,
+  formatHour,
+  gameHour,
+  glide,
+  isDaylight,
+  nearestHour,
+  paletteAt,
+} from "./daytime";
 
 describe("gameHour", () => {
   it("nights run from 21:00 to 05:00 across the steps", () => {
@@ -63,5 +71,23 @@ describe("paletteAt", () => {
       const luminance = (0.2126 * (r ?? 0) + 0.7152 * (g ?? 0) + 0.0722 * (b ?? 0)) / 255;
       expect(luminance, `hour ${hour}`).toBeLessThan(0.4);
     }
+  });
+});
+
+describe("sky motion", () => {
+  it("always moves forward through midnight", () => {
+    expect(nearestHour(1, 23)).toBe(25);
+    expect(nearestHour(23, 1)).toBe(-1);
+    expect(nearestHour(10, 9)).toBe(10);
+  });
+
+  it("glides towards the target the same way at any frame rate", () => {
+    let fast = 0;
+    for (let i = 0; i < 60; i++) fast = glide(fast, 1, 1 / 60);
+    const slow = glide(glide(0, 1, 0.5), 1, 0.5);
+    expect(fast).toBeCloseTo(slow, 6);
+    expect(fast).toBeGreaterThan(0.75);
+    expect(fast).toBeLessThan(1);
+    expect(glide(0.3, 1, 0)).toBe(0.3);
   });
 });
