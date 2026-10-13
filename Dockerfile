@@ -5,8 +5,8 @@
 # `docker compose up` for prod-like local testing.
 #
 # Expected workspace contract (created in Hito 0):
-#   - @aullidos/server  -> `build` emits apps/server/dist/index.js
-#   - @aullidos/web     -> `build` emits apps/web/dist/
+#   - @howlsinthedark/server  -> `build` emits apps/server/dist/index.js
+#   - @howlsinthedark/web     -> `build` emits apps/web/dist/
 #   - The server serves static files from $STATIC_DIR and listens on $PORT.
 
 ARG NODE_VERSION=24
@@ -31,8 +31,8 @@ RUN pnpm install --frozen-lockfile --offline --ignore-scripts
 # ---------------------------------------------------------------------------
 # Build server + web (and their workspace deps) and prune to a prod bundle.
 FROM deps AS build
-RUN pnpm turbo run build --filter=@aullidos/server... --filter=@aullidos/web...
-RUN pnpm --filter=@aullidos/server deploy --prod --legacy /out/server \
+RUN pnpm turbo run build --filter=@howlsinthedark/server... --filter=@howlsinthedark/web...
+RUN pnpm --filter=@howlsinthedark/server deploy --prod --legacy /out/server \
  && cp -r apps/web/dist /out/server/public
 
 # ---------------------------------------------------------------------------

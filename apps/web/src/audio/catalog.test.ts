@@ -1,4 +1,4 @@
-import type { GameEvent, Phase } from "@aullidos/shared";
+import type { GameEvent, Phase } from "@howlsinthedark/shared";
 import { describe, expect, it } from "vitest";
 import { effectForEvent, musicForPhase } from "./catalog";
 

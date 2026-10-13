@@ -1,4 +1,4 @@
-import type { GameEvent, NarrationLine, PlayerId, RoleId } from "@aullidos/shared";
+import type { GameEvent, NarrationLine, PlayerId, RoleId } from "@howlsinthedark/shared";
 import { describe, expect, it } from "vitest";
 import { narrate } from "./narration.js";
 import type { GameState } from "./state.js";

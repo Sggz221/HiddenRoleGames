@@ -4,7 +4,7 @@ import {
   type ClientToServerEvents,
   gameActionSchema,
   type ServerToClientEvents,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import { createAdapter } from "@socket.io/redis-adapter";
 import type { Redis } from "ioredis";
 import { Server, type Socket } from "socket.io";

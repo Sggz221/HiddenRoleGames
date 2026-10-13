@@ -1,5 +1,12 @@
-import type { DayStep, GameEvent, NightStep, Phase, PlayerId, RoleId } from "@aullidos/shared";
-import { NIGHT_STEPS } from "@aullidos/shared";
+import type {
+  DayStep,
+  GameEvent,
+  NightStep,
+  Phase,
+  PlayerId,
+  RoleId,
+} from "@howlsinthedark/shared";
+import { NIGHT_STEPS } from "@howlsinthedark/shared";
 import { kill, packIds, resolveDawn } from "./deaths.js";
 import {
   ALL,

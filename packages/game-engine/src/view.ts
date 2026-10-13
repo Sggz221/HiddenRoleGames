@@ -1,4 +1,4 @@
-import type { GameEvent, PlayerId, PlayerView, PublicPlayer } from "@aullidos/shared";
+import type { GameEvent, PlayerId, PlayerView, PublicPlayer } from "@howlsinthedark/shared";
 import { chatAccessFor } from "./chat.js";
 import { pendingActionFor, witchHealable } from "./pending.js";
 import { findPlayer, type GameState, hasPower, loverOf, type PlayerState } from "./state.js";

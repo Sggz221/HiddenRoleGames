@@ -1,5 +1,5 @@
 {
-  "extends": "@aullidos/tsconfig/react.json",
+  "extends": "@howlsinthedark/tsconfig/react.json",
   "compilerOptions": {
     "customConditions": ["development"],
     "types": ["vite/client", "node"]

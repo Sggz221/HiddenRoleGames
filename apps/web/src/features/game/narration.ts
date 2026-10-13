@@ -1,4 +1,4 @@
-import type { NarrationLine } from "@aullidos/shared";
+import type { NarrationLine } from "@howlsinthedark/shared";
 import type { TFunction } from "i18next";
 
 /**

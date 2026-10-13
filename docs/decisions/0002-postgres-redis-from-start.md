@@ -10,7 +10,7 @@ PLAN.md proponía estado en memoria en el MVP, Postgres en la fase 2 y Redis "so
 
 ## Decisión
 
-1. **Redis** guarda una *snapshot* (`GameState` + `phaseEndsAt`) de cada partida en curso tras cada cambio (clave `aullidos:game:{id}`, TTL configurable).
+1. **Redis** guarda una *snapshot* (`GameState` + `phaseEndsAt`) de cada partida en curso tras cada cambio (clave `howlsinthedark:game:{id}`, TTL configurable).
    - Al arrancar, `GameRegistry.restoreAll()` reanuda las partidas.
    - Si una fase venció mientras el servidor estaba caído, avanza al momento.
 2. **Redis** también es el adaptador de Socket.IO (`@socket.io/redis-adapter`), preparado para varias instancias.

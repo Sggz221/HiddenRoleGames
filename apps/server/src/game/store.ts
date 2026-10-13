@@ -1,4 +1,4 @@
-import type { GameState } from "@aullidos/game-engine";
+import type { GameState } from "@howlsinthedark/game-engine";
 import type { Redis } from "ioredis";
 
 /** Everything needed to resume a live game after a restart or deploy. */
@@ -38,7 +38,7 @@ export class MemoryGameStore implements GameStore {
   }
 }
 
-const PREFIX = "aullidos:game:";
+const PREFIX = "howlsinthedark:game:";
 
 export class RedisGameStore implements GameStore {
   constructor(

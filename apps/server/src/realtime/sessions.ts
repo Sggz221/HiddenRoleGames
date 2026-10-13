@@ -2,7 +2,7 @@ import {
   type PlayerId,
   type SessionResumeAckResponse,
   sessionResumeSchema,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import type { GameRegistry } from "../game/registry.js";
 import type { RoomManager } from "../rooms/manager.js";
 import type { SessionManager } from "../sessions/session-manager.js";

@@ -5,7 +5,7 @@ import type {
   NarrationLine,
   Phase,
   PlayerId,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import { nightSteps } from "./advance.js";
 import { findPlayer, type GameState } from "./state.js";
 

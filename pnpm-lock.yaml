@@ -181,18 +181,18 @@ importers:
 
   apps/server:
     dependencies:
-      '@aullidos/game-engine':
-        specifier: workspace:*
-        version: link:../../packages/game-engine
-      '@aullidos/shared':
-        specifier: workspace:*
-        version: link:../../packages/shared
       '@fastify/helmet':
         specifier: ^13.1.2
         version: 13.1.2
       '@fastify/static':
         specifier: ^10.1.6
         version: 10.1.6
+      '@howlsinthedark/game-engine':
+        specifier: workspace:*
+        version: link:../../packages/game-engine
+      '@howlsinthedark/shared':
+        specifier: workspace:*
+        version: link:../../packages/shared
       '@socket.io/redis-adapter':
         specifier: ^8.3.0
         version: 8.3.0(socket.io-adapter@2.5.8)
@@ -215,10 +215,10 @@ importers:
         specifier: ^4.6.6
         version: 4.6.6
     devDependencies:
-      '@aullidos/bots':
+      '@howlsinthedark/bots':
         specifier: workspace:*
         version: link:../../packages/bots
-      '@aullidos/tsconfig':
+      '@howlsinthedark/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@types/node':
@@ -245,7 +245,7 @@ importers:
 
   apps/web:
     dependencies:
-      '@aullidos/shared':
+      '@howlsinthedark/shared':
         specifier: workspace:*
         version: link:../../packages/shared
       howler:
@@ -267,7 +267,7 @@ importers:
         specifier: ^17.0.16
         version: 17.0.16(i18next@26.4.3(typescript@7.0.2))(react-dom@19.3.0(react@19.3.0))(react@19.3.0)(typescript@7.0.2)
     devDependencies:
-      '@aullidos/tsconfig':
+      '@howlsinthedark/tsconfig':
         specifier: workspace:*
         version: link:../../packages/tsconfig
       '@tailwindcss/vite':
@@ -303,14 +303,14 @@ importers:
 
   packages/bots:
     dependencies:
-      '@aullidos/shared':
+      '@howlsinthedark/shared':
         specifier: workspace:*
         version: link:../shared
       socket.io-client:
         specifier: ^4.8.4
         version: 4.8.4
     devDependencies:
-      '@aullidos/tsconfig':
+      '@howlsinthedark/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       '@types/node':
@@ -325,11 +325,11 @@ importers:
 
   packages/game-engine:
     dependencies:
-      '@aullidos/shared':
+      '@howlsinthedark/shared':
         specifier: workspace:*
         version: link:../shared
     devDependencies:
-      '@aullidos/tsconfig':
+      '@howlsinthedark/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       fast-check:
@@ -348,7 +348,7 @@ importers:
         specifier: ^4.6.6
         version: 4.6.6
     devDependencies:
-      '@aullidos/tsconfig':
+      '@howlsinthedark/tsconfig':
         specifier: workspace:*
         version: link:../tsconfig
       typescript:

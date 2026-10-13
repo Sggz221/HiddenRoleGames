@@ -1,4 +1,4 @@
-import { healthResponseSchema } from "@aullidos/shared";
+import { healthResponseSchema } from "@howlsinthedark/shared";
 import { afterEach, describe, expect, it } from "vitest";
 import { loadEnv } from "../config/env.js";
 import { buildApp } from "./app.js";

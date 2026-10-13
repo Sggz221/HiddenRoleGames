@@ -1,5 +1,5 @@
 import { createHash, randomBytes } from "node:crypto";
-import type { PlayerId } from "@aullidos/shared";
+import type { PlayerId } from "@howlsinthedark/shared";
 import { type Clock, systemClock } from "../game/session.js";
 
 export interface SessionRecord {

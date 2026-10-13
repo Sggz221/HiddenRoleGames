@@ -1,5 +1,5 @@
 {
-  "name": "@aullidos/web",
+  "name": "@howlsinthedark/web",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -12,7 +12,7 @@
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\""
   },
   "dependencies": {
-    "@aullidos/shared": "workspace:*",
+    "@howlsinthedark/shared": "workspace:*",
     "howler": "^2.2.4",
     "i18next": "^26.4.3",
     "lucide-react": "^1.55.0",
@@ -21,7 +21,7 @@
     "react-i18next": "^17.0.16"
   },
   "devDependencies": {
-    "@aullidos/tsconfig": "workspace:*",
+    "@howlsinthedark/tsconfig": "workspace:*",
     "@tailwindcss/vite": "^4.3.3",
     "@types/howler": "^2.2.13",
     "@types/node": "^26.6.5",

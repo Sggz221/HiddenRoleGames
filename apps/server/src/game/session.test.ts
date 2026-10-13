@@ -4,7 +4,7 @@ import {
   type GameViewMessage,
   gameConfigSchema,
   type NarrationLine,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FinishedGame, GameHistory } from "../persistence/game-history.js";
 import { GameRegistry } from "./registry.js";

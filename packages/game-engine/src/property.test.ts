@@ -7,7 +7,7 @@ import {
   ROLE_IDS,
   type RoleId,
   validateDeck,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import fc from "fast-check";
 import { describe, expect, it } from "vitest";
 import { applyAction } from "./actions.js";

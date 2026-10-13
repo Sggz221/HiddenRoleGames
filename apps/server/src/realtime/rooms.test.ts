@@ -6,7 +6,7 @@ import type {
   RoomAckResponse,
   RoomStateMessage,
   ServerToClientEvents,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import { io as connect, type Socket } from "socket.io-client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { GameRegistry } from "../game/registry.js";

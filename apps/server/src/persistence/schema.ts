@@ -1,5 +1,5 @@
-import type { GameState } from "@aullidos/game-engine";
-import type { GameConfig, RoleId, Side, WinnerTeam } from "@aullidos/shared";
+import type { GameState } from "@howlsinthedark/game-engine";
+import type { GameConfig, RoleId, Side, WinnerTeam } from "@howlsinthedark/shared";
 import {
   boolean,
   index,

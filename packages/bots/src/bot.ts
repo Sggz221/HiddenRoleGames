@@ -10,7 +10,7 @@ import type {
   RoomStateMessage,
   ServerToClientEvents,
   SessionResumeAckResponse,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import { io, type Socket } from "socket.io-client";
 import { chooseAction, createRng } from "./strategy.js";
 

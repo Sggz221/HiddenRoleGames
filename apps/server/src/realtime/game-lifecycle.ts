@@ -7,7 +7,7 @@ import {
   MIN_PLAYERS,
   recommendedDeck,
   roomStartSchema,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import type { GameRegistry } from "../game/registry.js";
 import type { Logger } from "../game/session.js";
 import type { RoomManager } from "../rooms/manager.js";

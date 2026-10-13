@@ -5,13 +5,13 @@
 // Keep it in sync: anything omitted here is removed on apply.
 //
 // Environments map to Git Flow branches:
-//   production -> main     (releases)   https://hiddenrolegames-production.up.railway.app
-//   development    -> develop  (integration) https://hiddenrolegames-staging.up.railway.app
+//   production -> main     (releases)   https://howlsinthedark-production.up.railway.app
+//   development    -> develop  (integration) https://howlsinthedark-development.up.railway.app
 //
 // The service builds from the root Dockerfile (auto-detected by Railway).
 import { defineRailway, github, postgres, project, redis, service } from "railway/iac";
 
-const REPO = "Sggz221/HiddenRoleGames";
+const REPO = "Sggz221/howlsinthedark";
 
 export default defineRailway((ctx) => {
   const prod = ctx.isEnvironment("production");
@@ -21,7 +21,7 @@ export default defineRailway((ctx) => {
   const db = postgres(prod ? "Postgres" : "Postgres-rBwq");
   const cache = redis(prod ? "Redis" : "Redis-Ikfu");
 
-  const app = service("HiddenRoleGames", {
+  const app = service("HowlsInTheDark", {
     source: github(REPO, { branch: prod ? "main" : "develop" }),
     healthcheck: "/health",
     healthcheckTimeout: 60,
@@ -41,11 +41,11 @@ export default defineRailway((ctx) => {
       // SENTRY_DSN: ctx.shared.SENTRY_DSN,
     },
     // Once the custom domain exists (PLAN.md §7.3):
-    // domains: prod ? ["aullidos.example"] : [],
+    // domains: prod ? ["howlsinthedark.example"] : [],
   });
 
-  // Current Railway project name; rename it in the dashboard and here together.
-  return project("gleaming-wholeness", {
+  // Railway project name; rename it in the dashboard and here together.
+  return project("Howls in the dark", {
     resources: [app, db, cache],
   });
 });

@@ -3,7 +3,7 @@ import {
   type NarrationLine,
   type NarrationParams,
   ROLE_IDS,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import { describe, expect, it } from "vitest";
 import i18n from "../../i18n";
 import es from "../../i18n/locales/es.json";

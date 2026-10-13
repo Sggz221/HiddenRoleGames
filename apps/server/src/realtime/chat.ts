@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { type Ack, type AckResponse, chatSendSchema } from "@aullidos/shared";
+import { type Ack, type AckResponse, chatSendSchema } from "@howlsinthedark/shared";
 import type { GameRegistry } from "../game/registry.js";
 import type { RoomManager } from "../rooms/manager.js";
 import type { IoServer, IoSocket } from "./io.js";

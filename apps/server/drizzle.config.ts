@@ -5,7 +5,9 @@ export default defineConfig({
   schema: "./src/persistence/schema.ts",
   out: "./drizzle",
   dbCredentials: {
-    url: process.env.DATABASE_URL ?? "postgres://aullidos:aullidos@localhost:5432/aullidos",
+    url:
+      process.env.DATABASE_URL ??
+      "postgres://howlsinthedark:howlsinthedark@localhost:5432/howlsinthedark",
   },
   strict: true,
   verbose: true,

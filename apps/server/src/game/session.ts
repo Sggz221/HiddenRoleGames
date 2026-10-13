@@ -12,7 +12,7 @@ import {
   narrate,
   phaseDurationSeconds,
   projectFor,
-} from "@aullidos/game-engine";
+} from "@howlsinthedark/game-engine";
 import type {
   AckResponse,
   ChatChannel,
@@ -23,7 +23,7 @@ import type {
   GameEventPayload,
   GameViewMessage,
   NarrationLine,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import type { GameHistory } from "../persistence/game-history.js";
 import type { GameSnapshot, GameStore } from "./store.js";
 

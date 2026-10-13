@@ -1,4 +1,4 @@
-import type { PlayerId, PublicDeathCause } from "@aullidos/shared";
+import type { PlayerId, PublicDeathCause } from "@howlsinthedark/shared";
 import {
   ALL,
   type DeathCause,

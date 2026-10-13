@@ -1,5 +1,5 @@
-import type { Bot } from "@aullidos/bots";
-import { CHAT_MESSAGE_MAX_LENGTH } from "@aullidos/shared";
+import type { Bot } from "@howlsinthedark/bots";
+import { CHAT_MESSAGE_MAX_LENGTH } from "@howlsinthedark/shared";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { settle, startTestServer, type TestServer } from "../testing/realtime-harness.js";
 import { CHAT_RATE_LIMIT } from "./chat.js";

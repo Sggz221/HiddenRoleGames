@@ -1,4 +1,4 @@
-import { type GameEvent, gameConfigSchema } from "@aullidos/shared";
+import { type GameEvent, gameConfigSchema } from "@howlsinthedark/shared";
 import { describe, expect, it } from "vitest";
 import { applyAction } from "./actions.js";
 import { advancePhase, canAdvanceEarly, nightSteps } from "./advance.js";

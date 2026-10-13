@@ -1,4 +1,9 @@
-import { CHAT_CHANNELS, type ChatAccess, type ChatChannel, type PlayerId } from "@aullidos/shared";
+import {
+  CHAT_CHANNELS,
+  type ChatAccess,
+  type ChatChannel,
+  type PlayerId,
+} from "@howlsinthedark/shared";
 import { findPlayer, type GameState, hasPower, loverOf, type PlayerState } from "./state.js";
 
 export interface ChatRecipient {

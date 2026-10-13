@@ -1,7 +1,7 @@
 # Howls in the Dark: instrucciones para Claude
 
 ## Qué es
-Nombre público: **Howls in the Dark** (constante `APP_NAME` en `packages/shared`). "Aullidos" fue el nombre de trabajo y se mantiene en el código interno (`@aullidos/*`).
+Nombre público: **Howls in the Dark** (constante `APP_NAME` en `packages/shared`). Identificador técnico: `howlsinthedark` (paquetes `@howlsinthedark/*`, imágenes Docker, claves de Redis y almacenamiento). "Aullidos" fue el nombre de trabajo y ya no se usa.
 Juego web multijugador de rol oculto (tipo "Hombres Lobo"). Monorepo pnpm + Turborepo.
 Lee PLAN.md para el contexto completo antes de proponer cambios de arquitectura.
 
@@ -31,7 +31,7 @@ Lee PLAN.md para el contexto completo antes de proponer cambios de arquitectura.
 9. Respetar `prefers-reduced-motion` en toda animación nueva.
 
 ## Contrato con la infraestructura
-- Paquetes: `@aullidos/{web,server,shared,game-engine,bots,tsconfig}`.
+- Paquetes: `@howlsinthedark/{web,server,shared,game-engine,bots,tsconfig}`.
 - `server` compila a `apps/server/dist/index.js`, escucha en `$PORT`, sirve estáticos desde `$STATIC_DIR`, expone `GET /health` (liveness) y `GET /health/ready`, y maneja `SIGTERM`.
 - `DATABASE_URL` (Postgres, historial) y `REDIS_URL` (snapshots de partidas + adaptador Socket.IO) son opcionales; sin ellos todo funciona en memoria.
 - Migraciones: `node dist/persistence/migrate.js` (pre-deploy en Railway). Nunca editar una migración ya aplicada: generar otra.
