@@ -6,7 +6,6 @@
     "joinTitle": "¿Tienes un código?",
     "joinPlaceholder": "Código de sala",
     "join": "Unirse",
-    "comingSoon": "Muy pronto",
     "players": "De {{min}} a {{max}} jugadores · sin instalar nada",
     "howTo": {
       "title": "Cómo se juega",
@@ -75,7 +74,12 @@
         "text": "El servidor decide las reglas: nadie puede mirar las cartas de los demás."
       }
     },
-    "footer": "Hecho con nocturnidad."
+    "footer": "Hecho con nocturnidad.",
+    "nameLabel": "Tu nombre en la aldea",
+    "namePlaceholder": "Cómo te verán los demás",
+    "nameRequired": "Escribe tu nombre para entrar.",
+    "working": "Un momento…",
+    "resuming": "Volviendo a tu asiento…"
   },
   "server": {
     "checking": "Comprobando servidor…",
@@ -217,5 +221,94 @@
       "angel": "¡El ángel gana! {{names}} consiguió que lo mataran pronto.",
       "none": "Nadie gana. La aldea queda en silencio."
     }
+  },
+  "lobby": {
+    "codeLabel": "Código de la sala",
+    "copy": "Copiar enlace",
+    "copied": "¡Copiado!",
+    "share": "Compartir",
+    "shareText": "Únete a mi partida de {{app}} con el código {{code}}",
+    "leave": "Salir de la sala",
+    "players": "Jugadores ({{count}}/{{max}})",
+    "you": "tú",
+    "host": "Anfitrión",
+    "offline": "Sin conexión",
+    "waitingHost": "Esperando a que {{name}} empiece la partida…",
+    "needMore": "Faltan {{count}} jugadores para poder empezar (mínimo {{min}}).",
+    "offlineBanner": "Sin conexión con el servidor. Reconectando…",
+    "settings": {
+      "title": "Ajustes de la partida",
+      "hint": "Solo tú ves estos ajustes. Se aplican al empezar.",
+      "deck": "Cartas",
+      "recommended": "Recomendadas",
+      "recommendedHint": "Una baraja equilibrada para {{count}} jugadores.",
+      "custom": "Personalizadas",
+      "cards": "{{cards}} cartas para {{players}} jugadores",
+      "pace": "Ritmo",
+      "paces": {
+        "fast": "Rápido",
+        "normal": "Normal",
+        "slow": "Pausado"
+      },
+      "paceHint": "Debate de {{debate}} min, votación de {{vote}} s, {{night}} s por turno de noche.",
+      "sheriff": "Elegir alguacil (su voto vale doble)",
+      "revealOnDeath": "Al morir se revela",
+      "reveal": {
+        "role": "La carta",
+        "side": "Solo el bando",
+        "none": "Nada"
+      },
+      "voteTieRule": "En caso de empate",
+      "tie": {
+        "runoff": "Segunda votación",
+        "no-elimination": "Nadie es expulsado",
+        "sheriff": "Decide el alguacil"
+      },
+      "add": "Añadir {{role}}",
+      "remove": "Quitar {{role}}"
+    },
+    "categories": {
+      "wolf": "Lobos",
+      "villager": "Aldeanos",
+      "ambiguous": "Ambiguos",
+      "loner": "Solitarios"
+    },
+    "start": "Empezar la partida",
+    "starting": "Repartiendo cartas…",
+    "problems": {
+      "notEnoughPlayers": "Hacen falta al menos {{min}} jugadores (ahora {{players}}).",
+      "deckSize": "Hay {{cards}} cartas para {{players}} jugadores: tiene que haber una por jugador.",
+      "tooManyCopies": "Solo puede haber {{max}} {{role}}.",
+      "exactCopies": "{{role}}: tiene que haber exactamente {{required}}.",
+      "noWolves": "Hace falta al menos un lobo.",
+      "wolvesMajority": "Los lobos tienen que ser menos que el resto ({{wolves}} contra {{others}})."
+    }
+  },
+  "game": {
+    "started": "La partida ha empezado",
+    "yourCard": "Tu carta",
+    "narrator": "El narrador",
+    "comingSoon": "La pantalla de juego completa llega pronto."
+  },
+  "errors": {
+    "INVALID_PAYLOAD": "Algo no cuadra en los datos enviados.",
+    "NOT_IN_GAME": "No estás en ninguna partida.",
+    "NOT_ALLOWED": "Ahora mismo no puedes hacer eso.",
+    "INVALID_TARGET": "Ese objetivo no es válido.",
+    "DUPLICATE_TARGET": "No puedes elegir dos veces al mismo jugador.",
+    "POTION_USED": "Ya has usado esa poción.",
+    "RATE_LIMITED": "Vas muy rápido. Espera un momento.",
+    "ROOM_NOT_FOUND": "No existe ninguna sala con ese código.",
+    "ROOM_FULL": "La sala está llena.",
+    "NAME_TAKEN": "Ya hay alguien con ese nombre en la sala.",
+    "ALREADY_IN_ROOM": "Ya estás en una sala.",
+    "NOT_IN_ROOM": "Ya no estás en la sala.",
+    "TOO_MANY_ATTEMPTS": "Demasiados intentos. Espera un minuto.",
+    "GAME_IN_PROGRESS": "La partida ya ha empezado.",
+    "NOT_ENOUGH_PLAYERS": "Faltan jugadores para empezar.",
+    "INVALID_CONFIG": "La configuración de la partida no es válida.",
+    "SESSION_NOT_FOUND": "Tu asiento ya no existe.",
+    "INTERNAL": "Error del servidor. Inténtalo de nuevo.",
+    "TIMEOUT": "El servidor no responde. Comprueba tu conexión."
   }
 }

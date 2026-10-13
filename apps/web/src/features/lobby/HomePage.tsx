@@ -1,4 +1,4 @@
-import { APP_NAME, MAX_PLAYERS, MIN_PLAYERS, ROLE_IDS } from "@howlsinthedark/shared";
+import { APP_NAME, ROLE_IDS } from "@howlsinthedark/shared";
 import {
   Crosshair,
   Eye,
@@ -12,19 +12,11 @@ import {
   Smartphone,
   Sparkles,
 } from "lucide-react";
-import { useId, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AudioToggle } from "../../components/AudioToggle";
 import { Moon, NightScene } from "../../components/NightScene";
 import { ServerStatusBadge } from "../../components/ServerStatusBadge";
-
-const ROOM_CODE_LENGTH = 6;
-
-const normalizeRoomCode = (value: string) =>
-  value
-    .toUpperCase()
-    .replace(/[^A-Z0-9]/g, "")
-    .slice(0, ROOM_CODE_LENGTH);
+import { EntryPanel } from "./EntryPanel";
 
 const STEPS = ["step1", "step2", "step3", "step4"] as const;
 
@@ -46,8 +38,6 @@ const FEATURES = [
 
 export function HomePage() {
   const { t } = useTranslation();
-  const codeInputId = useId();
-  const [code, setCode] = useState("");
 
   return (
     <div className="flex min-h-dvh flex-col">
@@ -65,50 +55,7 @@ export function HomePage() {
 
       <main className="relative z-10 -mt-24 flex flex-col gap-20 px-6 pb-16">
         <section className="mx-auto w-full max-w-md" aria-label={t("home.createRoom")}>
-          <div className="flex flex-col gap-4 rounded-2xl border border-panel-border bg-sky/80 p-5 shadow-2xl shadow-black/50 backdrop-blur-md">
-            {/* Room creation and joining are wired up with the lobby (HID-9). */}
-            <button
-              type="button"
-              disabled
-              title={t("home.comingSoon")}
-              className="w-full rounded-xl bg-blood px-6 py-4 font-semibold text-lg text-white shadow-blood/30 shadow-lg transition-colors enabled:hover:bg-blood-strong disabled:cursor-not-allowed disabled:opacity-60"
-            >
-              {t("home.createRoom")}
-            </button>
-
-            <form
-              className="flex flex-col gap-2 text-left"
-              onSubmit={(event) => event.preventDefault()}
-            >
-              <label htmlFor={codeInputId} className="font-medium text-ink-muted text-sm">
-                {t("home.joinTitle")}
-              </label>
-              <div className="flex gap-2">
-                <input
-                  id={codeInputId}
-                  value={code}
-                  onChange={(event) => setCode(normalizeRoomCode(event.target.value))}
-                  placeholder={t("home.joinPlaceholder")}
-                  autoComplete="off"
-                  autoCapitalize="characters"
-                  spellCheck={false}
-                  className="min-w-0 flex-1 rounded-lg border border-panel-border bg-sky-deep px-4 py-3 font-mono text-lg uppercase tracking-[0.3em] placeholder:text-ink-muted/60 placeholder:tracking-normal focus:border-moon focus:outline-none"
-                />
-                <button
-                  type="submit"
-                  disabled
-                  title={t("home.comingSoon")}
-                  className="rounded-lg border border-panel-border px-5 py-3 font-semibold disabled:cursor-not-allowed disabled:opacity-60"
-                >
-                  {t("home.join")}
-                </button>
-              </div>
-            </form>
-
-            <p className="text-center text-ink-muted text-sm">
-              {t("home.players", { min: MIN_PLAYERS, max: MAX_PLAYERS })} · {t("home.comingSoon")}
-            </p>
-          </div>
+          <EntryPanel />
         </section>
 
         <section className="mx-auto w-full max-w-3xl" aria-labelledby="how-to-title">
