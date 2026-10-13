@@ -11,7 +11,7 @@ import {
   type NewPlayer,
   phaseDurationSeconds,
   projectFor,
-} from "@aullidos/game-engine";
+} from "@howlsinthedark/game-engine";
 import type {
   AckResponse,
   ChatChannel,
@@ -21,7 +21,7 @@ import type {
   GameEvent,
   GameEventPayload,
   GameViewMessage,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import type { GameHistory } from "../persistence/game-history.js";
 import type { GameSnapshot, GameStore } from "./store.js";
 

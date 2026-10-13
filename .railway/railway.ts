@@ -41,7 +41,7 @@ export default defineRailway((ctx) => {
       // SENTRY_DSN: ctx.shared.SENTRY_DSN,
     },
     // Once the custom domain exists (PLAN.md §7.3):
-    // domains: prod ? ["aullidos.example"] : [],
+    // domains: prod ? ["howlsinthedark.example"] : [],
   });
 
   // Current Railway project name; rename it in the dashboard and here together.

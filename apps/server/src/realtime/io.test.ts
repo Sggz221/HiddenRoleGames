@@ -1,6 +1,10 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import type { AckResponse, ClientToServerEvents, ServerToClientEvents } from "@aullidos/shared";
+import type {
+  AckResponse,
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from "@howlsinthedark/shared";
 import { io as connect, type Socket } from "socket.io-client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { GameRegistry } from "../game/registry.js";

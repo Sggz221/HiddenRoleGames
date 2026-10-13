@@ -1,4 +1,4 @@
-import { APP_NAME, MAX_PLAYERS, MIN_PLAYERS, ROLE_IDS } from "@aullidos/shared";
+import { APP_NAME, MAX_PLAYERS, MIN_PLAYERS, ROLE_IDS } from "@howlsinthedark/shared";
 import {
   Crosshair,
   Eye,

@@ -1,5 +1,5 @@
 import { randomInt } from "node:crypto";
-import { ROOM_CODE_ALPHABET, ROOM_CODE_LENGTH } from "@aullidos/shared";
+import { ROOM_CODE_ALPHABET, ROOM_CODE_LENGTH } from "@howlsinthedark/shared";
 
 export type RandomInt = (maxExclusive: number) => number;
 

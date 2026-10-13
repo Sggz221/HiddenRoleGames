@@ -1,4 +1,4 @@
-import type { PendingAction, PlayerView, PublicPlayer, SelfView } from "@aullidos/shared";
+import type { PendingAction, PlayerView, PublicPlayer, SelfView } from "@howlsinthedark/shared";
 import { describe, expect, it } from "vitest";
 import { chooseAction, createRng } from "./strategy.js";
 

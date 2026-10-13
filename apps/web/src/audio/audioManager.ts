@@ -1,4 +1,4 @@
-import type { GameEvent, Phase } from "@aullidos/shared";
+import type { GameEvent, Phase } from "@howlsinthedark/shared";
 import { Howl, Howler } from "howler";
 import {
   EFFECTS,
@@ -9,7 +9,7 @@ import {
   musicForPhase,
 } from "./catalog";
 
-const STORAGE_KEY = "aullidos.audio.muted";
+const STORAGE_KEY = "howlsinthedark.audio.muted";
 const FADE_MS = 1200;
 
 function readMuted(): boolean {

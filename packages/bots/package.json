@@ -1,5 +1,5 @@
 {
-  "name": "@aullidos/bots",
+  "name": "@howlsinthedark/bots",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -20,11 +20,11 @@
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\""
   },
   "dependencies": {
-    "@aullidos/shared": "workspace:*",
+    "@howlsinthedark/shared": "workspace:*",
     "socket.io-client": "^4.8.4"
   },
   "devDependencies": {
-    "@aullidos/tsconfig": "workspace:*",
+    "@howlsinthedark/tsconfig": "workspace:*",
     "@types/node": "^26.6.5",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3"

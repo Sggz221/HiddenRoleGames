@@ -5,7 +5,7 @@ import {
   type RoomAckResponse,
   roomCreateSchema,
   roomJoinSchema,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import type { RoomManager } from "../rooms/manager.js";
 import type { SessionManager } from "../sessions/session-manager.js";
 import { type IoServer, type IoSocket, playerRoom } from "./io.js";

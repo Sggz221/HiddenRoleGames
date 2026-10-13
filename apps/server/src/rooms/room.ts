@@ -1,4 +1,4 @@
-import type { PlayerId, RoomMember, RoomStateMessage } from "@aullidos/shared";
+import type { PlayerId, RoomMember, RoomStateMessage } from "@howlsinthedark/shared";
 
 export type AddMemberError = "FULL" | "NAME_TAKEN";
 

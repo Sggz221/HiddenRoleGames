@@ -1,4 +1,4 @@
-import type { PlayerId } from "@aullidos/shared";
+import type { PlayerId } from "@howlsinthedark/shared";
 import { describe, expect, it } from "vitest";
 import { chatAccessFor, chatRecipients } from "./chat.js";
 import type { GameState } from "./state.js";

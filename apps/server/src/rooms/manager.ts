@@ -1,5 +1,5 @@
 import { randomUUID } from "node:crypto";
-import { MAX_PLAYERS, type PlayerId, type RoomMember } from "@aullidos/shared";
+import { MAX_PLAYERS, type PlayerId, type RoomMember } from "@howlsinthedark/shared";
 import { AttemptLimiter, type AttemptLimiterOptions } from "./attempt-limiter.js";
 import { generateRoomCode, type RandomInt } from "./code.js";
 import { Room } from "./room.js";

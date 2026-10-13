@@ -1,4 +1,4 @@
-import { ROOM_CODE_ALPHABET, ROOM_CODE_LENGTH, roomCodeSchema } from "@aullidos/shared";
+import { ROOM_CODE_ALPHABET, ROOM_CODE_LENGTH, roomCodeSchema } from "@howlsinthedark/shared";
 import { describe, expect, it } from "vitest";
 import { generateRoomCode } from "./code.js";
 import { RoomManager, type RoomManagerOptions } from "./manager.js";

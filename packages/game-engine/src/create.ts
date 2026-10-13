@@ -1,4 +1,4 @@
-import { type GameConfig, type GameEvent, ROLES, validateDeck } from "@aullidos/shared";
+import { type GameConfig, type GameEvent, ROLES, validateDeck } from "@howlsinthedark/shared";
 import { startDay, startNight } from "./advance.js";
 import { RngCursor, toSeed } from "./rng.js";
 import { ALL, Draft, emptyNight, type GameState, to } from "./state.js";

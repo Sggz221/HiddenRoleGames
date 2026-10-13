@@ -1,4 +1,4 @@
-import type { GameEvent } from "@aullidos/shared";
+import type { GameEvent } from "@howlsinthedark/shared";
 import { describe, expect, it } from "vitest";
 import { applyAction } from "./actions.js";
 import {

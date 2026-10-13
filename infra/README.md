@@ -18,7 +18,7 @@
 
 ## Railway: estado actual
 
-- **Proyecto:** `gleaming-wholeness` (workspace "Samuel's Projects"). Renombrar a `aullidos` en el dashboard y en `.railway/railway.ts` a la vez.
+- **Proyecto:** `gleaming-wholeness` (workspace "Samuel's Projects"). Renombrar a `howlsinthedark` en el dashboard y en `.railway/railway.ts` a la vez.
 - **Servicio:** `HiddenRoleGames`, construido desde el `Dockerfile` raíz, 1 réplica en `europe-west4-drams3a`.
 - **Healthcheck:** `GET /health` (60 s). Reinicio `ON_FAILURE` (5 reintentos). Drenado de 20 s para el apagado limpio.
 - **Variables:** `NODE_ENV=production`, `PORT=3000` (coincide con el puerto del dominio), `LOG_LEVEL` (`info` en prod, `debug` en development), `PUBLIC_URL=https://${{RAILWAY_PUBLIC_DOMAIN}}`.

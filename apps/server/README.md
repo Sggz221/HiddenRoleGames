@@ -1,4 +1,4 @@
-# @aullidos/server
+# @howlsinthedark/server
 
 Servidor Fastify + Socket.IO autoritativo. Ver PLAN.md §1.3 y §4.3.
 

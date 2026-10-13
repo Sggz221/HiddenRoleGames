@@ -1,4 +1,4 @@
-# @aullidos/bots
+# @howlsinthedark/bots
 
 Clientes bot (`socket.io-client`) que juegan contra el servidor real, igual que el cliente web: solo leen `game:view` y responden a lo que ofrece `view.pending`.
 

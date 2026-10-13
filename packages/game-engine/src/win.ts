@@ -1,4 +1,4 @@
-import type { GameResult, PlayerId } from "@aullidos/shared";
+import type { GameResult, PlayerId } from "@howlsinthedark/shared";
 import { alivePlayers, type GameState, type PlayerState } from "./state.js";
 
 /** Lovers on different sides abandon their side: they can only win together. */

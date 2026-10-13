@@ -1,5 +1,5 @@
 {
-  "name": "aullidos",
+  "name": "howlsinthedark",
   "private": true,
   "description": "Juego web multijugador de rol oculto (monorepo)",
   "packageManager": "pnpm@12.11.2",
@@ -24,9 +24,9 @@
     "railway:apply": "railway config apply",
     "infra:up": "docker compose up -d --wait postgres redis",
     "infra:down": "docker compose --profile app down",
-    "db:generate": "pnpm --filter @aullidos/server db:generate",
-    "db:migrate": "pnpm --filter @aullidos/server db:migrate",
-    "db:studio": "pnpm --filter @aullidos/server db:studio"
+    "db:generate": "pnpm --filter @howlsinthedark/server db:generate",
+    "db:migrate": "pnpm --filter @howlsinthedark/server db:migrate",
+    "db:studio": "pnpm --filter @howlsinthedark/server db:studio"
   },
   "devDependencies": {
     "@biomejs/biome": "2.5.15",

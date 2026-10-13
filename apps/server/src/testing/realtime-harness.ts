@@ -1,6 +1,6 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import { Bot, type BotOptions } from "@aullidos/bots";
+import { Bot, type BotOptions } from "@howlsinthedark/bots";
 import { GameRegistry } from "../game/registry.js";
 import { MemoryGameStore } from "../game/store.js";
 import { NoopGameHistory } from "../persistence/game-history.js";

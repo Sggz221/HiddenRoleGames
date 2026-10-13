@@ -1,4 +1,4 @@
-import type { GameAction, GameEvent, PlayerId } from "@aullidos/shared";
+import type { GameAction, GameEvent, PlayerId } from "@howlsinthedark/shared";
 import { packIds } from "./deaths.js";
 import { pendingActionFor, witchHealable } from "./pending.js";
 import { ALL, Draft, type GameState, to } from "./state.js";

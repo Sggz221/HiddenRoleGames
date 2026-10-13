@@ -3,7 +3,7 @@ import type { Logger } from "../game/session.js";
 
 export function connectRedis(url: string, log: Logger, name: string): Redis {
   const redis = new Redis(url, {
-    connectionName: `aullidos:${name}`,
+    connectionName: `howlsinthedark:${name}`,
     maxRetriesPerRequest: 3,
     // Railway's private network is IPv6-only.
     family: 0,

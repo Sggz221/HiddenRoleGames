@@ -1,5 +1,5 @@
 {
-  "name": "@aullidos/game-engine",
+  "name": "@howlsinthedark/game-engine",
   "version": "0.1.0",
   "private": true,
   "type": "module",
@@ -21,10 +21,10 @@
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\""
   },
   "dependencies": {
-    "@aullidos/shared": "workspace:*"
+    "@howlsinthedark/shared": "workspace:*"
   },
   "devDependencies": {
-    "@aullidos/tsconfig": "workspace:*",
+    "@howlsinthedark/tsconfig": "workspace:*",
     "fast-check": "^4.10.2",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3"

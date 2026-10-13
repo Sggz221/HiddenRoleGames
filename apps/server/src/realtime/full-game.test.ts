@@ -1,5 +1,5 @@
-import type { Bot } from "@aullidos/bots";
-import { type RoleId, type RoomStart, recommendedDeck } from "@aullidos/shared";
+import type { Bot } from "@howlsinthedark/bots";
+import { type RoleId, type RoomStart, recommendedDeck } from "@howlsinthedark/shared";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import {
   playUntilEnd,

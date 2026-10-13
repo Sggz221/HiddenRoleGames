@@ -1,6 +1,6 @@
 import { randomUUID } from "node:crypto";
-import type { NewPlayer } from "@aullidos/game-engine";
-import type { GameConfig } from "@aullidos/shared";
+import type { NewPlayer } from "@howlsinthedark/game-engine";
+import type { GameConfig } from "@howlsinthedark/shared";
 import { GameSession, type SessionDeps } from "./session.js";
 
 /**

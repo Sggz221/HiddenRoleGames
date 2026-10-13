@@ -9,8 +9,8 @@ import type {
   PlayerId,
   RoleId,
   Side,
-} from "@aullidos/shared";
-import { VILLAGE_POWER_ROLES } from "@aullidos/shared";
+} from "@howlsinthedark/shared";
+import { VILLAGE_POWER_ROLES } from "@howlsinthedark/shared";
 import { RngCursor } from "./rng.js";
 
 export interface PlayerState {

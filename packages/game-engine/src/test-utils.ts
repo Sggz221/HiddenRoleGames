@@ -7,7 +7,7 @@ import {
   type PlayerId,
   ROLES,
   type RoleId,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import { expect } from "vitest";
 import { applyAction } from "./actions.js";
 import { advancePhase } from "./advance.js";

@@ -1,4 +1,4 @@
-import type { GameAction, PlayerId, PlayerView } from "@aullidos/shared";
+import type { GameAction, PlayerId, PlayerView } from "@howlsinthedark/shared";
 
 /** Small seeded PRNG (mulberry32) so a bot's choices are reproducible. */
 export function createRng(seed: number): () => number {

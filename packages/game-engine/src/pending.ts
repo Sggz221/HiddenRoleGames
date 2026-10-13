@@ -1,4 +1,4 @@
-import type { GameActionType, PendingAction, PlayerId } from "@aullidos/shared";
+import type { GameActionType, PendingAction, PlayerId } from "@howlsinthedark/shared";
 import { alivePlayers, findPlayer, type GameState, hasPower, type PlayerState } from "./state.js";
 
 const pending = (
