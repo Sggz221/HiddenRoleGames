@@ -410,7 +410,30 @@
     "card": {
       "reveal": "Toca para ver tu carta",
       "hide": "Toca para ocultarla"
-    }
+    },
+    "turn": "Turno",
+    "roleButton": "Tu carta: {{role}}",
+    "hiddenRole": "Carta oculta",
+    "sfxOn": "Silenciar efectos",
+    "sfxOff": "Activar efectos",
+    "musicOn": "Silenciar música",
+    "musicOff": "Activar música",
+    "settings": "Ajustes",
+    "reduceMotion": "Reducir animaciones",
+    "replayReveal": "Ver mi carta otra vez",
+    "clock": "Hora en la aldea: {{hour}}",
+    "history": "Lo que ha pasado",
+    "showMore": "Ver todo",
+    "showLess": "Ver menos",
+    "dead": "Muerto: {{role}}",
+    "deadUnknown": "Su carta es un misterio",
+    "reveal": {
+      "title": "Tu carta",
+      "tap": "Toca para descubrirla",
+      "ok": "Entendido",
+      "secret": "Que nadie más la vea."
+    },
+    "youShort": "tú"
   },
   "errors": {
     "INVALID_PAYLOAD": "Algo no cuadra en los datos enviados.",
@@ -432,5 +455,45 @@
     "SESSION_NOT_FOUND": "Tu asiento ya no existe.",
     "INTERNAL": "Error del servidor. Inténtalo de nuevo.",
     "TIMEOUT": "El servidor no responde. Comprueba tu conexión."
+  },
+  "roleGoals": {
+    "villager": "Descubre a los lobos y expúlsalos de la aldea.",
+    "werewolf": "Devora a los aldeanos de noche y disimula de día. La manada gana si solo quedan lobos.",
+    "infected-father": "Eres de la manada. Una vez por partida puedes infectar a la víctima para que se una a vosotros.",
+    "big-bad-wolf": "Eres de la manada. Mientras no muera ningún lobo, cada noche matas a una segunda víctima.",
+    "white-werewolf": "Cazas con la manada, pero ganas en solitario: cada dos noches puedes matar a un lobo.",
+    "seer": "Cada noche ves la carta de un jugador. Guía a la aldea sin delatarte.",
+    "witch": "Tienes una poción para salvar a la víctima de los lobos y otra para matar. Una vez cada una.",
+    "hunter": "Si mueres, te llevas a alguien contigo con tu último disparo.",
+    "cupid": "La primera noche unes a dos jugadores. Si uno muere, el otro también.",
+    "little-girl": "Espías el chat de la manada sin saber quién escribe. Que no te pillen.",
+    "sister": "Conoces a tu hermana desde el principio. Confiad la una en la otra.",
+    "fox": "Olfateas a un jugador y a sus vecinos: sabrás si hay un lobo entre ellos.",
+    "salvador": "Cada noche proteges a alguien de los lobos, pero no al mismo dos noches seguidas.",
+    "knight": "Si te matan los lobos, el primero de ellos a tu izquierda muere al amanecer.",
+    "elder": "Resistes el primer ataque de los lobos. Si te mata la aldea, los aldeanos pierden sus poderes.",
+    "bear-tamer": "Cada mañana tu oso gruñe si tienes un lobo al lado.",
+    "wild-child": "Eliges a un modelo. Si muere, te unes a la manada.",
+    "wolf-hound": "La primera noche eliges bando: la aldea o la manada.",
+    "piper": "Cada noche encantas a dos jugadores. Ganas si todos los vivos están encantados.",
+    "angel": "Ganas si consigues que te eliminen en el primer turno."
+  },
+  "chat": {
+    "open": "Abrir chats",
+    "close": "Cerrar chats",
+    "title": "Chats",
+    "channels": {
+      "general": "Aldea",
+      "wolves": "Manada",
+      "dead": "Muertos",
+      "lovers": "Pareja"
+    },
+    "placeholder": "Escribe un mensaje…",
+    "send": "Enviar",
+    "readOnly": "Ahora solo puedes leer este canal.",
+    "empty": "Aún no hay mensajes.",
+    "anonymous": "Alguien de la manada",
+    "unread_one": "{{count}} mensaje sin leer",
+    "unread_other": "{{count}} mensajes sin leer"
   }
 }

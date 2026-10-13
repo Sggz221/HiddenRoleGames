@@ -36,14 +36,17 @@ describe("effectForEvent", () => {
     expect(effectForEvent(changed(night), day)).toBe("howl");
     expect(effectForEvent(changed(night), null)).toBe("howl");
     expect(effectForEvent(changed({ kind: "night", step: "seer" }), night)).toBeNull();
+    // The pack wakes with a growl.
+    expect(
+      effectForEvent(changed({ kind: "night", step: "wolves" }), { kind: "night", step: "seer" }),
+    ).toBe("growl");
     expect(effectForEvent(changed(day), night)).toBe("dawn");
     expect(effectForEvent(changed({ kind: "day", step: "vote" }), day)).toBeNull();
   });
 
   it("reacts to deaths and votes, ignores private events", () => {
-    expect(effectForEvent({ type: "playerDied", player: "p1", cause: "night" }, null)).toBe(
-      "death",
-    );
+    expect(effectForEvent({ type: "playerDied", player: "p1", cause: "night" }, null)).toBe("bell");
+    expect(effectForEvent({ type: "playerDied", player: "p1", cause: "vote" }, null)).toBe("death");
     expect(effectForEvent({ type: "voteCast", voter: "p1", target: null }, null)).toBe("vote-cast");
     expect(effectForEvent({ type: "bearGrowled" }, null)).toBeNull();
   });
