@@ -1,5 +1,5 @@
 import type { GameEventPayload, Phase } from "@howlsinthedark/shared";
-import { Howl, Howler } from "howler";
+import { Howl } from "howler";
 import {
   EFFECTS,
   type EffectId,
@@ -9,52 +9,71 @@ import {
   musicForPhase,
 } from "./catalog";
 
-const STORAGE_KEY = "howlsinthedark.audio.muted";
+const MUSIC_KEY = "howlsinthedark.audio.musicMuted";
+const SFX_KEY = "howlsinthedark.audio.sfxMuted";
+/** Before music and effects were separate, one key muted everything. */
+const LEGACY_KEY = "howlsinthedark.audio.muted";
 const FADE_MS = 1200;
 
-function readMuted(): boolean {
+function readFlag(key: string): boolean {
   try {
-    return globalThis.localStorage?.getItem(STORAGE_KEY) === "1";
+    const value = globalThis.localStorage?.getItem(key);
+    return value === null || value === undefined
+      ? globalThis.localStorage?.getItem(LEGACY_KEY) === "1"
+      : value === "1";
   } catch {
     return false; // Storage can be blocked (private mode); audio just defaults to on.
   }
 }
 
+function writeFlag(key: string, value: boolean): void {
+  try {
+    globalThis.localStorage?.setItem(key, value ? "1" : "0");
+  } catch {
+    // Not persisting the preference is harmless.
+  }
+}
+
 /**
- * Plays phase music (cross-faded loops) and one-shot effects with Howler. Howler defers the
- * actual playback until the first user gesture, so calling it before interaction is safe.
+ * Plays phase music (cross-faded loops) and one-shot effects with Howler, each with its own
+ * mute. Howler defers playback until the first user gesture, so calling it early is safe.
  * Assets load lazily the first time they are needed.
  */
 export class AudioManager {
-  private muted = readMuted();
+  private musicMuted = readFlag(MUSIC_KEY);
+  private sfxMuted = readFlag(SFX_KEY);
   private readonly music = new Map<MusicId, Howl>();
   private readonly effects = new Map<EffectId, Howl>();
   private currentMusic: MusicId | null = null;
   private lastPhase: Phase | null = null;
   private listeners = new Set<() => void>();
 
-  constructor() {
-    Howler.mute(this.muted);
-  }
+  isMusicMuted = (): boolean => this.musicMuted;
+  isSfxMuted = (): boolean => this.sfxMuted;
+  /** Everything silent (the single switch in the lobby). */
+  isMuted = (): boolean => this.musicMuted && this.sfxMuted;
 
-  isMuted(): boolean {
-    return this.muted;
-  }
-
-  subscribe(listener: () => void): () => void {
+  subscribe = (listener: () => void): (() => void) => {
     this.listeners.add(listener);
     return () => this.listeners.delete(listener);
+  };
+
+  setMusicMuted(muted: boolean): void {
+    this.musicMuted = muted;
+    writeFlag(MUSIC_KEY, muted);
+    for (const howl of this.music.values()) howl.mute(muted);
+    this.emit();
+  }
+
+  setSfxMuted(muted: boolean): void {
+    this.sfxMuted = muted;
+    writeFlag(SFX_KEY, muted);
+    this.emit();
   }
 
   setMuted(muted: boolean): void {
-    this.muted = muted;
-    Howler.mute(muted);
-    try {
-      globalThis.localStorage?.setItem(STORAGE_KEY, muted ? "1" : "0");
-    } catch {
-      // Not persisting the preference is harmless.
-    }
-    for (const listener of this.listeners) listener();
+    this.setMusicMuted(muted);
+    this.setSfxMuted(muted);
   }
 
   /** Follows the game: switches the background track when the phase category changes. */
@@ -82,6 +101,7 @@ export class AudioManager {
   }
 
   playEffect(id: EffectId): void {
+    if (this.sfxMuted) return;
     let howl = this.effects.get(id);
     if (!howl) {
       const { src, volume } = EFFECTS[id];
@@ -103,11 +123,15 @@ export class AudioManager {
 
     let howl = this.music.get(id);
     if (!howl) {
-      howl = new Howl({ src: [MUSIC[id].src], loop: true, volume: 0 });
+      howl = new Howl({ src: [MUSIC[id].src], loop: true, volume: 0, mute: this.musicMuted });
       this.music.set(id, howl);
     }
     howl.play();
     howl.fade(0, MUSIC[id].volume, FADE_MS);
+  }
+
+  private emit(): void {
+    for (const listener of this.listeners) listener();
   }
 }
 

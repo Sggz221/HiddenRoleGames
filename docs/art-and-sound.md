@@ -5,9 +5,14 @@
 Reproducción con [Howler.js](https://howlerjs.com/) (`apps/web/src/audio`). El navegador bloquea el audio hasta el primer gesto del usuario; Howler lo difiere solo, así que el resto del código puede llamarlo en cualquier momento.
 
 - `catalog.ts`: qué pista suena en cada fase y qué efecto dispara cada evento (funciones puras, con tests).
-- `audioManager.ts`: bucles con fundido cruzado, efectos puntuales y silencio persistente (`localStorage`).
-- `AudioToggle`: botón de silencio accesible (`aria-pressed`).
-- Integración con la partida: la pantalla de juego (HID-10) debe llamar a `audioManager.setPhase(view.phase)` al recibir `game:sync` y a `audioManager.handleEvents(events)` con los eventos de `game:events`; al salir de la partida, `audioManager.stop()`.
+- `audioManager.ts`: bucles con fundido cruzado y efectos puntuales. Música y efectos se silencian por separado y la elección se guarda en `localStorage`.
+- `AudioToggle` (lobby): silencia todo. En la partida, la barra superior tiene un botón para efectos y otro para música.
+- Integración con la partida: `net/client.ts` pasa los `game:events` a `audioManager.handleEvents`; la pantalla de juego sigue la fase con `setPhase`, hace sonar el latido y el tic del contador, el giro de la carta, los desplegables, la selección, el chat y el cierre de victoria o derrota.
+
+## Tipografías
+
+- **Bricolage Grotesque** (texto) y **Grenze Gotisch** (la manada): SIL Open Font License 1.1, empaquetadas desde npm (`@fontsource-variable/bricolage-grotesque`, `@fontsource/grenze-gotisch`). Se sirven desde nuestro propio dominio, sin peticiones a Google.
+- Títulos: Georgia (sistema).
 
 ## Registro de assets
 
@@ -24,5 +29,15 @@ Licencia de todos los assets: **CC0 1.0** (dominio público). Si se añade un as
 | `death.wav` | Anuncio de una muerte | `generate-audio.mjs` | CC0 |
 | `dawn.wav` | Amanecer | `generate-audio.mjs` | CC0 |
 | `vote-cast.wav` | Voto emitido | `generate-audio.mjs` | CC0 |
+| `heartbeat.wav` | Latido en los últimos 10 s de una fase | `generate-audio.mjs` | CC0 |
+| `tick.wav` | Tic de reloj en los últimos 5 s | `generate-audio.mjs` | CC0 |
+| `bell.wav` | Campana al anunciar las muertes de la noche | `generate-audio.mjs` | CC0 |
+| `growl.wav` | Gruñido cuando despierta la manada | `generate-audio.mjs` | CC0 |
+| `card-flip.wav` | Girar la carta de rol | `generate-audio.mjs` | CC0 |
+| `stinger-win.wav` | Fin de partida: tu bando gana | `generate-audio.mjs` | CC0 |
+| `stinger-lose.wav` | Fin de partida: tu bando pierde | `generate-audio.mjs` | CC0 |
+| `ui-open.wav` / `ui-close.wav` | Abrir y cerrar desplegables | `generate-audio.mjs` | CC0 |
+| `select.wav` | Elegir a un jugador | `generate-audio.mjs` | CC0 |
+| `chat-pop.wav` | Llega un mensaje de chat | `generate-audio.mjs` | CC0 |
 
 Los `.wav` son provisionales de calidad "boceto": pueden sustituirse por grabaciones/composiciones con licencia compatible sin tocar código (mismo nombre de archivo, o cambiando `catalog.ts`).
