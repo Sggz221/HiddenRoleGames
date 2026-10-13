@@ -53,8 +53,6 @@ jobs:
     runs-on: ubuntu-latest
     timeout-minutes: 20
     needs: checks
-    # Skipped until Hito 0 creates the server package the Dockerfile builds.
-    if: ${{ hashFiles('apps/server/package.json') != '' }}
     steps:
       - uses: actions/checkout@v7
 

@@ -12,4 +12,4 @@ labels: bug
 
 1.
 
-**Entorno** (local / staging / producción, navegador, móvil)
+**Entorno** (local / development / producción, navegador, móvil)

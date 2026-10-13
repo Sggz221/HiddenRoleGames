@@ -9,6 +9,16 @@ const envSchema = z.object({
   /** Directory with the compiled web client. Unset in dev (Vite serves it). */
   STATIC_DIR: z.string().optional(),
   SENTRY_DSN: z.string().optional(),
+  /** PostgreSQL (game history, later accounts). Without it, history is not persisted. */
+  DATABASE_URL: z.url().optional(),
+  /** Redis (live game snapshots + Socket.IO adapter). Without it, state lives in memory only. */
+  REDIS_URL: z.url().optional(),
+  /** How long a live game snapshot survives in Redis without activity. */
+  GAME_SNAPSHOT_TTL_SECONDS: z.coerce
+    .number()
+    .int()
+    .positive()
+    .default(6 * 60 * 60),
 });
 
 export type Env = z.infer<typeof envSchema>;

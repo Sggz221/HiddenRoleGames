@@ -1,6 +1,6 @@
 {
   "name": "@aullidos/web",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -13,6 +13,7 @@
   },
   "dependencies": {
     "@aullidos/shared": "workspace:*",
+    "howler": "^2.2.4",
     "i18next": "^26.4.3",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
@@ -21,7 +22,8 @@
   "devDependencies": {
     "@aullidos/tsconfig": "workspace:*",
     "@tailwindcss/vite": "^4.3.3",
-    "@types/node": "^24.19.2",
+    "@types/howler": "^2.2.13",
+    "@types/node": "^26.6.5",
     "@types/react": "^19.3.0",
     "@types/react-dom": "^19.3.0",
     "@vitejs/plugin-react": "^6.1.2",

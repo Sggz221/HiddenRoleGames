@@ -303,3 +303,81 @@ describe("game end", () => {
     expect(state.result).toEqual({ team: "none", winners: [] });
   });
 });
+
+describe("Salvador", () => {
+  const deck = ["werewolf", "salvador", V, V, V, V] as const;
+
+  it("shields the wolves' victim so nobody dies that night", () => {
+    let { state } = setup([...deck]);
+    state = advanceTo(state, { kind: "night", step: "salvador" });
+    state = act(state, "p1", { type: "salvadorProtect", target: "p2" });
+    state = advanceTo(state, { kind: "night", step: "wolves" });
+    state = act(state, "p0", { type: "wolfVote", target: "p2" });
+    state = advanceTo(state, { kind: "day" });
+    expect(alive(state, "p2")).toBe(true);
+    expect(state.players.every((p) => p.alive)).toBe(true);
+  });
+
+  it("can shield himself but not the same player twice in a row", () => {
+    let { state } = setup([...deck]);
+    state = advanceTo(state, { kind: "night", step: "salvador" });
+    state = act(state, "p1", { type: "salvadorProtect", target: "p1" });
+    state = advanceToNext(state, { kind: "night", step: "salvador" });
+    expect(applyAction(state, "p1", { type: "salvadorProtect", target: "p1" })).toMatchObject({
+      ok: false,
+      error: { code: "INVALID_TARGET" },
+    });
+    expect(applyAction(state, "p1", { type: "salvadorProtect", target: "p2" }).ok).toBe(true);
+  });
+
+  it("skipping resets the restriction", () => {
+    let { state } = setup([...deck]);
+    state = advanceTo(state, { kind: "night", step: "salvador" });
+    state = act(state, "p1", { type: "salvadorProtect", target: "p2" });
+    state = advanceToNext(state, { kind: "night", step: "salvador" });
+    state = act(state, "p1", { type: "skip" });
+    state = advanceToNext(state, { kind: "night", step: "salvador" });
+    expect(applyAction(state, "p1", { type: "salvadorProtect", target: "p2" }).ok).toBe(true);
+  });
+
+  it("does not stop poison", () => {
+    let { state } = setup(["werewolf", "salvador", "witch", V, V, V]);
+    state = advanceTo(state, { kind: "night", step: "salvador" });
+    state = act(state, "p1", { type: "salvadorProtect", target: "p3" });
+    state = advanceTo(state, { kind: "night", step: "witch" });
+    state = act(state, "p2", { type: "witch", heal: null, poison: "p3" });
+    state = advanceTo(state, { kind: "day" });
+    expect(alive(state, "p3")).toBe(false);
+  });
+
+  it("a shielded victim cannot be infected and the power is kept", () => {
+    let { state } = setup(["infected-father", "salvador", V, V, V, V, V]);
+    state = advanceTo(state, { kind: "night", step: "salvador" });
+    state = act(state, "p1", { type: "salvadorProtect", target: "p2" });
+    state = advanceTo(state, { kind: "night", step: "wolves" });
+    state = act(state, "p0", { type: "wolfVote", target: "p2" });
+    state = advanceTo(state, { kind: "night", step: "infected-father" });
+    state = act(state, "p0", { type: "infect", infect: true });
+    state = advanceTo(state, { kind: "day" });
+    expect(state.players[2]?.infected).toBe(false);
+    expect(state.infectUsed).toBe(false);
+    expect(alive(state, "p2")).toBe(true);
+  });
+
+  it("loses the power when the village kills the Elder", () => {
+    let { state } = setup(["werewolf", "salvador", "elder", V, V, V]);
+    state.villagePowersLost = true;
+    state = advanceTo(state, { kind: "night", step: "salvador" });
+    expect(applyAction(state, "p1", { type: "salvadorProtect", target: "p2" }).ok).toBe(false);
+  });
+
+  it("only the Salvador sees his last protected player", async () => {
+    const { projectFor } = await import("./view.js");
+    let { state } = setup([...deck]);
+    state = advanceTo(state, { kind: "night", step: "salvador" });
+    state = act(state, "p1", { type: "salvadorProtect", target: "p2" });
+    state = advanceToNext(state, { kind: "night", step: "salvador" });
+    expect(projectFor(state, "p1").you.salvadorLast).toBe("p2");
+    expect(projectFor(state, "p2").you.salvadorLast).toBeNull();
+  });
+});

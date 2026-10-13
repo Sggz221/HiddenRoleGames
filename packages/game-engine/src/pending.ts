@@ -82,6 +82,14 @@ function nightPending(state: GameState, player: PlayerState): PendingAction | nu
     case "wolf-hound":
       return player.role === "wolf-hound" ? pending(["wolfHoundChoose"]) : null;
 
+    case "salvador":
+      return player.role === "salvador" && can
+        ? pending(
+            ["salvadorProtect", "skip"],
+            alivePlayers(state).filter((target) => target.id !== state.salvadorLast),
+          )
+        : null;
+
     case "wolves":
       return player.side === "wolves"
         ? pending(

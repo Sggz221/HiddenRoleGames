@@ -8,7 +8,13 @@ import type { Env } from "../config/env.js";
 
 export const APP_VERSION = process.env.npm_package_version ?? "0.0.0";
 
-export async function buildApp(env: Env): Promise<FastifyInstance> {
+/** Dependency checks for the readiness probe, e.g. `{ postgres: () => db.ping() }`. */
+export type ReadinessChecks = Record<string, () => Promise<boolean>>;
+
+export async function buildApp(
+  env: Env,
+  readiness: ReadinessChecks = {},
+): Promise<FastifyInstance> {
   const app = Fastify({
     logger:
       env.NODE_ENV === "development"
@@ -30,6 +36,16 @@ export async function buildApp(env: Env): Promise<FastifyInstance> {
 
   app.get("/health", async (): Promise<HealthResponse> => {
     return { status: "ok", uptime: process.uptime(), version: APP_VERSION };
+  });
+
+  // Liveness stays on /health (Railway healthcheck); readiness reports dependencies.
+  app.get("/health/ready", async (_request, reply) => {
+    const entries = await Promise.all(
+      Object.entries(readiness).map(async ([name, check]) => [name, await check()] as const),
+    );
+    const checks = Object.fromEntries(entries);
+    const ready = entries.every(([, ok]) => ok);
+    return reply.code(ready ? 200 : 503).send({ ready, checks });
   });
 
   if (env.STATIC_DIR) {

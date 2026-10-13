@@ -39,5 +39,5 @@ scripts/            utilidades del repo
 
 ## Flujo de trabajo
 
-Git Flow: `main` (producción) · `develop` (staging) · `feature/*` · `release/*` · `hotfix/*`.
+Git Flow: `main` (producción) · `develop` (development) · `feature/*` · `release/*` · `hotfix/*`.
 Detalles en [docs/git-workflow.md](docs/git-workflow.md). Entornos y despliegue en [infra/README.md](infra/README.md).

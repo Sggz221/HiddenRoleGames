@@ -1,11 +1,12 @@
 {
   "name": "@aullidos/server",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "private": true,
   "type": "module",
   "main": "dist/index.js",
   "files": [
-    "dist"
+    "dist",
+    "drizzle"
   ],
   "scripts": {
     "dev": "tsx watch --conditions=development --env-file-if-exists=../../.env src/index.ts",
@@ -13,19 +14,31 @@
     "start": "node dist/index.js",
     "typecheck": "tsc --noEmit",
     "test": "vitest run --passWithNoTests",
-    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\""
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "db:generate": "drizzle-kit generate",
+    "db:migrate": "tsx --env-file-if-exists=../../.env src/persistence/migrate.ts",
+    "db:migrate:prod": "node dist/persistence/migrate.js",
+    "db:studio": "drizzle-kit studio"
   },
   "dependencies": {
+    "@aullidos/game-engine": "workspace:*",
     "@aullidos/shared": "workspace:*",
     "@fastify/helmet": "^13.1.2",
     "@fastify/static": "^10.1.6",
+    "@socket.io/redis-adapter": "^8.3.0",
+    "drizzle-orm": "^0.45.4",
     "fastify": "^5.12.5",
+    "ioredis": "^6.0.0",
+    "postgres": "^3.4.9",
+    "socket.io": "^4.8.4",
     "zod": "^4.6.6"
   },
   "devDependencies": {
     "@aullidos/tsconfig": "workspace:*",
-    "@types/node": "^24.19.2",
+    "@types/node": "^26.6.5",
+    "drizzle-kit": "^0.31.11",
     "pino-pretty": "^13.2.0",
+    "socket.io-client": "^4.8.4",
     "tsx": "^4.23.15",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3"
