@@ -89,7 +89,9 @@
   },
   "audio": {
     "mute": "Silenciar sonido",
-    "unmute": "Activar sonido"
+    "unmute": "Activar sonido",
+    "music": "Música",
+    "effects": "Efectos"
   },
   "roles": {
     "villager": "Aldeano",
@@ -183,7 +185,9 @@
       "vacant": "La aldea se queda sin alguacil."
     },
     "vote": {
-      "eliminated": "La aldea ha decidido: {{name}} debe irse.",
+      "ballot": "Votos para {{name}}: {{names}}.",
+      "abstained": "Se abstienen: {{names}}.",
+      "eliminated": "La aldea ha decidido: {{name}} abandona la aldea ahora mismo.",
       "tie": "Empate entre {{names}}. Nadie es expulsado.",
       "nobody": "La aldea no se pone de acuerdo. Nadie es expulsado.",
       "runoff": "Empate entre {{names}}. Habrá una segunda votación."
@@ -345,17 +349,19 @@
       "infect": "¿Infectas a la víctima de la manada en lugar de matarla?",
       "witch": "Decide qué haces con tus pociones.",
       "confirm": "Confirmar",
-      "skip": "Pasar",
+      "skip": "Pasar turno",
       "abstain": "Abstenerme",
       "nobody": "Nadie",
       "yes": "Sí, infectar",
       "no": "No",
-      "changeHint": "Puedes cambiar de idea hasta que acabe el tiempo.",
+      "changeHint": "Tu elección se envía al tocarla. Puedes cambiarla hasta que acabe el turno.",
       "chosen": "Has elegido: {{choice}}",
       "heal": "Poción de vida",
       "poison": "Poción de muerte",
-      "noVictims": "Esta noche no hay nadie a quien salvar.",
-      "used": "Ya la has usado."
+      "used": "Ya la has usado.",
+      "readyToVote": "Listo para votar",
+      "ready": "Listo. Esperando al resto…",
+      "witchHint": "No sabes a quién han atacado. La poción de vida protege esta noche a quien elijas (también a ti); la de muerte mata a quien elijas."
     },
     "sides": {
       "village": "Con el pueblo",
@@ -378,7 +384,8 @@
       "you": "tú",
       "votes_one": "{{count}} voto",
       "votes_other": "{{count}} votos",
-      "abstained": "Se abstienen"
+      "abstained": "Se abstienen",
+      "done": "listo"
     },
     "you": {
       "infected": "Te han infectado: ahora cazas con la manada.",
@@ -413,7 +420,14 @@
       },
       "side": "Estaba con {{side}}",
       "hidden": "Su carta queda en secreto",
-      "skip": "Saltar"
+      "skip": "Saltar",
+      "vote": "La aldea ha votado",
+      "voteNobody": "Nadie es expulsado.",
+      "voteTie": "Empate entre {{names}}. Nadie es expulsado.",
+      "voteRunoff": "Empate entre {{names}}: habrá una segunda votación.",
+      "sheriff": "Nuevo alguacil",
+      "sheriffElected": "{{name}} lleva la estrella: su voto vale doble.",
+      "sheriffNone": "La aldea se queda sin alguacil."
     },
     "card": {
       "reveal": "Toca para ver tu carta",
@@ -441,7 +455,19 @@
       "ok": "Entendido",
       "secret": "Que nadie más la vea."
     },
-    "youShort": "tú"
+    "youShort": "tú",
+    "hint": {
+      "sheriff-election": "Esta votación no elimina a nadie: elegís al alguacil, cuyo voto vale doble.",
+      "debate": "Hablad en el chat. Cuando todos estéis listos, empieza la votación.",
+      "vote": "El más votado queda expulsado en cuanto votéis todos o se acabe el tiempo. Los votos se revelan al final.",
+      "runoff": "Desempate: solo se puede votar a los empatados. Si vuelve a haber empate, no se expulsa a nadie."
+    },
+    "progress": {
+      "ready": "{{count}} de {{total}} listos para votar",
+      "voted": "{{count}} de {{total}} han votado"
+    },
+    "musicVolume": "Volumen de la música",
+    "sfxVolume": "Volumen de los efectos"
   },
   "errors": {
     "INVALID_PAYLOAD": "Algo no cuadra en los datos enviados.",

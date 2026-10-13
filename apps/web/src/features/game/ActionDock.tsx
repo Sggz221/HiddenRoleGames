@@ -5,7 +5,7 @@ import type {
   PlayerView,
   Side,
 } from "@howlsinthedark/shared";
-import { Check, FlaskConical, Skull } from "lucide-react";
+import { Check, FastForward, FlaskConical, Hand, Skull } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import type { ReactNode } from "react";
 import { useTranslation } from "react-i18next";
@@ -39,6 +39,9 @@ export function ActionDock({ view, choice, controller }: Props) {
   const name = (id: PlayerId) => view.players.find((player) => player.id === id)?.name ?? id;
 
   if (!pending) return <IdleLine view={view} />;
+  if (!action && view.phase.kind === "day" && view.phase.step === "debate") {
+    return <DebateDock view={view} busy={busy} onReady={() => void send({ type: "skip" })} />;
+  }
 
   const prompt =
     action?.type === "vote" && view.phase.kind === "day" && view.phase.step === "sheriff-election"
@@ -48,6 +51,12 @@ export function ActionDock({ view, choice, controller }: Props) {
         : "";
   const pack = action ? PACK_ACTIONS.has(action.type) : false;
   const chosen = describeChoice(choice, name, t);
+  // Each potion tap is sent at once: a choice left unconfirmed used to be lost at dawn.
+  const brew = (potions: { heal: PlayerId | null; poison: PlayerId | null }) => {
+    const next = { ...selection, ...potions };
+    setSelection(next);
+    void send(buildAction("witch", next));
+  };
 
   return (
     <motion.section
@@ -62,6 +71,7 @@ export function ActionDock({ view, choice, controller }: Props) {
       >
         {prompt}
       </h2>
+      <PhaseHint view={view} />
 
       {action?.form === "side" && (
         <Choices>
@@ -95,16 +105,19 @@ export function ActionDock({ view, choice, controller }: Props) {
 
       {action?.form === "witch" && (
         <div className="flex w-full flex-col gap-3">
+          <p className="text-ink/75 text-sm">{t("game.actions.witchHint")}</p>
           <PotionRow
             icon={<FlaskConical aria-hidden="true" className="size-4 text-emerald-300" />}
             label={t("game.actions.heal")}
             available={view.you.witchPotions?.heal ?? false}
-            options={view.nightVictims ?? []}
-            empty={t("game.actions.noVictims")}
+            options={pending.targets}
             value={selection.heal}
             name={name}
             busy={busy}
-            onChange={(heal) => setSelection({ ...selection, heal })}
+            onChange={(heal) => {
+              const poison = selection.poison ?? null;
+              brew({ heal, poison: heal && poison === heal ? null : poison });
+            }}
           />
           <PotionRow
             icon={<Skull aria-hidden="true" className="size-4 text-rose-300" />}
@@ -114,13 +127,16 @@ export function ActionDock({ view, choice, controller }: Props) {
             value={selection.poison}
             name={name}
             busy={busy}
-            onChange={(poison) => setSelection({ ...selection, poison })}
+            onChange={(poison) => {
+              const heal = selection.heal ?? null;
+              brew({ poison, heal: poison && heal === poison ? null : heal });
+            }}
           />
         </div>
       )}
 
       <div className="flex flex-wrap items-center justify-center gap-2">
-        {(action?.form === "pair" || action?.form === "upToTwo" || action?.form === "witch") && (
+        {(action?.form === "pair" || action?.form === "upToTwo") && (
           <PrimaryButton
             disabled={busy || !buildAction(action.type, selection)}
             onClick={() => action && void send(buildAction(action.type, selection))}
@@ -129,25 +145,27 @@ export function ActionDock({ view, choice, controller }: Props) {
           </PrimaryButton>
         )}
         {action?.form === "target" && allowsNobody(action.type) && (
-          <Chip
-            selected={choice !== null && "target" in choice && choice.target === null}
+          <SecondaryButton
+            pressed={choice !== null && "target" in choice && choice.target === null}
             disabled={busy}
             onClick={() => void send(buildAction(action.type, { targets: [] }))}
+            icon={<Hand aria-hidden="true" className="size-4" />}
           >
             {action.type === "vote" ? t("game.actions.abstain") : t("game.actions.nobody")}
-          </Chip>
+          </SecondaryButton>
         )}
         {pending.types.includes("skip") && (
-          <button
-            type="button"
+          <SecondaryButton
+            pressed={false}
             disabled={busy}
             onClick={() => void send({ type: "skip" })}
-            className="rounded-full px-4 py-2 text-ink-muted text-sm underline-offset-4 hover:text-ink hover:underline"
+            icon={<FastForward aria-hidden="true" className="size-4" />}
           >
             {t("game.actions.skip")}
-          </button>
+          </SecondaryButton>
         )}
       </div>
+      <VoteProgress view={view} />
 
       <AnimatePresence mode="wait">
         {chosen && (
@@ -205,8 +223,67 @@ function IdleLine({ view }: { view: PlayerView }) {
         aria-live="polite"
       >
         {text}
+        <VoteProgress view={view} />
       </motion.p>
     </AnimatePresence>
+  );
+}
+
+/** Debate: talk, then say you are ready. The vote starts when everyone alive is. */
+function DebateDock({
+  view,
+  busy,
+  onReady,
+}: {
+  view: PlayerView;
+  busy: boolean;
+  onReady: () => void;
+}) {
+  const { t } = useTranslation();
+  const ready = view.voted.includes(view.you.id);
+  return (
+    <motion.section
+      aria-labelledby="action-title"
+      initial={{ opacity: 0, y: 12 }}
+      animate={{ opacity: 1, y: 0 }}
+      className="flex flex-col items-center gap-3 text-center"
+    >
+      <h2 id="action-title" className="font-display text-2xl">
+        {t("game.idle.debate")}
+      </h2>
+      <PhaseHint view={view} />
+      <PrimaryButton disabled={busy || ready} onClick={onReady}>
+        <span className="flex items-center gap-2">
+          {ready ? (
+            <Check aria-hidden="true" className="size-5" />
+          ) : (
+            <FastForward aria-hidden="true" className="size-5" />
+          )}
+          {ready ? t("game.actions.ready") : t("game.actions.readyToVote")}
+        </span>
+      </PrimaryButton>
+      <VoteProgress view={view} />
+    </motion.section>
+  );
+}
+
+/** What this day step means, in one line: nobody should wonder why nobody died. */
+function PhaseHint({ view }: { view: PlayerView }) {
+  const { t } = useTranslation();
+  if (view.phase.kind !== "day") return null;
+  return <p className="max-w-md text-ink/75 text-sm">{t(`game.hint.${view.phase.step}`)}</p>;
+}
+
+/** "3 of 6 have voted" during the day: the step ends early once everyone has. */
+function VoteProgress({ view }: { view: PlayerView }) {
+  const { t } = useTranslation();
+  if (view.phase.kind !== "day" || view.result) return null;
+  const living = view.players.filter((player) => player.alive).length;
+  const key = view.phase.step === "debate" ? "game.progress.ready" : "game.progress.voted";
+  return (
+    <span className="mt-1 block font-sans text-ink-muted text-sm not-italic" aria-live="polite">
+      {t(key, { count: view.voted.length, total: living })}
+    </span>
   );
 }
 
@@ -215,7 +292,6 @@ function PotionRow({
   label,
   available,
   options,
-  empty,
   value,
   name,
   busy,
@@ -225,7 +301,6 @@ function PotionRow({
   label: string;
   available: boolean;
   options: PlayerId[];
-  empty?: string;
   value: PlayerId | null | undefined;
   name: (id: PlayerId) => string;
   busy: boolean;
@@ -240,8 +315,6 @@ function PotionRow({
       </legend>
       {!available ? (
         <p className="text-ink-muted text-sm">{t("game.actions.used")}</p>
-      ) : options.length === 0 && empty ? (
-        <p className="text-ink-muted text-sm">{empty}</p>
       ) : (
         <Choices>
           <Chip selected={!value} disabled={busy} onClick={() => onChange(null)}>
@@ -282,6 +355,34 @@ function Chip({
       whileTap={{ scale: 0.94 }}
       className="glass rounded-full px-4 py-2 text-sm transition-colors enabled:hover:border-[var(--accent)] disabled:opacity-60 aria-pressed:border-[var(--accent)] aria-pressed:bg-[var(--accent)] aria-pressed:font-semibold aria-pressed:text-[var(--on-accent)]"
     >
+      {children}
+    </motion.button>
+  );
+}
+
+function SecondaryButton({
+  pressed,
+  disabled,
+  onClick,
+  icon,
+  children,
+}: {
+  pressed: boolean;
+  disabled: boolean;
+  onClick: () => void;
+  icon: ReactNode;
+  children: ReactNode;
+}) {
+  return (
+    <motion.button
+      type="button"
+      aria-pressed={pressed}
+      disabled={disabled}
+      onClick={onClick}
+      whileTap={{ scale: 0.95 }}
+      className="glass flex items-center gap-2 rounded-full border-2 px-5 py-2.5 font-semibold transition-colors enabled:hover:border-[var(--accent)] disabled:opacity-60 aria-pressed:border-[var(--accent)] aria-pressed:bg-[var(--accent)] aria-pressed:text-[var(--on-accent)]"
+    >
+      {icon}
       {children}
     </motion.button>
   );

@@ -34,6 +34,8 @@ export function PlayersTable({
   const groups = tally(votes);
   const votersOf = (id: PlayerId) => groups.find((group) => group.target === id)?.voters ?? [];
   const seatOf = (id: PlayerId) => view.players.find((player) => player.id === id)?.seat ?? 0;
+  // Ballots are secret until the close: the table only shows who is done.
+  const done = new Set(view.phase.kind === "day" ? view.voted : []);
 
   return (
     <ul className="flex flex-wrap justify-center gap-x-3 gap-y-5 sm:gap-x-6">
@@ -48,6 +50,7 @@ export function PlayersTable({
             player={player}
             isYou={player.id === view.you.id}
             voters={votersOf(player.id).map(seatOf)}
+            done={done.has(player.id)}
             pickable={controller.canPick(player.id)}
             picked={controller.isPicked(player.id)}
             onPick={() => controller.pick(player.id)}
@@ -62,6 +65,7 @@ function Avatar({
   player,
   isYou,
   voters,
+  done,
   pickable,
   picked,
   onPick,
@@ -70,6 +74,8 @@ function Avatar({
   isYou: boolean;
   /** Seats of the players voting for this one. */
   voters: number[];
+  /** Has voted (or, in the debate, is ready to vote). */
+  done: boolean;
   pickable: boolean;
   picked: boolean;
   onPick: () => void;
@@ -92,7 +98,7 @@ function Avatar({
         onFocus={() => setPeek(true)}
         onBlur={() => setPeek(false)}
         aria-pressed={pickable ? picked : undefined}
-        aria-label={avatarLabel(t, player, isYou)}
+        aria-label={avatarLabel(t, player, isYou, done)}
         whileTap={pickable ? { scale: 0.9 } : {}}
         animate={
           pickable && !picked
@@ -175,6 +181,12 @@ function Avatar({
         {player.name}
       </span>
       {isYou && <span className="-mt-1.5 text-[var(--accent)] text-xs">{t("game.youShort")}</span>}
+      {done && (
+        <span className="-mt-1 flex items-center gap-0.5 text-emerald-300 text-xs">
+          <Check aria-hidden="true" className="size-3" />
+          {t("game.players.done")}
+        </span>
+      )}
 
       {/* Who voted for this player: one dot per voter, in their seat colour. */}
       <span className="flex min-h-2 flex-wrap justify-center gap-0.5">
@@ -231,6 +243,7 @@ function avatarLabel(
   t: ReturnType<typeof useTranslation>["t"],
   player: PublicPlayer,
   isYou: boolean,
+  done: boolean,
 ): string {
   const parts = [player.name];
   if (isYou) parts.push(`(${t("game.youShort")})`);
@@ -239,6 +252,7 @@ function avatarLabel(
       player.role ? t("game.dead", { role: t(`roles.${player.role}`) }) : t("game.players.dead"),
     );
   if (player.isSheriff) parts.push(t("game.players.sheriff"));
+  if (done) parts.push(t("game.players.done"));
   if (player.isWolfAlly) parts.push(t("game.players.wolfAlly"));
   if (player.isLover) parts.push(t("game.players.lover"));
   if (player.charmed) parts.push(t("game.players.charmed"));

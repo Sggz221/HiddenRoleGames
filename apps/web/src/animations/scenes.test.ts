@@ -16,23 +16,55 @@ describe("scenesFor", () => {
     expect(scenesFor([{ type: "dawn", day: 2 }])).toEqual([{ kind: "dawn", deaths: [] }]);
   });
 
-  it("day deaths (vote and grief) are one scene; nothing else stops the screen", () => {
+  it("a closed vote always gets a scene: who is out (and who follows), or why nobody", () => {
     expect(
       scenesFor([
+        { type: "votesRevealed", votes: { p0: "p1", p2: "p1" } },
         { type: "voteResult", eliminated: "p1", tied: [] },
         { type: "playerDied", player: "p1", cause: "vote" },
         { type: "playerDied", player: "p3", cause: "grief" },
       ]),
     ).toEqual([
       {
-        kind: "deaths",
+        kind: "vote",
+        outcome: "eliminated",
+        tied: [],
         deaths: [
           { player: "p1", cause: "vote" },
           { player: "p3", cause: "grief" },
         ],
       },
     ]);
-    expect(scenesFor([{ type: "voteCast", voter: "p1", target: "p2" }])).toEqual([]);
+    expect(scenesFor([{ type: "voteResult", eliminated: null, tied: [] }])).toEqual([
+      { kind: "vote", outcome: "nobody", tied: [], deaths: [] },
+    ]);
+    expect(scenesFor([{ type: "voteResult", eliminated: null, tied: ["p1", "p2"] }])).toEqual([
+      { kind: "vote", outcome: "tie", tied: ["p1", "p2"], deaths: [] },
+    ]);
+    expect(scenesFor([{ type: "runoffStarted", candidates: ["p1", "p2"] }])).toEqual([
+      { kind: "vote", outcome: "runoff", tied: ["p1", "p2"], deaths: [] },
+    ]);
+    expect(scenesFor([{ type: "sheriffElected", player: "p4" }])).toEqual([
+      { kind: "sheriff", player: "p4", deaths: [] },
+    ]);
+  });
+
+  it("other day deaths are one scene; a vote being cast does not stop the screen", () => {
+    expect(
+      scenesFor([
+        { type: "playerDied", player: "p1", cause: "hunter" },
+        { type: "playerDied", player: "p3", cause: "grief" },
+      ]),
+    ).toEqual([
+      {
+        kind: "deaths",
+        deaths: [
+          { player: "p1", cause: "hunter" },
+          { player: "p3", cause: "grief" },
+        ],
+      },
+    ]);
+    expect(scenesFor([{ type: "voteCast", voter: "p1" }])).toEqual([]);
   });
 });
 
