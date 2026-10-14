@@ -67,10 +67,18 @@ export const NARRATION_KEYS = [
   "private.wolvesChoseVictim",
   "private.wolvesNoVictim",
   "private.playerInfected",
+  "private.youAreInfected",
   "private.foxWolfNearby",
   "private.foxNoWolf",
   "private.playersCharmed",
   "private.elderResisted",
+  "witness.seerResult",
+  "witness.wildChildModel",
+  "witness.wildChildTransformed",
+  "witness.wolfHoundChose",
+  "witness.foxWolfNearby",
+  "witness.foxNoWolf",
+  "witness.elderResisted",
   ...WINNER_TEAMS.map((team) => `end.${team}` as const),
 ] as const;
 
@@ -87,6 +95,8 @@ export interface NarratedPlayer {
  * Lists of players are joined by the client with its locale's list format.
  */
 export interface NarrationParams {
+  /** Who acted, in lines told to someone else (`witness.*`: the dead, or everyone at the end). */
+  actor?: NarratedPlayer;
   player?: NarratedPlayer;
   players?: NarratedPlayer[];
   role?: RoleId;

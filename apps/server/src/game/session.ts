@@ -222,7 +222,7 @@ export class GameSession {
       if (visible.length) {
         this.deps.publisher.sendEvents(this.id, player.id, visible);
         // The game is the narrator: no player runs it, every seat hears its own version.
-        const lines = narrate(state, visible);
+        const lines = narrate(state, visible, player.id);
         if (lines.length) this.deps.publisher.sendNarration(this.id, player.id, lines);
       }
       if (publishView) this.publishView(player.id);

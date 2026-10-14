@@ -94,7 +94,7 @@ function transformWildChild(draft: Draft, deadId: PlayerId): void {
   const child = state.players.find((player) => player.role === "wild-child");
   if (!child?.alive || child.side === "wolves") return;
   child.side = "wolves";
-  draft.emit({ type: "wildChildTransformed" }, to(child.id));
+  draft.emit({ type: "wildChildTransformed", child: child.id }, to(child.id));
 }
 
 /** The first living wolf seated to the Knight's left catches the rust. */
@@ -147,7 +147,7 @@ function elderResists(draft: Draft, victimId: PlayerId): boolean {
   const victim = findPlayer(state, victimId);
   if (victim?.role !== "elder" || state.elderLivesLost > 0) return false;
   state.elderLivesLost = 1;
-  draft.emit({ type: "elderResisted" }, to(victimId));
+  draft.emit({ type: "elderResisted", elder: victimId }, to(victimId));
   return true;
 }
 

@@ -137,11 +137,15 @@ const KNOWN_KEYS: ReadonlySet<string> = new Set(NARRATION_KEYS);
 
 /** The narrator only names roles a living player may know: their own, the seer's visions, the dead. */
 function assertNarrationPrivate(state: GameState, viewerId: string, events: GameEvent[]): void {
-  const lines = narrate(state, eventsFor(state, viewerId, events));
+  const lines = narrate(state, eventsFor(state, viewerId, events), viewerId);
   const viewer = state.players.find((p) => p.id === viewerId);
   // Plain checks: calling `expect` for every line makes this test several times slower.
   for (const line of lines) {
     if (!KNOWN_KEYS.has(line.key)) expect.fail(`Unknown narration key ${line.key}`);
+    // Witness lines are for those who see everything (the dead), never for the living.
+    if (viewer?.alive && state.phase.kind !== "ended" && line.key.startsWith("witness.")) {
+      expect.fail(`a living ${viewer.role} hears ${line.key}`);
+    }
     if (!viewer?.alive || state.phase.kind === "ended" || line.params.role === undefined) continue;
     const allowed =
       line.key === "game.yourRole" ||

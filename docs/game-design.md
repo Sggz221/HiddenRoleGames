@@ -104,7 +104,7 @@ Los pasos de puro reconocimiento (enamorados, hermanas, encantados, domador de o
 
 - **La partida narra, no un jugador.** Nadie se queda fuera para dirigir: el servidor narra cada lote de eventos con textos predefinidos (`narration.*` en `apps/web/src/i18n/locales/es.json`).
 - **Qué se narra:** inicio y carta propia, caída de la noche, cada rol que despierta (aunque esté muerto, para no filtrar nada), amanecer (nadie, una o varias muertes), cada muerte según su causa y `revealOnDeath`, alguacil, debate, votación, empates y segunda vuelta, reacciones (cazador, sucesión, desempate), el oso, la pérdida de poderes y el final según el equipo ganador.
-- **Líneas privadas:** visiones, elección de la manada, infección, zorro, flautista, enamorados, niño salvaje, perro lobo y anciano solo llegan a quien recibió el evento.
+- **Líneas privadas:** visiones, elección de la manada, infección, zorro, flautista, enamorados, niño salvaje, perro lobo y anciano solo llegan a quien recibió el evento. Quien actuó las oye en segunda persona ("Tu visión..."); los muertos y, al final, todos los demás las oyen como testigos (`witness.*`: "La vidente, Ana, descubre..."). El infectado oye que se ha unido a la manada.
 - **Sin narración:** los votos uno a uno (ya se ven en la interfaz).
 - Lista completa de textos: `NARRATION_KEYS` en `packages/shared`. Los tests fallan si falta alguno. Ver ADR 0005.
 

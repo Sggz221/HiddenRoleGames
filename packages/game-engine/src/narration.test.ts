@@ -9,7 +9,7 @@ const V = "villager" as const;
 
 /** What `viewer` hears for a batch of events. */
 const heard = (state: GameState, viewer: PlayerId, events: GameEvent[]): NarrationLine[] =>
-  narrate(state, eventsFor(state, viewer, events));
+  narrate(state, eventsFor(state, viewer, events), viewer);
 
 const keys = (lines: NarrationLine[]) => lines.map((line) => line.key);
 
@@ -219,5 +219,42 @@ describe("narration: privacy", () => {
     expect(keys(heard(state, "p0", log))).toContain("private.wolvesChoseVictim");
     const villager = keys(heard(state, "p3", log));
     expect(villager.some((key) => key.startsWith("private."))).toBe(false);
+  });
+});
+
+describe("narration: what the dead witness", () => {
+  it("tells the dead the Seer's vision in the third person, naming the Seer", () => {
+    let { state } = setup(["werewolf", "seer", V, V, V]);
+    state.players[4]!.alive = false;
+    state = act(state, "p1", { type: "seerInspect", target: "p0" });
+    const log: GameEvent[] = [];
+    state = advance(state, log);
+
+    expect(heard(state, "p1", log)).toContainEqual({
+      key: "private.seerResult",
+      params: { player: { id: "p0", name: "Player 0" }, role: "werewolf" },
+    });
+    expect(heard(state, "p4", log)).toContainEqual({
+      key: "witness.seerResult",
+      params: {
+        actor: { id: "p1", name: "Player 1" },
+        player: { id: "p0", name: "Player 0" },
+        role: "werewolf",
+      },
+    });
+  });
+
+  it("tells an infected player that they joined the pack, in the second person", () => {
+    let { state } = setup(["infected-father", "werewolf", V, V, V, V]);
+    state = advanceTo(state, { kind: "night", step: "wolves" });
+    state = act(state, "p0", { type: "wolfVote", target: "p2" });
+    state = act(state, "p1", { type: "wolfVote", target: "p2" });
+    state = advance(state);
+    state = act(state, "p0", { type: "infect", infect: true });
+    const log: GameEvent[] = [];
+    state = advance(state, log);
+
+    expect(keys(heard(state, "p2", log))).toContain("private.youAreInfected");
+    expect(keys(heard(state, "p1", log))).toContain("private.playerInfected");
   });
 });

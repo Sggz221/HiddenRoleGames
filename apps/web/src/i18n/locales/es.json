@@ -210,7 +210,17 @@
       "foxWolfNearby": "Tu olfato no falla: hay un lobo junto a {{name}}.",
       "foxNoWolf": "Ningún lobo junto a {{name}}. Has perdido el olfato.",
       "playersCharmed": "Encantados por la flauta: {{names}}.",
-      "elderResisted": "Los lobos te han atacado, pero has resistido."
+      "elderResisted": "Los lobos te han atacado, pero has resistido.",
+      "youAreInfected": "Los lobos te han infectado: ahora eres de la manada, aunque conservas tu carta."
+    },
+    "witness": {
+      "seerResult": "La vidente, {{actor}}, descubre que {{name}} es {{role}}.",
+      "wildChildModel": "{{actor}}, el niño salvaje, toma a {{name}} como modelo.",
+      "wildChildTransformed": "El modelo de {{actor}} ha muerto: el niño salvaje se une a la manada.",
+      "wolfHoundChose": "{{actor}}, el perro lobo, se queda con {{side}}.",
+      "foxWolfNearby": "{{actor}}, el zorro, huele un lobo junto a {{name}}.",
+      "foxNoWolf": "{{actor}}, el zorro, no huele ningún lobo junto a {{name}} y pierde el olfato.",
+      "elderResisted": "{{actor}}, el anciano, resiste el ataque de los lobos."
     },
     "end": {
       "village": "¡La aldea gana! Los lobos han sido expulsados.",

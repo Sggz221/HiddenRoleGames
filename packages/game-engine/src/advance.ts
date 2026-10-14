@@ -201,7 +201,10 @@ function finishNightStep(draft: Draft, step: NightStep): void {
       const target = night.seerTarget ? findPlayer(state, night.seerTarget) : undefined;
       if (seer && hasPower(state, seer) && target) {
         state.seerResults.push({ target: target.id, role: target.role });
-        draft.emit({ type: "seerResult", target: target.id, role: target.role }, to(seer.id));
+        draft.emit(
+          { type: "seerResult", seer: seer.id, target: target.id, role: target.role },
+          to(seer.id),
+        );
       }
       break;
     }
@@ -214,7 +217,7 @@ function finishNightStep(draft: Draft, step: NightStep): void {
         night.wildChildModel ?? (candidates.length ? draft.rng.pick(candidates).id : null);
       if (model) {
         state.wildChildModel = model;
-        draft.emit({ type: "wildChildModelChosen", model }, to(child.id));
+        draft.emit({ type: "wildChildModelChosen", child: child.id, model }, to(child.id));
       }
       break;
     }
@@ -225,7 +228,7 @@ function finishNightStep(draft: Draft, step: NightStep): void {
       const side = night.wolfHoundSide ?? "village";
       state.wolfHoundSide = side;
       hound.side = side;
-      draft.emit({ type: "wolfHoundChose", side }, to(hound.id));
+      draft.emit({ type: "wolfHoundChose", hound: hound.id, side }, to(hound.id));
       break;
     }
 
@@ -278,7 +281,10 @@ function finishNightStep(draft: Draft, step: NightStep): void {
       const wolfNearby = group.some((id) => findPlayer(state, id)?.side === "wolves");
       state.foxResults.push({ target: night.foxTarget, wolfNearby });
       if (!wolfNearby) state.foxActive = false;
-      draft.emit({ type: "foxResult", target: night.foxTarget, wolfNearby }, to(fox.id));
+      draft.emit(
+        { type: "foxResult", fox: fox.id, target: night.foxTarget, wolfNearby },
+        to(fox.id),
+      );
       break;
     }
 
