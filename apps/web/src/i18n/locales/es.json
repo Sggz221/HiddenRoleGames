@@ -379,6 +379,11 @@
       "waitingFor": "Esperando a {{name}}…",
       "dead": "Has muerto. Observa en silencio."
     },
+    "table": {
+      "label": "La mesa: {{count}} jugadores, en el sentido de las agujas del reloj",
+      "alive": "vivos",
+      "direction": "La mesa gira en el sentido de las agujas del reloj: el jugador a tu izquierda es el siguiente."
+    },
     "players": {
       "title": "La aldea",
       "dead": "Ha muerto",

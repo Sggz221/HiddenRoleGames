@@ -1,8 +1,9 @@
 import type { PlayerView } from "@howlsinthedark/shared";
-import { Skull, Sun } from "lucide-react";
+import { Sun } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
+import { ClawMark } from "../components/ClawMark";
 import type { SceneQueue } from "./queue";
 import type { Scene } from "./scenes";
 
@@ -60,7 +61,7 @@ export function DeathOverlay({ queue, view }: { queue: SceneQueue; view: PlayerV
                   transition={{ ...fade, delay: reduce ? 0 : 0.5 + index * 1.2 }}
                   className="glass flex items-center gap-4 rounded-2xl border-blood/60 px-4 py-3 text-left shadow-[0_0_30px_-10px_rgb(194_65_75/0.8)]"
                 >
-                  <Skull aria-hidden="true" className="size-7 shrink-0 text-blood" />
+                  <ClawMark className="size-9 shrink-0" delay={reduce ? 0 : 0.5 + index * 1.2} />
                   <div>
                     <p className="font-display text-2xl">{name(death.player)}</p>
                     <p className="text-ink-muted text-sm">
