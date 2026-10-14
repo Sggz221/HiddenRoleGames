@@ -1,5 +1,6 @@
 import type { GameEvent, PlayerId, PlayerView, PublicPlayer } from "@howlsinthedark/shared";
 import { chatAccessFor } from "./chat.js";
+import { choiceOf } from "./choice.js";
 import { pendingActionFor, witchHealable } from "./pending.js";
 import { findPlayer, type GameState, hasPower, loverOf, type PlayerState } from "./state.js";
 
@@ -80,6 +81,7 @@ export function projectFor(state: GameState, viewerId: PlayerId): PlayerView {
       foxActive: viewer.role === "fox" ? state.foxActive : null,
       salvadorLast: viewer.role === "salvador" ? state.salvadorLast : null,
       seerResults: viewer.role === "seer" ? state.seerResults : [],
+      choice: choiceOf(state, viewer.id),
       foxResults: viewer.role === "fox" ? state.foxResults : [],
     },
     players,

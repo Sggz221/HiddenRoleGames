@@ -87,7 +87,7 @@ Decisión completa en [ADR 0003](decisions/0003-reconexion-sessiontoken.md).
 | `hunterShoot` | `target` | Cazador (reacción) |
 | `sheriffSuccessor` | `target` | Alguacil muerto (reacción) |
 | `sheriffTieBreak` | `target: id \| null` | Alguacil, si `voteTieRule = "sheriff"` |
-| `skip` | — | Renunciar a una acción opcional |
+| `skip` | — | Renunciar a una acción opcional. Retira lo que el jugador hubiera elegido en ese paso |
 
 - **Qué se puede enviar:** las acciones válidas en cada momento vienen en `view.pending` (`types` y `targets`). El cliente solo tiene que pintar eso.
 - **Cambiar de idea:** reenviar una acción antes de que acabe el temporizador sustituye a la anterior.
@@ -96,7 +96,7 @@ Decisión completa en [ADR 0003](decisions/0003-reconexion-sessiontoken.md).
 
 | Evento | Payload |
 |---|---|
-| `game:view` | `{ view: PlayerView, phaseEndsAt, serverNow }` |
+| `game:view` | `{ view: PlayerView, phaseEndsAt, serverNow }`. Solo se envía cuando la vista de ese jugador cambia (si no, de noche se sabría cuándo actúa cada rol). `view.you.choice` es lo que el jugador ha elegido en la fase actual (`GameAction` o `null`), así se conserva al recargar |
 | `room:state` | `{ code, hostId, maxPlayers, gameId, players: [{ id, name, connected }] }` a todos los miembros cuando cambia el lobby (entra o sale alguien, cambia el host, empieza o acaba una partida). El jugador que se une lo recibe en el ack |
 | `game:events` | `GameEventPayload[]` ya filtrados para ese jugador, en orden, para animar o narrar. `dawn` marca el fin de la noche; las muertes que siguen en el mismo lote son las de esa noche |
 | `game:narration` | `NarrationLine[]` (`{ key, params }`): lo que dice el narrador sobre ese mismo lote. Se construye solo con los eventos que recibió el jugador. El texto es `narration.<key>` en i18n; `params` trae jugadores (`{ id, name }`), `actor` (quien actuó, en las líneas `witness.*`), `role`, `side`, `count` y `day`. Los eventos privados nombran a quien actuó (`seerResult.seer`, `foxResult.fox`, `wildChildModelChosen.child`, `wildChildTransformed.child`, `wolfHoundChose.hound`, `elderResisted.elder`) |

@@ -35,6 +35,7 @@ function view(
       foxActive: null,
       salvadorLast: null,
       seerResults: [],
+      choice: null,
       foxResults: [],
       ...you,
     },

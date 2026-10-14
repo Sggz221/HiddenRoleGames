@@ -1,5 +1,5 @@
 import type { ChatAccess } from "../chat.js";
-import type { GameActionType, PlayerId } from "./actions.js";
+import type { GameAction, GameActionType, PlayerId } from "./actions.js";
 import type { RevealOnDeath } from "./config.js";
 import type { GameResult, Phase } from "./phases.js";
 import type { RoleId, Side } from "./roles.js";
@@ -44,6 +44,8 @@ export interface SelfView {
   /** Last player the Salvador protected (cannot be protected again tonight); Salvador only. */
   salvadorLast: PlayerId | null;
   seerResults: { target: PlayerId; role: RoleId }[];
+  /** What you have chosen so far in the current phase (`null`: nothing yet, or you passed). */
+  choice: GameAction | null;
   foxResults: { target: PlayerId; wolfNearby: boolean }[];
 }
 

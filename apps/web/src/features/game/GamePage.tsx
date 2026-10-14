@@ -31,7 +31,6 @@ interface Props {
   game: GameViewMessage;
   narration: NarrationLine[];
   chat: ChatMessage[];
-  choice: GameAction | null;
   clockOffset: number;
   onAction: (action: GameAction) => Promise<Result>;
   onChat: (channel: ChatChannel, text: string) => Promise<Result>;
@@ -57,7 +56,6 @@ function GameScreen({
   game,
   narration,
   chat,
-  choice,
   clockOffset,
   onAction,
   onChat,
@@ -102,7 +100,7 @@ function GameScreen({
         {view.result ? (
           <ResultPanel view={view} result={view.result} onBack={onDismissResult} />
         ) : (
-          <ActionArea key={phaseKey(game)} view={view} choice={choice} onAction={onAction} />
+          <ActionArea key={phaseKey(game)} view={view} onAction={onAction} />
         )}
         <HistoryPanel lines={narration} />
       </main>
@@ -119,13 +117,13 @@ function GameScreen({
 /** The table and the action dock share one controller, reset every phase. */
 function ActionArea({
   view,
-  choice,
   onAction,
 }: {
   view: PlayerView;
-  choice: GameAction | null;
   onAction: (action: GameAction) => Promise<Result>;
 }) {
+  // The server keeps what you chose: it is part of your view and survives a reload.
+  const { choice } = view.you;
   const controller = useActionController(view, choice, onAction);
   return (
     <section className="glass flex flex-col gap-7 rounded-[2rem] px-4 py-6 sm:px-8 sm:py-8">

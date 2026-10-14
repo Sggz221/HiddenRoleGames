@@ -127,7 +127,7 @@ Los pasos de puro reconocimiento (enamorados, hermanas, encantados, domador de o
   - `narrate`: lo que dice el narrador sobre los eventos que recibió un jugador.
 - **Funciones puras:** cada función trabaja sobre una copia profunda. El estado es JSON serializable, apto para Redis o Postgres.
 - **Aleatoriedad:** solo a través del RNG con semilla guardado en el estado. Las partidas son reproducibles.
-- **Acciones:** `applyAction` solo registra la intención (se puede cambiar de idea). Los efectos se aplican al cerrar el paso.
+- **Acciones:** `applyAction` solo registra la intención (se puede cambiar de idea; `skip` la retira). Los efectos se aplican al cerrar el paso. `choiceOf` devuelve la intención actual de cada jugador para su propia vista.
 - **Validación:** `pendingActionFor` decide qué puede hacer cada jugador. Valida las acciones y alimenta la vista, así que nunca discrepan.
 - **Añadir un rol:**
   1. Añadirlo a `ROLES` (`shared`).

@@ -1,4 +1,4 @@
-import type { GameAction, GameEvent, PlayerId } from "@howlsinthedark/shared";
+import type { GameAction, GameEvent, NightStep, PlayerId } from "@howlsinthedark/shared";
 import { packIds } from "./deaths.js";
 import { pendingActionFor, witchHealable } from "./pending.js";
 import { ALL, Draft, type GameState, to } from "./state.js";
@@ -49,7 +49,9 @@ function record(state: GameState, actor: PlayerId, action: GameAction) {
 
   switch (action.type) {
     case "skip":
+      // Passing withdraws whatever the player had chosen in this step.
       if (s.phase.kind === "reaction") s.decisionChoice = null;
+      if (s.phase.kind === "night") clearNightIntent(s, s.phase.step);
       break;
 
     case "vote":
@@ -154,4 +156,44 @@ function record(state: GameState, actor: PlayerId, action: GameAction) {
   }
 
   return draft.finish();
+}
+
+/** Forgets the choice of the (single) player acting in an optional night step. */
+function clearNightIntent(state: GameState, step: NightStep): void {
+  const night = state.night;
+  switch (step) {
+    case "cupid":
+      night.cupid = null;
+      break;
+    case "seer":
+      night.seerTarget = null;
+      break;
+    case "salvador":
+      night.salvadorTarget = null;
+      break;
+    case "infected-father":
+      night.infect = false;
+      break;
+    case "big-bad-wolf":
+      night.bigBadWolfVictim = null;
+      break;
+    case "white-werewolf":
+      night.whiteWolfVictim = null;
+      break;
+    case "witch":
+      night.witchHeal = null;
+      night.witchPoison = null;
+      break;
+    case "fox":
+      night.foxTarget = null;
+      break;
+    case "piper":
+      night.piperTargets = [];
+      break;
+    // Mandatory steps offer no "skip".
+    case "wild-child":
+    case "wolf-hound":
+    case "wolves":
+      break;
+  }
 }

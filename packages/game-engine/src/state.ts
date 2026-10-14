@@ -33,7 +33,8 @@ export interface NightInputs {
   salvadorTarget: PlayerId | null;
   wolfVotes: Record<PlayerId, PlayerId>;
   wolvesVictim: PlayerId | null;
-  infect: boolean;
+  /** `null` until the Infected Father answers. */
+  infect: boolean | null;
   bigBadWolfVictim: PlayerId | null;
   whiteWolfVictim: PlayerId | null;
   witchHeal: PlayerId | null;
@@ -103,7 +104,7 @@ export const emptyNight = (): NightInputs => ({
   salvadorTarget: null,
   wolfVotes: {},
   wolvesVictim: null,
-  infect: false,
+  infect: null,
   bigBadWolfVictim: null,
   whiteWolfVictim: null,
   witchHeal: null,
