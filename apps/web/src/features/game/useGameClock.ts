@@ -3,7 +3,7 @@ import { gsap } from "gsap";
 import { useReducedMotionConfig } from "motion/react";
 import { useEffect, useRef } from "react";
 import { phaseKey } from "../../net/session";
-import { dialAngle, gameHour, paletteAt } from "./daytime";
+import { dialAngle, gameHour, paletteAt, SCENERY_PARTS } from "./daytime";
 
 /** Where the sun and the moon sit on their arc (percent of the screen) at `hour`. */
 function bodyPosition(
@@ -20,6 +20,19 @@ function bodyPosition(
   };
 }
 
+/** Colour variables of the world; dropped when leaving the game (positions just go stale). */
+const COLOUR_VARS = [
+  "--sky-top",
+  "--sky-bottom",
+  "--land",
+  "--glow",
+  "--stars",
+  "--windows",
+  "--fire",
+  "--smoke",
+  ...SCENERY_PARTS.map((part) => `--sc-${part}`),
+];
+
 /** Writes the colours and positions of `hour` as CSS variables: no React render per tick. */
 function paint(hour: number): void {
   const style = document.documentElement.style;
@@ -30,6 +43,9 @@ function paint(hour: number): void {
   style.setProperty("--glow", palette.glow);
   style.setProperty("--stars", palette.stars.toFixed(3));
   style.setProperty("--windows", palette.windows.toFixed(3));
+  style.setProperty("--fire", palette.fire.toFixed(3));
+  style.setProperty("--smoke", palette.smoke.toFixed(3));
+  for (const part of SCENERY_PARTS) style.setProperty(`--sc-${part}`, palette.scenery[part]);
   style.setProperty("--dial-angle", `${dialAngle(hour).toFixed(2)}deg`);
   const sun = bodyPosition(hour, 5.5, 14.5);
   const moon = bodyPosition(hour, 19.5, 11);
@@ -108,16 +124,7 @@ export function useGameClock(game: GameViewMessage, clockOffset: number): void {
   // Back to the default night colours when leaving the game.
   useEffect(
     () => () => {
-      for (const name of [
-        "--sky-top",
-        "--sky-bottom",
-        "--land",
-        "--glow",
-        "--stars",
-        "--windows",
-      ]) {
-        document.documentElement.style.removeProperty(name);
-      }
+      for (const name of COLOUR_VARS) document.documentElement.style.removeProperty(name);
     },
     [],
   );

@@ -14,6 +14,13 @@ Reproducción con [Howler.js](https://howlerjs.com/) (`apps/web/src/audio`). El 
 - **Bricolage Grotesque** (texto) y **Grenze Gotisch** (la manada): SIL Open Font License 1.1, empaquetadas desde npm (`@fontsource-variable/bricolage-grotesque`, `@fontsource/grenze-gotisch`). Se sirven desde nuestro propio dominio, sin peticiones a Google.
 - Títulos: Georgia (sistema).
 
+## Ilustración
+
+Todo el arte visual es **SVG propio dibujado en código**, sin imágenes de terceros.
+
+- **Paisaje de la partida** (`apps/web/src/animations/Landscape.tsx`): cordillera con bosque lejano, bosque cercano, prado con hierba, caminos de tierra, casa de entramado con tejado de paja y leñera, un roble y una fogata con asientos de tronco. Los colores salen del reloj de la partida (`daytime.ts`: `paletteAt` calcula la luz del día y el color de cada parte de la escena, que `useGameClock` escribe como variables `--sc-*`). La casa se mantiene clara frente al suelo a cualquier hora (lo comprueban los tests). La fogata arde del anochecer al alba y por la mañana está apagada y humea. Las llamas, chispas y humo solo se animan sin `prefers-reduced-motion`.
+- **Avatares** (`apps/web/src/components/avatar/`): retrato de aldeano por jugador con tono de piel, género, peinado, color de pelo, vello facial y ropa de pueblo (túnica, jubón de cuero, blusón, vestido con delantal, corpiño, mantón o capucha) en tintes naturales. Se deriva del id del jugador; ver [ADR 0006](decisions/0006-avatares-derivados-del-id.md).
+
 ## Registro de assets
 
 Todos los sonidos son **originales**: los genera `scripts/generate-audio.mjs` (síntesis con ondas y ruido determinista, sin muestras de terceros) y se escriben en `apps/web/public/audio/`. Para regenerarlos: `node scripts/generate-audio.mjs`.
