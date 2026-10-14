@@ -12,6 +12,8 @@
   --color-panel: rgb(255 255 255 / 0.06);
   --color-panel-border: rgb(255 255 255 / 0.12);
   --font-display: Georgia, "Times New Roman", serif;
+  --font-sans: "Bricolage Grotesque Variable", ui-sans-serif, system-ui, sans-serif;
+  --font-wolf: "Grenze Gotisch", Georgia, serif;
 }
 
 @keyframes moon-glow {
@@ -26,6 +28,168 @@
 
 @utility animate-moon-glow {
   animation: moon-glow 6s ease-in-out infinite;
+}
+
+@keyframes twinkle {
+  0%,
+  100% {
+    opacity: 0.25;
+  }
+  50% {
+    opacity: 0.95;
+  }
+}
+
+@utility animate-twinkle {
+  animation: twinkle 4s ease-in-out infinite;
+}
+
+@keyframes fog-drift {
+  0%,
+  100% {
+    transform: translateX(-40px);
+  }
+  50% {
+    transform: translateX(40px);
+  }
+}
+
+/* Join QR dialog: grows out of the centre. Applied with `motion-safe:` only. */
+@keyframes qr-in {
+  from {
+    opacity: 0;
+    transform: scale(0.92);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Campfire: flames flicker from their base, embers and smoke rise and fade. */
+@keyframes flicker {
+  0%,
+  100% {
+    transform: scale(1, 1) skewX(0deg);
+  }
+  25% {
+    transform: scale(0.94, 1.12) skewX(-3deg);
+  }
+  50% {
+    transform: scale(1.05, 0.92) skewX(2deg);
+  }
+  75% {
+    transform: scale(0.97, 1.07) skewX(3deg);
+  }
+}
+
+@utility animate-flicker {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: flicker 0.9s ease-in-out infinite;
+}
+
+@keyframes rise {
+  from {
+    transform: translate(0, 0) scale(0.6);
+    opacity: 0.9;
+  }
+  to {
+    transform: translate(18px, -150px) scale(1.8);
+    opacity: 0;
+  }
+}
+
+@utility animate-rise {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rise 5s ease-out infinite;
+}
+
+@keyframes ember {
+  from {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-10px, -80px);
+    opacity: 0;
+  }
+}
+
+@utility animate-ember {
+  animation: ember 2.2s ease-out infinite;
+}
+
+@utility animate-fog {
+  animation: fog-drift 18s ease-in-out infinite;
+}
+
+@utility animate-fog-slow {
+  animation: fog-drift 30s ease-in-out infinite reverse;
+}
+
+/*
+ * Game screen: the clock writes the colours of the hour (--sky-top, --sky-bottom, --land,
+ * --glow, --stars, --windows, --fire, --smoke and the scenery's --sc-*) and the player's
+ * role writes --accent, --on-accent and --tint. Defaults: midnight.
+ */
+:root {
+  --sky-top: #04060e;
+  --sky-bottom: #0b1230;
+  --land: #05070d;
+  --glow: #1b1640;
+  --stars: 1;
+  --windows: 1;
+  --fire: 1;
+  --smoke: 0;
+  --sc-ridge: #0f1427;
+  --sc-pines: #0c1224;
+  --sc-forest: #090e18;
+  --sc-bark: #0f0c12;
+  --sc-meadow: #121a1c;
+  --sc-grass: #161f1e;
+  --sc-tuft: #0d1314;
+  --sc-blade: #21302d;
+  --sc-path: #2d2937;
+  --sc-stone: #282837;
+  --sc-wall: #414058;
+  --sc-timber: #15111a;
+  --sc-roof: #201a26;
+  --accent: #f4e9c8;
+  --on-accent: #0b1020;
+  --tint: #0b1020;
+}
+
+/* Frosted glass: translucent panels over the landscape, tinted by the role. */
+@utility glass {
+  background: color-mix(in oklab, var(--tint) 62%, transparent);
+  backdrop-filter: blur(16px) saturate(1.25);
+  -webkit-backdrop-filter: blur(16px) saturate(1.25);
+  border: 1px solid rgb(255 255 255 / 0.12);
+}
+
+@utility glass-strong {
+  background: color-mix(in oklab, var(--tint) 82%, transparent);
+  backdrop-filter: blur(24px) saturate(1.3);
+  -webkit-backdrop-filter: blur(24px) saturate(1.3);
+  border: 1px solid rgb(255 255 255 / 0.14);
+}
+
+/* "Reduce animations" in the game settings: CSS animations stop too (Motion follows MotionConfig). */
+[data-reduce-motion] *,
+[data-reduce-motion] *::before,
+[data-reduce-motion] *::after {
+  /* biome-ignore lint/complexity/noImportantStyles: must beat every component's own animation */
+  animation: none !important;
+  /* biome-ignore lint/complexity/noImportantStyles: same as above */
+  transition-duration: 0s !important;
+}
+
+/* The pack's typeface. */
+.font-wolf {
+  font-family: var(--font-wolf);
+  letter-spacing: 0.02em;
 }
 
 html,

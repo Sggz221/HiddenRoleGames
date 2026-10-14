@@ -8,13 +8,22 @@ import type { RoleId, Side } from "./roles.js";
  */
 export type PublicDeathCause = "night" | "vote" | "hunter" | "grief" | "rust";
 
-/** Events describe what happened, for narration/animation. Each one is sent only to its audience. */
+/**
+ * Events describe what happened, for narration/animation. Each one is sent only to its audience.
+ * Private events name who acted (`seer`, `fox`...): the dead and, at the end, everyone receive
+ * them too, and the narrator must tell them apart from the player who acted.
+ */
 export type GameEventPayload =
   | { type: "gameStarted"; players: PlayerId[] }
   | { type: "roleAssigned"; role: RoleId }
   | { type: "phaseChanged"; phase: Phase; day: number }
+  /** The night is over; the deaths it caused follow in the same batch. */
+  | { type: "dawn"; day: number }
   | { type: "playerDied"; player: PlayerId; cause: PublicDeathCause; role?: RoleId; side?: Side }
-  | { type: "voteCast"; voter: PlayerId; target: PlayerId | null }
+  /** Someone voted (or changed their vote). Who they voted for stays secret until the close. */
+  | { type: "voteCast"; voter: PlayerId }
+  /** A day vote closed: every ballot (`null` = abstained), right before its result. */
+  | { type: "votesRevealed"; votes: Record<PlayerId, PlayerId | null> }
   | { type: "voteResult"; eliminated: PlayerId | null; tied: PlayerId[] }
   | { type: "runoffStarted"; candidates: PlayerId[] }
   | { type: "sheriffElected"; player: PlayerId | null }
@@ -22,16 +31,16 @@ export type GameEventPayload =
   | { type: "wolfVoteCast"; voter: PlayerId; target: PlayerId }
   | { type: "wolvesChoseVictim"; victim: PlayerId | null }
   | { type: "loversLinked"; lovers: [PlayerId, PlayerId] }
-  | { type: "seerResult"; target: PlayerId; role: RoleId }
-  | { type: "wildChildModelChosen"; model: PlayerId }
-  | { type: "wildChildTransformed" }
-  | { type: "wolfHoundChose"; side: Side }
+  | { type: "seerResult"; seer: PlayerId; target: PlayerId; role: RoleId }
+  | { type: "wildChildModelChosen"; child: PlayerId; model: PlayerId }
+  | { type: "wildChildTransformed"; child: PlayerId }
+  | { type: "wolfHoundChose"; hound: PlayerId; side: Side }
   | { type: "playerInfected"; player: PlayerId }
-  | { type: "foxResult"; target: PlayerId; wolfNearby: boolean }
+  | { type: "foxResult"; fox: PlayerId; target: PlayerId; wolfNearby: boolean }
   | { type: "playersCharmed"; charmed: PlayerId[] }
   | { type: "bearGrowled" }
   | { type: "villagePowersLost" }
-  | { type: "elderResisted" }
+  | { type: "elderResisted"; elder: PlayerId }
   | { type: "gameEnded"; result: GameResult; roles: Record<PlayerId, RoleId> };
 
 export type Audience = { kind: "all" } | { kind: "players"; ids: PlayerId[] };

@@ -1,6 +1,6 @@
 {
-  "name": "@aullidos/web",
-  "version": "0.1.0",
+  "name": "@howlsinthedark/web",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "scripts": {
@@ -12,15 +12,21 @@
     "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\""
   },
   "dependencies": {
-    "@aullidos/shared": "workspace:*",
+    "@fontsource-variable/bricolage-grotesque": "^5.3.0",
+    "@fontsource/grenze-gotisch": "^5.3.0",
+    "@howlsinthedark/shared": "workspace:*",
     "howler": "^2.2.4",
     "i18next": "^26.4.3",
+    "lucide-react": "^1.55.0",
+    "motion": "^14.1.0",
+    "qrcode-generator": "^2.0.4",
     "react": "^19.3.0",
     "react-dom": "^19.3.0",
-    "react-i18next": "^17.0.16"
+    "react-i18next": "^17.0.16",
+    "socket.io-client": "^4.8.4"
   },
   "devDependencies": {
-    "@aullidos/tsconfig": "workspace:*",
+    "@howlsinthedark/tsconfig": "workspace:*",
     "@tailwindcss/vite": "^4.3.3",
     "@types/howler": "^2.2.13",
     "@types/node": "^26.6.5",

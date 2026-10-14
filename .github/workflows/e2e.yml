@@ -43,6 +43,6 @@ jobs:
       - if: steps.guard.outputs.run == 'true'
         run: pnpm install --frozen-lockfile
       - if: steps.guard.outputs.run == 'true'
-        run: pnpm --filter @aullidos/web exec playwright install --with-deps chromium
+        run: pnpm --filter @howlsinthedark/web exec playwright install --with-deps chromium
       - if: steps.guard.outputs.run == 'true'
         run: pnpm turbo run test:e2e

@@ -1,4 +1,4 @@
-import type { GameState } from "@aullidos/game-engine";
+import type { GameState } from "@howlsinthedark/game-engine";
 import type { Database } from "./db.js";
 import { gamePlayers, games } from "./schema.js";
 

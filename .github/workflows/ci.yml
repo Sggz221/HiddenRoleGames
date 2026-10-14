@@ -64,13 +64,13 @@ jobs:
           context: .
           push: false
           load: true
-          tags: aullidos:ci
+          tags: howlsinthedark:ci
           cache-from: type=gha
           cache-to: type=gha,mode=max
 
       - name: Smoke test /health
         run: |
-          docker run -d --name app -p 3000:3000 aullidos:ci
+          docker run -d --name app -p 3000:3000 howlsinthedark:ci
           for i in $(seq 1 30); do
             if curl -fsS http://localhost:3000/health; then exit 0; fi
             sleep 1

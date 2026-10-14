@@ -9,8 +9,8 @@ import type {
   PlayerId,
   RoleId,
   Side,
-} from "@aullidos/shared";
-import { VILLAGE_POWER_ROLES } from "@aullidos/shared";
+} from "@howlsinthedark/shared";
+import { VILLAGE_POWER_ROLES } from "@howlsinthedark/shared";
 import { RngCursor } from "./rng.js";
 
 export interface PlayerState {
@@ -33,7 +33,8 @@ export interface NightInputs {
   salvadorTarget: PlayerId | null;
   wolfVotes: Record<PlayerId, PlayerId>;
   wolvesVictim: PlayerId | null;
-  infect: boolean;
+  /** `null` until the Infected Father answers. */
+  infect: boolean | null;
   bigBadWolfVictim: PlayerId | null;
   whiteWolfVictim: PlayerId | null;
   witchHeal: PlayerId | null;
@@ -83,7 +84,10 @@ export interface GameState {
   seerResults: { target: PlayerId; role: RoleId }[];
   foxResults: { target: PlayerId; wolfNearby: boolean }[];
   night: NightInputs;
-  /** Votes of the current day vote step (sheriff election, vote or runoff). */
+  /**
+   * Votes of the current day step (sheriff election, vote or runoff). In the debate an entry
+   * (always `null`) means the player is ready to go to the vote.
+   */
   votes: Record<PlayerId, PlayerId | null>;
   runoffCandidates: PlayerId[];
   /** Interrupting decisions; the head one is the current `reaction` phase. */
@@ -103,7 +107,7 @@ export const emptyNight = (): NightInputs => ({
   salvadorTarget: null,
   wolfVotes: {},
   wolvesVictim: null,
-  infect: false,
+  infect: null,
   bigBadWolfVictim: null,
   whiteWolfVictim: null,
   witchHeal: null,

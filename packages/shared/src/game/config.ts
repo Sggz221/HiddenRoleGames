@@ -24,47 +24,80 @@ export const timersSchema = z.object({
 });
 export type Timers = z.infer<typeof timersSchema>;
 
-export const gameConfigSchema = z
-  .object({
-    /** The deck: one card per player. */
-    roles: z.array(roleIdSchema).min(MIN_PLAYERS).max(MAX_PLAYERS),
-    sheriff: z.boolean().default(true),
-    revealOnDeath: revealOnDeathSchema.default("role"),
-    voteTieRule: voteTieRuleSchema.default("runoff"),
-    /** Dead players see every role and secret event (they "keep their eyes open"). */
-    deadSeeEverything: z.boolean().default(true),
-    /** Safety valve: after this many days the game ends without a winner. */
-    maxDays: z.number().int().min(5).max(100).default(40),
-    timers: timersSchema.prefault({}),
-  })
-  .superRefine((config, ctx) => {
-    for (const issue of validateDeck(config.roles)) {
-      ctx.addIssue({ code: "custom", path: ["roles"], message: issue });
-    }
-  });
+/** Config fields without the deck-wide checks (lets `room:start` omit or override fields). */
+export const gameConfigBaseSchema = z.object({
+  /** The deck: one card per player. */
+  roles: z.array(roleIdSchema).min(MIN_PLAYERS).max(MAX_PLAYERS),
+  sheriff: z.boolean().default(true),
+  revealOnDeath: revealOnDeathSchema.default("role"),
+  voteTieRule: voteTieRuleSchema.default("runoff"),
+  /** Dead players see every role and secret event (they "keep their eyes open"). */
+  deadSeeEverything: z.boolean().default(true),
+  /** Safety valve: after this many days the game ends without a winner. */
+  maxDays: z.number().int().min(5).max(100).default(40),
+  timers: timersSchema.prefault({}),
+});
+
+export const gameConfigSchema = gameConfigBaseSchema.superRefine((config, ctx) => {
+  for (const issue of validateDeck(config.roles)) {
+    ctx.addIssue({ code: "custom", path: ["roles"], message: issue });
+  }
+});
 
 export type GameConfig = z.infer<typeof gameConfigSchema>;
 export type GameConfigInput = z.input<typeof gameConfigSchema>;
 
-/** Returns human-readable (developer-facing) deck problems; empty when the deck is valid. */
-export function validateDeck(roles: readonly RoleId[]): string[] {
-  const issues: string[] = [];
+/** A deck rule broken by a deck. The lobby translates these; the server only needs to reject. */
+export type DeckIssue =
+  | { kind: "tooManyCopies"; role: RoleId; count: number; max: number }
+  | { kind: "exactCopies"; role: RoleId; count: number; required: number }
+  | { kind: "roleNeedsPlayers"; role: RoleId; players: number; min: number }
+  | { kind: "noWolves" }
+  | { kind: "wolvesMajority"; wolves: number; others: number };
+
+/** Every deck rule the deck breaks; empty when it is valid. Same rules the server enforces. */
+export function deckIssues(roles: readonly RoleId[]): DeckIssue[] {
+  const issues: DeckIssue[] = [];
   const counts = new Map<RoleId, number>();
   for (const role of roles) counts.set(role, (counts.get(role) ?? 0) + 1);
 
   for (const [role, count] of counts) {
-    const { maxCopies, exactCopies } = ROLES[role];
-    if (count > maxCopies) issues.push(`Role "${role}" appears ${count} times (max ${maxCopies})`);
+    const { maxCopies, exactCopies, minPlayers } = ROLES[role];
+    if (count > maxCopies) issues.push({ kind: "tooManyCopies", role, count, max: maxCopies });
     if (exactCopies !== undefined && count !== exactCopies) {
-      issues.push(`Role "${role}" must appear exactly ${exactCopies} times`);
+      issues.push({ kind: "exactCopies", role, count, required: exactCopies });
+    }
+    if (minPlayers !== undefined && roles.length < minPlayers) {
+      issues.push({ kind: "roleNeedsPlayers", role, players: roles.length, min: minPlayers });
     }
   }
 
   const wolves = roles.filter((role) => ROLES[role].initialSide === "wolves").length;
-  if (wolves === 0) issues.push("The deck needs at least one wolf");
-  if (wolves >= roles.length - wolves) issues.push("Wolves must be a minority of the deck");
+  const others = roles.length - wolves;
+  if (wolves === 0) issues.push({ kind: "noWolves" });
+  if (wolves >= others) issues.push({ kind: "wolvesMajority", wolves, others });
 
   return issues;
+}
+
+/** Returns human-readable (developer-facing) deck problems; empty when the deck is valid. */
+export function validateDeck(roles: readonly RoleId[]): string[] {
+  return deckIssues(roles).map(describeDeckIssue);
+}
+
+function describeDeckIssue(issue: DeckIssue): string {
+  switch (issue.kind) {
+    case "tooManyCopies":
+      return `Role "${issue.role}" appears ${issue.count} times (max ${issue.max})`;
+    case "exactCopies":
+      return `Role "${issue.role}" must appear exactly ${issue.required} times`;
+    case "roleNeedsPlayers":
+      return `Role "${issue.role}" needs at least ${issue.min} players (deck has ${issue.players})`;
+    case "noWolves":
+      return "The deck needs at least one wolf";
+    case "wolvesMajority":
+      return "Wolves must be a minority of the deck";
+  }
 }
 
 /**
@@ -76,7 +109,7 @@ export function recommendedDeck(players: number): RoleId[] {
     throw new RangeError(`players must be between ${MIN_PLAYERS} and ${MAX_PLAYERS}`);
   }
   const wolves = Math.max(1, Math.floor(players / 4));
-  const specials: RoleId[] = ["seer", "witch", "hunter", "cupid", "little-girl", "elder", "fox"];
+  const specials: RoleId[] = ["seer", "witch", "hunter", "cupid", "salvador", "elder", "fox"];
   const deck: RoleId[] = Array.from({ length: wolves }, () => "werewolf");
   for (const role of specials) {
     if (deck.length >= players - 1) break;

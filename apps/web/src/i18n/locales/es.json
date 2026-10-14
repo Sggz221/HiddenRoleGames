@@ -1,12 +1,86 @@
 {
   "home": {
+    "kicker": "Un juego de rol oculto para jugar en grupo",
     "tagline": "Cae la noche sobre la aldea. Alguien entre vosotros no es quien dice ser.",
     "createRoom": "Crear partida",
     "joinTitle": "¿Tienes un código?",
+    "invited": "Te han invitado a la sala {{code}}. Escribe tu nombre y pulsa «Unirse».",
     "joinPlaceholder": "Código de sala",
     "join": "Unirse",
-    "comingSoon": "Muy pronto",
-    "players": "De {{min}} a {{max}} jugadores · sin instalar nada"
+    "players": "De {{min}} a {{max}} jugadores · sin instalar nada",
+    "howTo": {
+      "title": "Cómo se juega",
+      "intro": "Cada noche la manada elige una víctima. Cada día la aldea intenta desenmascararla.",
+      "step1": {
+        "title": "Reúne a la aldea",
+        "text": "Crea una sala y comparte el código. Cada uno entra desde su móvil."
+      },
+      "step2": {
+        "title": "Recibe tu carta",
+        "text": "El narrador reparte los roles en secreto. Solo tú sabes quién eres."
+      },
+      "step3": {
+        "title": "Sobrevive a la noche",
+        "text": "Los lobos cazan, la vidente espía y la bruja decide a quién salvar."
+      },
+      "step4": {
+        "title": "Debate y vota",
+        "text": "Al amanecer se descubren las víctimas. Acusad, defendeos y votad a quién expulsar."
+      }
+    },
+    "roles": {
+      "title": "Algunos de los personajes",
+      "more": "Y {{count}} roles más para cuando la aldea crezca.",
+      "werewolf": {
+        "name": "Lobo",
+        "text": "Caza de noche con la manada y finge inocencia de día."
+      },
+      "seer": {
+        "name": "Vidente",
+        "text": "Cada noche descubre la verdadera identidad de un jugador."
+      },
+      "witch": {
+        "name": "Bruja",
+        "text": "Guarda una poción para salvar una vida y otra para quitarla."
+      },
+      "hunter": {
+        "name": "Cazador",
+        "text": "Si muere, se lleva a alguien con su último disparo."
+      },
+      "cupid": {
+        "name": "Cupido",
+        "text": "Enamora a dos jugadores: si uno muere, el otro le sigue."
+      },
+      "salvador": {
+        "name": "Salvador",
+        "text": "Cada noche protege a alguien de los lobos."
+      }
+    },
+    "features": {
+      "title": "Pensado para jugar en persona o a distancia",
+      "narrator": {
+        "title": "Narrador automático",
+        "text": "Nadie tiene que quedarse fuera para dirigir la partida."
+      },
+      "mobile": {
+        "title": "Desde el móvil",
+        "text": "Entra con un código, sin cuentas ni descargas."
+      },
+      "chat": {
+        "title": "Chat por canales",
+        "text": "Uno para la aldea, otro para la manada, otro para los muertos."
+      },
+      "fair": {
+        "title": "Sin trampas",
+        "text": "El servidor decide las reglas: nadie puede mirar las cartas de los demás."
+      }
+    },
+    "footer": "Hecho con nocturnidad.",
+    "nameLabel": "Tu nombre en la aldea",
+    "namePlaceholder": "Cómo te verán los demás",
+    "nameRequired": "Escribe tu nombre para entrar.",
+    "working": "Un momento…",
+    "resuming": "Volviendo a tu asiento…"
   },
   "server": {
     "checking": "Comprobando servidor…",
@@ -15,6 +89,460 @@
   },
   "audio": {
     "mute": "Silenciar sonido",
-    "unmute": "Activar sonido"
+    "unmute": "Activar sonido",
+    "music": "Música",
+    "effects": "Efectos"
+  },
+  "roles": {
+    "villager": "Aldeano",
+    "werewolf": "Lobo",
+    "infected-father": "Padre de los lobos",
+    "big-bad-wolf": "Gran lobo feroz",
+    "white-werewolf": "Lobo blanco",
+    "seer": "Vidente",
+    "witch": "Bruja",
+    "hunter": "Cazador",
+    "cupid": "Cupido",
+    "sister": "Hermana",
+    "fox": "Zorro",
+    "salvador": "Salvador",
+    "knight": "Caballero de la espada oxidada",
+    "elder": "Anciano",
+    "bear-tamer": "Domador de osos",
+    "wild-child": "Niño salvaje",
+    "wolf-hound": "Perro lobo",
+    "piper": "Flautista",
+    "angel": "Ángel"
+  },
+  "sides": {
+    "village": "el pueblo",
+    "wolves": "la manada"
+  },
+  "narration": {
+    "game": {
+      "started": "{{count}} vecinos se reúnen en la aldea. Entre ellos se esconden los lobos.",
+      "yourRole": "Tu carta: {{role}}. No se la enseñes a nadie."
+    },
+    "night": {
+      "falls": "Cae la noche {{day}}. La aldea entera se duerme.",
+      "wakes": {
+        "cupid": "Cupido se despierta y elige a dos enamorados.",
+        "seer": "La vidente se despierta y escoge a quién desenmascarar.",
+        "wild-child": "El niño salvaje se despierta y elige a su modelo.",
+        "wolf-hound": "El perro lobo se despierta y decide de qué lado está.",
+        "salvador": "El salvador se despierta y elige a quién proteger.",
+        "wolves": "Se despiertan los lobos y eligen a su víctima.",
+        "infected-father": "El padre de los lobos se despierta. ¿Infectará a la víctima?",
+        "big-bad-wolf": "El gran lobo feroz se despierta, hambriento.",
+        "white-werewolf": "El lobo blanco se despierta. Esta noche puede traicionar a la manada.",
+        "witch": "La bruja se despierta y contempla sus pociones.",
+        "fox": "El zorro se despierta y olfatea el aire.",
+        "piper": "El flautista se despierta y toca su melodía."
+      }
+    },
+    "dawn": {
+      "nobody": "Amanece. Milagro: esta noche no ha muerto nadie.",
+      "one": "Amanece. La aldea descubre una víctima.",
+      "many": "Amanece. Esta noche han muerto {{count}} vecinos."
+    },
+    "death": {
+      "night": {
+        "role": "{{name}} aparece sin vida. Era {{role}}.",
+        "side": "{{name}} aparece sin vida. Estaba con {{side}}.",
+        "hidden": "{{name}} aparece sin vida. Se lleva su secreto a la tumba."
+      },
+      "vote": {
+        "role": "La aldea expulsa a {{name}}. Era {{role}}.",
+        "side": "La aldea expulsa a {{name}}. Estaba con {{side}}.",
+        "hidden": "La aldea expulsa a {{name}}. Se lleva su secreto a la tumba."
+      },
+      "hunter": {
+        "role": "El disparo del cazador alcanza a {{name}}. Era {{role}}.",
+        "side": "El disparo del cazador alcanza a {{name}}. Estaba con {{side}}.",
+        "hidden": "El disparo del cazador alcanza a {{name}}. Se lleva su secreto a la tumba."
+      },
+      "grief": {
+        "role": "{{name}} muere de pena por su amor. Era {{role}}.",
+        "side": "{{name}} muere de pena por su amor. Estaba con {{side}}.",
+        "hidden": "{{name}} muere de pena por su amor. Se lleva su secreto a la tumba."
+      },
+      "rust": {
+        "role": "{{name}} muere por la herida oxidada del caballero. Era {{role}}.",
+        "side": "{{name}} muere por la herida oxidada del caballero. Estaba con {{side}}.",
+        "hidden": "{{name}} muere por la herida oxidada del caballero. Se lleva su secreto a la tumba."
+      }
+    },
+    "day": {
+      "sheriffElection": "La aldea debe elegir a su alguacil.",
+      "debate": "Día {{day}}: es hora de debatir. ¿Quién miente?",
+      "vote": "Se acabó el debate. Votad a quién expulsar."
+    },
+    "sheriff": {
+      "elected": "{{name}} recibe la estrella de alguacil. Su voto vale doble.",
+      "none": "Nadie ha sido elegido alguacil.",
+      "changed": "La estrella de alguacil pasa a {{name}}.",
+      "vacant": "La aldea se queda sin alguacil."
+    },
+    "vote": {
+      "ballot": "Votos para {{name}}: {{names}}.",
+      "abstained": "Se abstienen: {{names}}.",
+      "eliminated": "La aldea ha decidido: {{name}} abandona la aldea ahora mismo.",
+      "tie": "Empate entre {{names}}. Nadie es expulsado.",
+      "nobody": "La aldea no se pone de acuerdo. Nadie es expulsado.",
+      "runoff": "Empate entre {{names}}. Habrá una segunda votación."
+    },
+    "reaction": {
+      "hunter-shot": "{{name}}, el cazador, apunta con su último aliento.",
+      "sheriff-successor": "{{name}} debe nombrar a quien herede su estrella de alguacil.",
+      "sheriff-tiebreak": "{{name}}, con la estrella de alguacil, decide el empate entre {{names}}."
+    },
+    "bear": {
+      "growled": "¡El oso del domador gruñe! Hay un lobo cerca."
+    },
+    "elder": {
+      "villagePowersLost": "La aldea ha matado a su anciano. Los aldeanos pierden sus poderes."
+    },
+    "private": {
+      "loversLinked": "Cupido ha unido a {{names}}. Si uno muere, el otro le sigue.",
+      "seerResult": "Tu visión: {{name}} es {{role}}.",
+      "wildChildModel": "Tu modelo es {{name}}. Si muere, te unirás a la manada.",
+      "wildChildTransformed": "Tu modelo ha muerto. Ahora cazas con la manada.",
+      "wolfHoundChose": "Has elegido: estás con {{side}}.",
+      "wolvesChoseVictim": "La manada ha elegido: {{name}}.",
+      "wolvesNoVictim": "La manada no se ha puesto de acuerdo. No hay víctima.",
+      "playerInfected": "La infección alcanza a {{name}}, que se une a la manada.",
+      "foxWolfNearby": "Tu olfato no falla: hay un lobo junto a {{name}}.",
+      "foxNoWolf": "Ningún lobo junto a {{name}}. Has perdido el olfato.",
+      "playersCharmed": "Encantados por la flauta: {{names}}.",
+      "elderResisted": "Los lobos te han atacado, pero has resistido.",
+      "youAreInfected": "Los lobos te han infectado: ahora eres de la manada, aunque conservas tu carta."
+    },
+    "witness": {
+      "seerResult": "La vidente, {{actor}}, descubre que {{name}} es {{role}}.",
+      "wildChildModel": "{{actor}}, el niño salvaje, toma a {{name}} como modelo.",
+      "wildChildTransformed": "El modelo de {{actor}} ha muerto: el niño salvaje se une a la manada.",
+      "wolfHoundChose": "{{actor}}, el perro lobo, se queda con {{side}}.",
+      "foxWolfNearby": "{{actor}}, el zorro, huele un lobo junto a {{name}}.",
+      "foxNoWolf": "{{actor}}, el zorro, no huele ningún lobo junto a {{name}} y pierde el olfato.",
+      "elderResisted": "{{actor}}, el anciano, resiste el ataque de los lobos."
+    },
+    "end": {
+      "village": "¡La aldea gana! Los lobos han sido expulsados.",
+      "wolves": "¡Los lobos ganan! La aldea ha caído.",
+      "lovers": "¡Gana la pareja! {{names}} sobreviven juntos.",
+      "white-werewolf": "¡El lobo blanco gana! {{names}} sobrevive en solitario.",
+      "piper": "¡El flautista gana! Toda la aldea baila a su son.",
+      "angel": "¡El ángel gana! {{names}} consiguió morir en el primer turno.",
+      "none": "Nadie gana. La aldea queda en silencio."
+    }
+  },
+  "lobby": {
+    "codeLabel": "Código de la sala",
+    "copy": "Copiar enlace",
+    "copied": "¡Copiado!",
+    "share": "Compartir",
+    "shareText": "Únete a mi partida de {{app}} con el código {{code}}",
+    "qr": {
+      "show": "Código QR",
+      "title": "Escanea para unirte",
+      "hint": "Apunta con la cámara del móvil y entrarás directo a la sala.",
+      "alt": "Código QR para unirse a la sala {{code}}",
+      "close": "Cerrar"
+    },
+    "leave": "Salir de la sala",
+    "players": "Jugadores ({{count}}/{{max}})",
+    "you": "tú",
+    "host": "Anfitrión",
+    "offline": "Sin conexión",
+    "waitingHost": "Esperando a que {{name}} empiece la partida…",
+    "needMore": "Faltan {{count}} jugadores para poder empezar (mínimo {{min}}).",
+    "offlineBanner": "Sin conexión con el servidor. Reconectando…",
+    "settings": {
+      "title": "Ajustes de la partida",
+      "hint": "Solo tú ves estos ajustes. Se aplican al empezar.",
+      "deck": "Cartas",
+      "recommended": "Recomendadas",
+      "recommendedHint": "Una baraja equilibrada para {{count}} jugadores.",
+      "custom": "Personalizadas",
+      "cards": "{{cards}} cartas para {{players}} jugadores",
+      "pace": "Ritmo",
+      "paces": {
+        "fast": "Rápido",
+        "normal": "Normal",
+        "slow": "Pausado"
+      },
+      "paceHint": "Debate de {{debate}} min, votación de {{vote}} s, {{night}} s por turno de noche.",
+      "sheriff": "Elegir alguacil (su voto vale doble)",
+      "revealOnDeath": "Al morir se revela",
+      "reveal": {
+        "role": "La carta",
+        "side": "Solo el bando",
+        "none": "Nada"
+      },
+      "voteTieRule": "En caso de empate",
+      "tie": {
+        "runoff": "Segunda votación",
+        "no-elimination": "Nadie es expulsado",
+        "sheriff": "Decide el alguacil"
+      },
+      "add": "Añadir {{role}}",
+      "remove": "Quitar {{role}}",
+      "minPlayers": "desde {{min}} jugadores"
+    },
+    "categories": {
+      "wolf": "Lobos",
+      "villager": "Aldeanos",
+      "ambiguous": "Ambiguos",
+      "loner": "Solitarios"
+    },
+    "start": "Empezar la partida",
+    "starting": "Repartiendo cartas…",
+    "problems": {
+      "notEnoughPlayers": "Hacen falta al menos {{min}} jugadores (ahora {{players}}).",
+      "deckSize": "Hay {{cards}} cartas para {{players}} jugadores: tiene que haber una por jugador.",
+      "tooManyCopies": "Solo puede haber {{max}} {{role}}.",
+      "exactCopies": "{{role}}: tiene que haber exactamente {{required}}.",
+      "roleNeedsPlayers": "{{role}} solo se puede usar con {{min}} jugadores o más.",
+      "noWolves": "Hace falta al menos un lobo.",
+      "wolvesMajority": "Los lobos tienen que ser menos que el resto ({{wolves}} contra {{others}})."
+    }
+  },
+  "game": {
+    "yourCard": "Tu carta",
+    "narrator": "El narrador",
+    "timeLeft": "Tiempo restante",
+    "phase": {
+      "night": "Noche {{day}}",
+      "day": "Día {{day}}",
+      "ended": "Fin de la partida"
+    },
+    "nightStep": {
+      "cupid": "Turno de Cupido",
+      "seer": "Turno de la vidente",
+      "wild-child": "Turno del niño salvaje",
+      "wolf-hound": "Turno del perro lobo",
+      "salvador": "Turno del salvador",
+      "wolves": "Turno de los lobos",
+      "infected-father": "Turno del padre de los lobos",
+      "big-bad-wolf": "Turno del gran lobo feroz",
+      "white-werewolf": "Turno del lobo blanco",
+      "witch": "Turno de la bruja",
+      "fox": "Turno del zorro",
+      "piper": "Turno del flautista"
+    },
+    "dayStep": {
+      "sheriff-election": "Elección de alguacil",
+      "debate": "Debate",
+      "vote": "Votación",
+      "runoff": "Segunda votación"
+    },
+    "reaction": {
+      "hunter-shot": "Último disparo del cazador",
+      "sheriff-successor": "Sucesión del alguacil",
+      "sheriff-tiebreak": "Desempate del alguacil"
+    },
+    "actions": {
+      "vote": "¿A quién expulsas de la aldea?",
+      "voteSheriff": "¿Quién debe ser el alguacil?",
+      "seerInspect": "¿De quién quieres ver la carta?",
+      "wildChildModel": "Elige a tu modelo. Si muere, te unirás a la manada.",
+      "salvadorProtect": "¿A quién proteges esta noche?",
+      "wolfVote": "¿A quién devora la manada?",
+      "bigBadWolfKill": "Elige una segunda víctima.",
+      "whiteWolfKill": "¿Traicionas a un lobo esta noche?",
+      "foxSniff": "¿Alrededor de quién olfateas?",
+      "hunterShoot": "Con tu último aliento, ¿a quién disparas?",
+      "sheriffSuccessor": "¿Quién hereda tu estrella de alguacil?",
+      "sheriffTieBreak": "Hay empate. ¿A quién expulsa la aldea?",
+      "cupidLink": "Elige a los dos enamorados.",
+      "piperCharm": "Elige a uno o dos jugadores para encantar.",
+      "wolfHoundChoose": "¿De qué lado estás?",
+      "infect": "¿Infectas a la víctima de la manada en lugar de matarla?",
+      "witch": "Decide qué haces con tus pociones.",
+      "confirm": "Confirmar",
+      "skip": "Pasar turno",
+      "abstain": "Abstenerme",
+      "nobody": "Nadie",
+      "yes": "Sí, infectar",
+      "no": "No",
+      "changeHint": "Tu elección se envía al tocarla. Puedes cambiarla hasta que acabe el turno.",
+      "chosen": "Has elegido: {{choice}}",
+      "heal": "Poción de vida",
+      "poison": "Poción de muerte",
+      "used": "Ya la has usado.",
+      "readyToVote": "Listo para votar",
+      "ready": "Listo. Esperando al resto…",
+      "witchHint": "No sabes a quién han atacado. La poción de vida protege esta noche a quien elijas (también a ti); la de muerte mata a quien elijas."
+    },
+    "sides": {
+      "village": "Con el pueblo",
+      "wolves": "Con la manada"
+    },
+    "idle": {
+      "night": "La aldea duerme. Espera a que amanezca.",
+      "debate": "Debatid: ¿quién es el lobo?",
+      "waitingVotes": "Esperando al resto de votos…",
+      "waitingFor": "Esperando a {{name}}…",
+      "dead": "Has muerto. Observa en silencio."
+    },
+    "table": {
+      "label": "La mesa: {{count}} jugadores, en el sentido de las agujas del reloj",
+      "alive": "vivos",
+      "direction": "La mesa gira en el sentido de las agujas del reloj: el jugador a tu izquierda es el siguiente."
+    },
+    "players": {
+      "title": "La aldea",
+      "dead": "Ha muerto",
+      "sheriff": "Alguacil",
+      "wolfAlly": "Manada",
+      "lover": "Pareja",
+      "charmed": "Hechizo del flautista",
+      "you": "tú",
+      "votes_one": "{{count}} voto",
+      "votes_other": "{{count}} votos",
+      "abstained": "Se abstienen",
+      "ready": "listo",
+      "voted": "ha votado"
+    },
+    "you": {
+      "infected": "Te han infectado: ahora cazas con la manada.",
+      "lover": "Cupido te ha unido a {{name}}. Si uno muere, el otro también.",
+      "sisters": "Tu hermana: {{names}}.",
+      "wildChildModel": "Tu modelo: {{name}}.",
+      "wolfHound": "Has elegido: {{side}}.",
+      "potions": "Pociones: vida {{heal}}, muerte {{poison}}.",
+      "available": "disponible",
+      "usedUp": "gastada",
+      "foxLost": "Has perdido el olfato.",
+      "charmed": "Estás bajo el hechizo del flautista.",
+      "visions": "Lo que sabes",
+      "seerResult": "{{name}} es {{role}}.",
+      "foxWolf": "Había un lobo junto a {{name}}.",
+      "foxNoWolf": "No había ningún lobo junto a {{name}}."
+    },
+    "result": {
+      "cards": "Las cartas de todos",
+      "back": "Volver a la sala"
+    },
+    "overlay": {
+      "dawn": "Amanece",
+      "deaths": "La aldea pierde a…",
+      "nobody": "Esta noche no ha muerto nadie.",
+      "cause": {
+        "night": "Esta noche",
+        "vote": "Expulsión",
+        "hunter": "Disparo del cazador",
+        "grief": "Muerte de pena",
+        "rust": "Herida oxidada"
+      },
+      "side": "Estaba con {{side}}",
+      "hidden": "Su carta queda en secreto",
+      "skip": "Saltar",
+      "vote": "La aldea ha votado",
+      "voteNobody": "Nadie es expulsado.",
+      "voteTie": "Empate entre {{names}}. Nadie es expulsado.",
+      "voteRunoff": "Empate entre {{names}}: habrá una segunda votación.",
+      "sheriff": "Nuevo alguacil",
+      "sheriffElected": "{{name}} lleva la estrella: su voto vale doble.",
+      "sheriffNone": "La aldea se queda sin alguacil."
+    },
+    "card": {
+      "reveal": "Toca para ver tu carta",
+      "hide": "Toca para ocultarla"
+    },
+    "turn": "Turno",
+    "roleButton": "Tu carta: {{role}}",
+    "hiddenRole": "Carta oculta",
+    "sfxOn": "Silenciar efectos",
+    "sfxOff": "Activar efectos",
+    "musicOn": "Silenciar música",
+    "musicOff": "Activar música",
+    "settings": "Ajustes",
+    "reduceMotion": "Reducir animaciones",
+    "replayReveal": "Ver mi carta otra vez",
+    "clock": "Hora en la aldea: {{hour}}",
+    "history": "Lo que ha pasado",
+    "showMore": "Ver todo",
+    "showLess": "Ver menos",
+    "dead": "Muerto: {{role}}",
+    "deadUnknown": "Su carta es un misterio",
+    "reveal": {
+      "title": "Tu carta",
+      "tap": "Toca para descubrirla",
+      "ok": "Entendido",
+      "secret": "Que nadie más la vea."
+    },
+    "youShort": "tú",
+    "hint": {
+      "sheriff-election": "Esta votación no elimina a nadie: elegís al alguacil, cuyo voto vale doble.",
+      "debate": "Hablad en el chat. Cuando todos estéis listos, empieza la votación.",
+      "vote": "El más votado queda expulsado en cuanto votéis todos o se acabe el tiempo. Los votos se revelan al final.",
+      "runoff": "Desempate: solo se puede votar a los empatados. Si vuelve a haber empate, no se expulsa a nadie."
+    },
+    "progress": {
+      "ready": "{{count}} de {{total}} listos para votar",
+      "voted": "{{count}} de {{total}} han votado"
+    },
+    "musicVolume": "Volumen de la música",
+    "sfxVolume": "Volumen de los efectos"
+  },
+  "errors": {
+    "INVALID_PAYLOAD": "Algo no cuadra en los datos enviados.",
+    "NOT_IN_GAME": "No estás en ninguna partida.",
+    "NOT_ALLOWED": "Ahora mismo no puedes hacer eso.",
+    "INVALID_TARGET": "Ese objetivo no es válido.",
+    "DUPLICATE_TARGET": "No puedes elegir dos veces al mismo jugador.",
+    "POTION_USED": "Ya has usado esa poción.",
+    "RATE_LIMITED": "Vas muy rápido. Espera un momento.",
+    "ROOM_NOT_FOUND": "No existe ninguna sala con ese código.",
+    "ROOM_FULL": "La sala está llena.",
+    "NAME_TAKEN": "Ya hay alguien con ese nombre en la sala.",
+    "ALREADY_IN_ROOM": "Ya estás en una sala.",
+    "NOT_IN_ROOM": "Ya no estás en la sala.",
+    "TOO_MANY_ATTEMPTS": "Demasiados intentos. Espera un minuto.",
+    "GAME_IN_PROGRESS": "La partida ya ha empezado.",
+    "NOT_ENOUGH_PLAYERS": "Faltan jugadores para empezar.",
+    "INVALID_CONFIG": "La configuración de la partida no es válida.",
+    "SESSION_NOT_FOUND": "Tu asiento ya no existe.",
+    "INTERNAL": "Error del servidor. Inténtalo de nuevo.",
+    "TIMEOUT": "El servidor no responde. Comprueba tu conexión."
+  },
+  "roleGoals": {
+    "villager": "Descubre a los lobos y expúlsalos de la aldea.",
+    "werewolf": "Devora a los aldeanos de noche y disimula de día. La manada gana si solo quedan lobos.",
+    "infected-father": "Eres de la manada. Una vez por partida puedes infectar a la víctima para que se una a vosotros.",
+    "big-bad-wolf": "Eres de la manada. Mientras no muera ningún lobo, cada noche matas a una segunda víctima.",
+    "white-werewolf": "Cazas con la manada, pero ganas en solitario: cada dos noches puedes matar a un lobo.",
+    "seer": "Cada noche ves la carta de un jugador. Guía a la aldea sin delatarte.",
+    "witch": "Tienes una poción para salvar a la víctima de los lobos y otra para matar. Una vez cada una.",
+    "hunter": "Si mueres, te llevas a alguien contigo con tu último disparo.",
+    "cupid": "La primera noche unes a dos jugadores. Si uno muere, el otro también.",
+    "sister": "Conoces a tu hermana desde el principio. Confiad la una en la otra.",
+    "fox": "Olfateas a un jugador y a sus vecinos: sabrás si hay un lobo entre ellos.",
+    "salvador": "Cada noche proteges a alguien de los lobos, pero no al mismo dos noches seguidas.",
+    "knight": "Si te matan los lobos, el primero de ellos a tu izquierda muere al amanecer.",
+    "elder": "Resistes el primer ataque de los lobos. Si te mata la aldea, los aldeanos pierden sus poderes.",
+    "bear-tamer": "Cada mañana tu oso gruñe si tienes un lobo al lado.",
+    "wild-child": "Eliges a un modelo. Si muere, te unes a la manada.",
+    "wolf-hound": "La primera noche eliges bando: la aldea o la manada.",
+    "piper": "Cada noche encantas a dos jugadores. Ganas si todos los vivos están encantados.",
+    "angel": "Ganas si consigues que te eliminen en el primer turno."
+  },
+  "chat": {
+    "open": "Abrir chats",
+    "close": "Cerrar chats",
+    "title": "Chats",
+    "channels": {
+      "general": "Aldea",
+      "wolves": "Manada",
+      "dead": "Muertos",
+      "lovers": "Pareja"
+    },
+    "placeholder": "Escribe un mensaje…",
+    "send": "Enviar",
+    "readOnly": "Ahora solo puedes leer este canal.",
+    "empty": "Aún no hay mensajes.",
+    "unread_one": "{{count}} mensaje sin leer",
+    "unread_other": "{{count}} mensajes sin leer"
   }
 }

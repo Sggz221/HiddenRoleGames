@@ -1,4 +1,4 @@
-import { healthResponseSchema } from "@aullidos/shared";
+import { healthResponseSchema } from "@howlsinthedark/shared";
 import { useEffect, useState } from "react";
 
 export type ServerStatus = "checking" | "online" | "offline";

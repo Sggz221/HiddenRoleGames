@@ -1,4 +1,10 @@
-import { type GameEventPayload, type GameViewMessage, gameConfigSchema } from "@aullidos/shared";
+import {
+  type ChatMessage,
+  type GameEventPayload,
+  type GameViewMessage,
+  gameConfigSchema,
+  type NarrationLine,
+} from "@howlsinthedark/shared";
 import { afterEach, beforeEach, describe, expect, it, vi } from "vitest";
 import type { FinishedGame, GameHistory } from "../persistence/game-history.js";
 import { GameRegistry } from "./registry.js";
@@ -15,12 +21,23 @@ const fakeClock: Clock = {
 
 class RecordingPublisher implements GamePublisher {
   views = new Map<string, GameViewMessage>();
+  /** Every view sent, in order (by player id). */
+  viewsSent: string[] = [];
   events: { playerId: string; events: GameEventPayload[] }[] = [];
   sendEvents(_gameId: string, playerId: string, events: GameEventPayload[]) {
     this.events.push({ playerId, events });
   }
   sendView(_gameId: string, playerId: string, message: GameViewMessage) {
     this.views.set(playerId, message);
+    this.viewsSent.push(playerId);
+  }
+  chats: { playerId: string; message: ChatMessage }[] = [];
+  sendChat(_gameId: string, playerId: string, message: ChatMessage) {
+    this.chats.push({ playerId, message });
+  }
+  narration: { playerId: string; lines: NarrationLine[] }[] = [];
+  sendNarration(_gameId: string, playerId: string, lines: NarrationLine[]) {
+    this.narration.push({ playerId, lines });
   }
 }
 
@@ -66,6 +83,18 @@ describe("GameSession", () => {
     await session.dispose();
   });
 
+  it("does not resend a view that did not change: a wolf's vote reaches only the pack", async () => {
+    const session = await GameSession.start("g1", config, players, 1, deps());
+    await vi.advanceTimersByTimeAsync(10_000);
+    expect(session.state.phase).toEqual({ kind: "night", step: "wolves" });
+    const wolf = session.state.players.find((p) => p.role === "werewolf")!;
+    const victim = session.state.players.find((p) => p.side === "village")!;
+    publisher.viewsSent = [];
+    await session.handleAction(wolf.id, { type: "wolfVote", target: victim.id });
+    expect(publisher.viewsSent).toEqual([wolf.id]);
+    await session.dispose();
+  });
+
   it("advances phases on the server timer", async () => {
     const session = await GameSession.start("g1", config, players, 1, deps());
     expect(session.state.phase).toEqual({ kind: "night", step: "seer" });
@@ -73,6 +102,33 @@ describe("GameSession", () => {
     expect(session.state.phase).toEqual({ kind: "night", step: "wolves" });
     await vi.advanceTimersByTimeAsync(10_000);
     expect(session.state.phase).toEqual({ kind: "day", step: "debate" });
+    await session.dispose();
+  });
+
+  it("narrates the game itself: each seat hears its own lines, no player involved", async () => {
+    const session = await GameSession.start("g1", config, players, 1, deps());
+    await vi.advanceTimersByTimeAsync(20_000); // seer, wolves (no victim) -> dawn
+    const heard = (id: string) =>
+      publisher.narration
+        .filter((n) => n.playerId === id)
+        .flatMap((n) => n.lines.map((l) => l.key));
+
+    for (const player of session.state.players) {
+      expect(heard(player.id)).toEqual(
+        expect.arrayContaining(["game.started", "game.yourRole", "night.falls", "dawn.nobody"]),
+      );
+      expect(heard(player.id).includes("private.wolvesNoVictim")).toBe(player.role === "werewolf");
+    }
+    await session.dispose();
+  });
+
+  it("the Seer acting sends a view to nobody but her (no timing leaks)", async () => {
+    const session = await GameSession.start("g1", config, players, 1, deps());
+    const seer = session.state.players.find((p) => p.role === "seer")!;
+    const target = session.state.players.find((p) => p.id !== seer.id)!;
+    publisher.viewsSent = [];
+    await session.handleAction(seer.id, { type: "seerInspect", target: target.id });
+    expect(publisher.viewsSent).toEqual([seer.id]);
     await session.dispose();
   });
 
@@ -118,5 +174,49 @@ describe("GameSession", () => {
     await vi.advanceTimersByTimeAsync(0);
     expect(registry.get("g1")?.state.phase).toEqual({ kind: "night", step: "wolves" });
     await registry.disposeAll();
+  });
+
+  it("delivers chat lines only to the channel's readers and rejects closed channels", async () => {
+    const session = await GameSession.start("g1", config, players, 1, deps());
+    const wolf = session.state.players.find((p) => p.role === "werewolf");
+    const villager = session.state.players.find((p) => p.role === "villager");
+    if (!wolf || !villager) throw new Error("roles not dealt");
+
+    expect(session.chat(villager.id, "general", "hola")).toMatchObject({ code: "NOT_ALLOWED" });
+    expect(session.chat(wolf.id, "wolves", "auu")).toEqual({ ok: true });
+    expect(publisher.chats).toEqual([
+      {
+        playerId: wolf.id,
+        message: {
+          id: expect.any(String),
+          channel: "wolves",
+          from: wolf.id,
+          name: wolf.name,
+          text: "auu",
+          sentAt: 1_000_000,
+        },
+      },
+    ]);
+    expect(session.chat("nobody", "general", "hi")).toMatchObject({ code: "NOT_ALLOWED" });
+    await session.dispose();
+  });
+
+  it("tells registry listeners when a game ends", async () => {
+    const registry = new GameRegistry({
+      store,
+      publisher,
+      history,
+      log: silentLog,
+      clock: fakeClock,
+    });
+    const ended: string[] = [];
+    const stop = registry.onGameEnded((id) => ended.push(id));
+    const session = await registry.start(config, players, 1, "g1");
+    for (let day = 0; day < 50 && registry.get("g1"); day++) {
+      await vi.advanceTimersByTimeAsync(60_000);
+    }
+    expect(session.state.phase).toEqual({ kind: "ended" });
+    expect(ended).toEqual(["g1"]);
+    stop();
   });
 });

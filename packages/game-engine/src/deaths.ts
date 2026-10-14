@@ -1,4 +1,4 @@
-import type { PlayerId, PublicDeathCause } from "@aullidos/shared";
+import type { PlayerId, PublicDeathCause } from "@howlsinthedark/shared";
 import {
   ALL,
   type DeathCause,
@@ -94,7 +94,7 @@ function transformWildChild(draft: Draft, deadId: PlayerId): void {
   const child = state.players.find((player) => player.role === "wild-child");
   if (!child?.alive || child.side === "wolves") return;
   child.side = "wolves";
-  draft.emit({ type: "wildChildTransformed" }, to(child.id));
+  draft.emit({ type: "wildChildTransformed", child: child.id }, to(child.id));
 }
 
 /** The first living wolf seated to the Knight's left catches the rust. */
@@ -112,6 +112,7 @@ function firstWolfToTheLeft(draft: Draft, knightId: PlayerId): PlayerId | null {
 export function resolveDawn(draft: Draft): void {
   const { state } = draft;
   const night = state.night;
+  draft.emit({ type: "dawn", day: state.day }, ALL);
 
   if (state.rustVictim) {
     const victim = state.rustVictim;
@@ -119,6 +120,7 @@ export function resolveDawn(draft: Draft): void {
     if (isAlive(state, victim)) kill(draft, victim, "rust");
   }
 
+  // The Witch's healing potion saves its target from every wolf attack of the night.
   const healed = night.witchHeal;
   for (const [victim, cause] of [
     [night.wolvesVictim, "wolves"],
@@ -130,8 +132,9 @@ export function resolveDawn(draft: Draft): void {
     kill(draft, victim, cause);
   }
 
-  if (night.whiteWolfVictim && isAlive(state, night.whiteWolfVictim)) {
-    kill(draft, night.whiteWolfVictim, "white-werewolf");
+  const betrayed = night.whiteWolfVictim;
+  if (betrayed && betrayed !== healed && isAlive(state, betrayed)) {
+    kill(draft, betrayed, "white-werewolf");
   }
   if (night.witchPoison && isAlive(state, night.witchPoison)) {
     kill(draft, night.witchPoison, "poison");
@@ -146,7 +149,7 @@ function elderResists(draft: Draft, victimId: PlayerId): boolean {
   const victim = findPlayer(state, victimId);
   if (victim?.role !== "elder" || state.elderLivesLost > 0) return false;
   state.elderLivesLost = 1;
-  draft.emit({ type: "elderResisted" }, to(victimId));
+  draft.emit({ type: "elderResisted", elder: victimId }, to(victimId));
   return true;
 }
 

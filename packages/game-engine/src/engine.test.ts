@@ -1,9 +1,10 @@
-import { type GameEvent, gameConfigSchema } from "@aullidos/shared";
+import { type GameEvent, gameConfigSchema } from "@howlsinthedark/shared";
 import { describe, expect, it } from "vitest";
 import { applyAction } from "./actions.js";
 import { advancePhase, canAdvanceEarly, nightSteps } from "./advance.js";
 import { createGame } from "./create.js";
 import { act, advance, advanceTo, alive, everyoneVotes, idOf, setup } from "./test-utils.js";
+import { projectFor } from "./view.js";
 
 describe("createGame", () => {
   const config = gameConfigSchema.parse({
@@ -53,6 +54,7 @@ describe("night steps", () => {
       "wild-child",
       "fox",
       "piper",
+      "villager",
     ]);
     expect(nightSteps(state, 1)).toEqual([
       "cupid",
@@ -139,6 +141,62 @@ describe("basic night and day cycle", () => {
     expect(state.result?.team).toBe("village");
     expect(log.at(-1)).toMatchObject({ type: "gameEnded", audience: { kind: "all" } });
   });
+  it("eliminates the voted player right away: they are dead when the night falls", () => {
+    let { state } = setup([
+      "werewolf",
+      "werewolf",
+      "seer",
+      "villager",
+      "villager",
+      "villager",
+      "villager",
+    ]);
+    state = advanceTo(state, { kind: "day", step: "vote" });
+    state = everyoneVotes(state, "p3");
+    state = advance(state);
+    expect(state.phase.kind).toBe("night");
+    expect(alive(state, "p3")).toBe(false);
+  });
+});
+
+describe("debate", () => {
+  it("ends early once every living player is ready to vote", () => {
+    let { state } = setup(["werewolf", "villager", "villager", "villager", "villager", "villager"]);
+    state = advanceTo(state, { kind: "day", step: "debate" });
+    for (const id of ["p0", "p1", "p2", "p3", "p4"]) state = act(state, id, { type: "skip" });
+    expect(canAdvanceEarly(state)).toBe(false);
+    expect(projectFor(state, "p5").voted).toEqual(["p0", "p1", "p2", "p3", "p4"]);
+    state = act(state, "p5", { type: "skip" });
+    expect(canAdvanceEarly(state)).toBe(true);
+    state = advance(state);
+    expect(state.phase).toEqual({ kind: "day", step: "vote" });
+    expect(state.votes).toEqual({});
+  });
+});
+
+describe("secret ballots", () => {
+  it("hide who voted for whom until the vote closes, then reveal every ballot", () => {
+    let { state } = setup(["werewolf", "villager", "villager", "villager", "villager", "villager"]);
+    state = advanceTo(state, { kind: "day", step: "vote" });
+    const cast = applyAction(state, "p0", { type: "vote", target: "p1" });
+    if (!cast.ok) throw cast.error;
+    expect(cast.events).toEqual([{ type: "voteCast", voter: "p0", audience: { kind: "all" } }]);
+    state = cast.state;
+    state = act(state, "p2", { type: "vote", target: null });
+
+    expect(projectFor(state, "p1").votes).toEqual({});
+    expect(projectFor(state, "p1").voted).toEqual(["p0", "p2"]);
+    expect(projectFor(state, "p0").votes).toEqual({ p0: "p1" });
+    expect(projectFor(state, "p2").votes).toEqual({ p2: null });
+
+    const log: GameEvent[] = [];
+    state = advance(state, log);
+    expect(log[0]).toEqual({
+      type: "votesRevealed",
+      votes: { p0: "p1", p2: null },
+      audience: { kind: "all" },
+    });
+  });
 });
 
 describe("vote ties", () => {
@@ -190,6 +248,34 @@ describe("vote ties", () => {
     expect(canAdvanceEarly(state)).toBe(true);
     state = advance(state);
     expect(alive(state, "p3")).toBe(false);
+  });
+
+  it("sheriff rule announces no result until the Sheriff decides", () => {
+    let { state } = setup([...roles], { voteTieRule: "sheriff" });
+    state.sheriff = "p5";
+    state = advanceTo(state, { kind: "day", step: "vote" });
+    const log: GameEvent[] = [];
+    state = advance(tiedVote(state), log);
+    expect(log.some((event) => event.type === "voteResult")).toBe(false);
+
+    state = act(state, "p5", { type: "sheriffTieBreak", target: null });
+    log.length = 0;
+    state = advance(state, log);
+    expect(log.find((event) => event.type === "voteResult")).toMatchObject({
+      eliminated: null,
+      tied: ["p3", "p1"],
+    });
+    expect(state.players.every((p) => p.alive)).toBe(true);
+  });
+
+  it("a Sheriff voted out as the last wolf ends the game without naming a successor", () => {
+    let { state } = setup([...roles]);
+    state.sheriff = "p0";
+    state = advanceTo(state, { kind: "day", step: "vote" });
+    state = everyoneVotes(state, "p0");
+    state = advance(state);
+    expect(state.phase).toEqual({ kind: "ended" });
+    expect(state.result?.team).toBe("village");
   });
 
   it("the Sheriff's vote counts double", () => {

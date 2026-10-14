@@ -20,7 +20,7 @@ Decisiones clave:
 
 ### Nota sobre nombre y arte (importante)
 
-"Los Hombres Lobo de Castronegro" es un juego comercial con marca registrada y arte propio. Para publicar, usa **nombre propio, textos propios e ilustraciones propias o con licencia**. Las mecánicas (reglas de un juego) no están protegidas, pero el nombre, las ilustraciones y los textos sí. En este documento se usa el nombre de trabajo **"Aullidos"** (cámbialo cuando quieras; está centralizado en una constante).
+"Los Hombres Lobo de Castronegro" es un juego comercial con marca registrada y arte propio. Para publicar, usa **nombre propio, textos propios e ilustraciones propias o con licencia**. Las mecánicas (reglas de un juego) no están protegidas, pero el nombre, las ilustraciones y los textos sí. El nombre público es **"Howls in the Dark"** (identificador técnico `howlsinthedark`; "Aullidos" fue el nombre de trabajo) (centralizado en la constante `APP_NAME`).
 
 ---
 
@@ -85,7 +85,7 @@ Si más adelante se quiere escenario 3D/2D con efectos avanzados: **react-three-
 ## 2. Estructura del monorepo
 
 ```
-aullidos/
+howlsinthedark/
 ├── apps/
 │   ├── web/                    # React + Vite (cliente)
 │   │   ├── src/
@@ -350,7 +350,7 @@ COPY pnpm-lock.yaml pnpm-workspace.yaml package.json ./
 COPY apps ./apps
 COPY packages ./packages
 RUN pnpm install --frozen-lockfile
-RUN pnpm turbo run build --filter=@aullidos/server --filter=@aullidos/web
+RUN pnpm turbo run build --filter=@howlsinthedark/server --filter=@howlsinthedark/web
 
 FROM base AS runtime
 ENV NODE_ENV=production
@@ -437,7 +437,7 @@ Cada hito termina con **código desplegable, tests en verde y documentación act
 ### 9.1 Archivo `CLAUDE.md` (copiar a la raíz)
 
 ```markdown
-# Aullidos: instrucciones para Claude
+# Howls in the Dark: instrucciones para Claude
 
 ## Qué es
 Juego web multijugador de rol oculto (tipo "Hombres Lobo"). Monorepo pnpm + Turborepo.

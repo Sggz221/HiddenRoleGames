@@ -1,5 +1,12 @@
-import type { DayStep, GameEvent, NightStep, Phase, PlayerId, RoleId } from "@aullidos/shared";
-import { NIGHT_STEPS } from "@aullidos/shared";
+import type {
+  DayStep,
+  GameEvent,
+  NightStep,
+  Phase,
+  PlayerId,
+  RoleId,
+} from "@howlsinthedark/shared";
+import { NIGHT_STEPS } from "@howlsinthedark/shared";
 import { kill, packIds, resolveDawn } from "./deaths.js";
 import {
   ALL,
@@ -61,11 +68,14 @@ export function advancePhase(state: GameState): { state: GameState; events: Game
   return draft.finish();
 }
 
-/** Whether the server may skip the rest of the timer. Never true at night (timing leaks). */
+/**
+ * Whether the server may skip the rest of the timer: a decision was taken, or every living
+ * player has voted (in the debate: is ready to vote). Never true at night (timing leaks).
+ */
 export function canAdvanceEarly(state: GameState): boolean {
   const { phase } = state;
   if (phase.kind === "reaction") return state.decisionChoice !== undefined;
-  if (phase.kind !== "day" || phase.step === "debate") return false;
+  if (phase.kind !== "day") return false;
   return alivePlayers(state).every((player) => player.id in state.votes);
 }
 
@@ -125,6 +135,10 @@ function continueFlow(draft: Draft): void {
   if (state.result) {
     endGame(draft, state.result);
     return;
+  }
+  // Once the game is decided a new Sheriff changes nothing: nobody waits for one to be named.
+  if (state.decisions.length && evaluateWinner(state)) {
+    state.decisions = state.decisions.filter((pending) => pending.kind !== "sheriff-successor");
   }
   const [decision] = state.decisions;
   if (decision) {
@@ -194,7 +208,10 @@ function finishNightStep(draft: Draft, step: NightStep): void {
       const target = night.seerTarget ? findPlayer(state, night.seerTarget) : undefined;
       if (seer && hasPower(state, seer) && target) {
         state.seerResults.push({ target: target.id, role: target.role });
-        draft.emit({ type: "seerResult", target: target.id, role: target.role }, to(seer.id));
+        draft.emit(
+          { type: "seerResult", seer: seer.id, target: target.id, role: target.role },
+          to(seer.id),
+        );
       }
       break;
     }
@@ -207,7 +224,7 @@ function finishNightStep(draft: Draft, step: NightStep): void {
         night.wildChildModel ?? (candidates.length ? draft.rng.pick(candidates).id : null);
       if (model) {
         state.wildChildModel = model;
-        draft.emit({ type: "wildChildModelChosen", model }, to(child.id));
+        draft.emit({ type: "wildChildModelChosen", child: child.id, model }, to(child.id));
       }
       break;
     }
@@ -218,7 +235,7 @@ function finishNightStep(draft: Draft, step: NightStep): void {
       const side = night.wolfHoundSide ?? "village";
       state.wolfHoundSide = side;
       hound.side = side;
-      draft.emit({ type: "wolfHoundChose", side }, to(hound.id));
+      draft.emit({ type: "wolfHoundChose", hound: hound.id, side }, to(hound.id));
       break;
     }
 
@@ -271,7 +288,10 @@ function finishNightStep(draft: Draft, step: NightStep): void {
       const wolfNearby = group.some((id) => findPlayer(state, id)?.side === "wolves");
       state.foxResults.push({ target: night.foxTarget, wolfNearby });
       if (!wolfNearby) state.foxActive = false;
-      draft.emit({ type: "foxResult", target: night.foxTarget, wolfNearby }, to(fox.id));
+      draft.emit(
+        { type: "foxResult", fox: fox.id, target: night.foxTarget, wolfNearby },
+        to(fox.id),
+      );
       break;
     }
 
@@ -312,6 +332,7 @@ function finishDayStep(draft: Draft, step: DayStep): void {
   const { state } = draft;
   switch (step) {
     case "sheriff-election": {
+      revealVotes(draft);
       const votes = validVotes(
         state,
         alivePlayers(state).map((p) => p.id),
@@ -354,8 +375,18 @@ function validVotes(state: GameState, candidates: PlayerId[]): [PlayerId, Player
   );
 }
 
+/** Closes a vote: every living player's ballot becomes public, abstentions included. */
+function revealVotes(draft: Draft): void {
+  const { state } = draft;
+  const votes = Object.fromEntries(
+    Object.entries(state.votes).filter(([voter]) => isAlive(state, voter)),
+  );
+  draft.emit({ type: "votesRevealed", votes }, ALL);
+}
+
 function resolveVote(draft: Draft, candidates: PlayerId[], isRunoff: boolean): void {
   const { state } = draft;
+  revealVotes(draft);
   const weight = (voter: PlayerId) => (voter === state.sheriff ? 2 : 1);
   const tied = topCandidates(
     validVotes(state, candidates).map(([voter, target]) => [target, weight(voter)] as const),
@@ -371,7 +402,7 @@ function resolveVote(draft: Draft, candidates: PlayerId[], isRunoff: boolean): v
     const rule = state.config.voteTieRule;
     const sheriffAlive = isAlive(state, state.sheriff);
     if (rule === "sheriff" && sheriffAlive && state.sheriff) {
-      draft.emit({ type: "voteResult", eliminated: null, tied }, ALL);
+      // No result yet: the Sheriff's reaction announces the tie and its outcome follows.
       state.decisions.push({ kind: "sheriff-tiebreak", actor: state.sheriff, candidates: tied });
     } else if (rule === "no-elimination") {
       draft.emit({ type: "voteResult", eliminated: null, tied }, ALL);
@@ -418,6 +449,8 @@ function resolveDecision(draft: Draft): void {
     if (choice && decision.candidates.includes(choice) && isAlive(state, choice)) {
       draft.emit({ type: "voteResult", eliminated: choice, tied: [] }, ALL);
       kill(draft, choice, "vote");
+    } else {
+      draft.emit({ type: "voteResult", eliminated: null, tied: decision.candidates }, ALL);
     }
   }
 

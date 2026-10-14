@@ -1,4 +1,4 @@
-import type { GameActionType, PendingAction, PlayerId } from "@aullidos/shared";
+import type { GameActionType, PendingAction, PlayerId } from "@howlsinthedark/shared";
 import { alivePlayers, findPlayer, type GameState, hasPower, type PlayerState } from "./state.js";
 
 const pending = (
@@ -42,7 +42,8 @@ export function pendingActionFor(state: GameState, playerId: PlayerId): PendingA
     case "day":
       switch (phase.step) {
         case "debate":
-          return null;
+          // "Ready to vote": the debate ends early once every living player is.
+          return pending(["skip"]);
         case "sheriff-election":
           return pending(["vote"], alivePlayers(state));
         case "vote":
@@ -143,9 +144,3 @@ function nightPending(state: GameState, player: PlayerState): PendingAction | nu
         : null;
   }
 }
-
-/** Victims the Witch may heal tonight (wolf kills not prevented by infection). */
-export const witchHealable = (state: GameState): PlayerId[] =>
-  [state.night.wolvesVictim, state.night.bigBadWolfVictim].filter(
-    (id): id is PlayerId => id !== null,
-  );

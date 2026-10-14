@@ -1,8 +1,8 @@
 import { existsSync } from "node:fs";
 import { resolve } from "node:path";
-import type { HealthResponse } from "@aullidos/shared";
 import fastifyHelmet from "@fastify/helmet";
 import fastifyStatic from "@fastify/static";
+import type { HealthResponse } from "@howlsinthedark/shared";
 import Fastify, { type FastifyInstance } from "fastify";
 import type { Env } from "../config/env.js";
 

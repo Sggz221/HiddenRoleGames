@@ -1,4 +1,4 @@
-# @aullidos/tsconfig
+# @howlsinthedark/tsconfig
 
 Configuraciones TypeScript compartidas:
 
@@ -9,4 +9,4 @@ Configuraciones TypeScript compartidas:
 | `node.json` | `server`, `bots` |
 | `react.json` | `web` |
 
-Uso: `{ "extends": "@aullidos/tsconfig/node.json" }` (añadir `"@aullidos/tsconfig": "workspace:*"` a devDependencies).
+Uso: `{ "extends": "@howlsinthedark/tsconfig/node.json" }` (añadir `"@howlsinthedark/tsconfig": "workspace:*"` a devDependencies).

@@ -1,5 +1,9 @@
+import type { ChatMessage } from "./chat.js";
 import type { GameEventPayload } from "./game/events.js";
+import type { NarrationLine } from "./game/narration.js";
 import type { PlayerView } from "./game/view.js";
+import type { RoomStateMessage } from "./room.js";
+import type { SessionResumeAck } from "./session.js";
 
 export const ERROR_CODES = [
   "INVALID_PAYLOAD",
@@ -9,12 +13,31 @@ export const ERROR_CODES = [
   "DUPLICATE_TARGET",
   "POTION_USED",
   "RATE_LIMITED",
+  "ROOM_NOT_FOUND",
+  "ROOM_FULL",
+  "NAME_TAKEN",
+  "ALREADY_IN_ROOM",
+  "NOT_IN_ROOM",
+  "TOO_MANY_ATTEMPTS",
+  "GAME_IN_PROGRESS",
+  "NOT_ENOUGH_PLAYERS",
+  "INVALID_CONFIG",
+  "SESSION_NOT_FOUND",
   "INTERNAL",
 ] as const;
 export type ErrorCode = (typeof ERROR_CODES)[number];
 
 export type AckResponse = { ok: true } | { ok: false; code: ErrorCode; message: string };
 export type Ack = (response: AckResponse) => void;
+
+/**
+ * Reply to `room:create` / `room:join`: who you are in the room, its current state and the
+ * `sessionToken` the client must keep (localStorage) to resume after a disconnection.
+ */
+export type RoomAckResponse =
+  | { ok: true; playerId: string; sessionToken: string; room: RoomStateMessage }
+  | { ok: false; code: ErrorCode; message: string };
+export type RoomAck = (response: RoomAckResponse) => void;
 
 export interface GameViewMessage {
   view: PlayerView;
@@ -29,6 +52,12 @@ export interface ServerToClientEvents {
   "game:view": (message: GameViewMessage) => void;
   /** Ordered narration events for animations; already filtered for the receiver. */
   "game:events": (events: GameEventPayload[]) => void;
+  /** What the narrator says about those same events, in order (texts: `narration.<key>`). */
+  "game:narration": (lines: NarrationLine[]) => void;
+  /** Lobby changed (someone joined/left, host changed). Sent to every member of the room. */
+  "room:state": (room: RoomStateMessage) => void;
+  /** A chat line the receiver is allowed to read (membership decided by the server). */
+  "chat:message": (message: ChatMessage) => void;
   error: (error: { code: ErrorCode; message: string }) => void;
 }
 
@@ -37,4 +66,12 @@ export interface ClientToServerEvents {
   "game:action": (action: unknown, ack: Ack) => void;
   /** Asks for the current view again (e.g. after a reconnection). */
   "game:sync": (ack: Ack) => void;
+  "room:create": (payload: unknown, ack: RoomAck) => void;
+  "room:join": (payload: unknown, ack: RoomAck) => void;
+  "room:leave": (ack: Ack) => void;
+  /** Host only: deals the cards and starts the game with the current members. */
+  "room:start": (payload: unknown, ack: Ack) => void;
+  "chat:send": (payload: unknown, ack: Ack) => void;
+  /** Reattaches a new connection to an existing seat using the `sessionToken`. */
+  "session:resume": (payload: unknown, ack: SessionResumeAck) => void;
 }

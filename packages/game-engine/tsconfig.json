@@ -1,5 +1,5 @@
 {
-  "extends": "@aullidos/tsconfig/library.json",
+  "extends": "@howlsinthedark/tsconfig/library.json",
   "compilerOptions": {
     "rootDir": "src",
     "outDir": "dist",

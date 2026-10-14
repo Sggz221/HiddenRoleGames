@@ -1,14 +1,15 @@
 import { randomUUID } from "node:crypto";
-import type { NewPlayer } from "@aullidos/game-engine";
-import type { GameConfig } from "@aullidos/shared";
+import type { NewPlayer } from "@howlsinthedark/game-engine";
+import type { GameConfig } from "@howlsinthedark/shared";
 import { GameSession, type SessionDeps } from "./session.js";
 
 /**
- * Live games handled by this process. Rooms/lobby (next milestone) will call `start`
- * when the host launches a game; on boot `restoreAll` resumes games stored in Redis.
+ * Live games handled by this process. `room:start` calls `start` when the host launches a
+ * game; on boot `restoreAll` resumes games stored in Redis.
  */
 export class GameRegistry {
   private readonly sessions = new Map<string, GameSession>();
+  private readonly endedListeners = new Set<(gameId: string) => void>();
 
   constructor(private readonly deps: Omit<SessionDeps, "onEnded">) {}
 
@@ -24,11 +25,17 @@ export class GameRegistry {
     config: GameConfig,
     players: NewPlayer[],
     seed: number,
-    id = randomUUID(),
+    id: string = randomUUID(),
   ): Promise<GameSession> {
     const session = await GameSession.start(id, config, players, seed, this.sessionDeps());
     this.sessions.set(id, session);
     return session;
+  }
+
+  /** Called after a game ends (its final view and events have already been published). */
+  onGameEnded(listener: (gameId: string) => void): () => void {
+    this.endedListeners.add(listener);
+    return () => this.endedListeners.delete(listener);
   }
 
   async restoreAll(): Promise<number> {
@@ -47,6 +54,12 @@ export class GameRegistry {
   }
 
   private sessionDeps(): SessionDeps {
-    return { ...this.deps, onEnded: (id) => this.sessions.delete(id) };
+    return {
+      ...this.deps,
+      onEnded: (id) => {
+        this.sessions.delete(id);
+        for (const listener of this.endedListeners) listener(id);
+      },
+    };
   }
 }

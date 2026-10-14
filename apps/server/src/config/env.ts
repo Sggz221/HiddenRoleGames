@@ -19,6 +19,8 @@ const envSchema = z.object({
     .int()
     .positive()
     .default(6 * 60 * 60),
+  /** How long a lobby seat is held after its player disconnects (games keep the seat). */
+  RECONNECT_GRACE_SECONDS: z.coerce.number().int().min(5).max(600).default(60),
 });
 
 export type Env = z.infer<typeof envSchema>;

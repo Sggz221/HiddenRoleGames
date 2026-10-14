@@ -1,6 +1,6 @@
 {
-  "name": "@aullidos/game-engine",
-  "version": "0.1.0",
+  "name": "@howlsinthedark/game-engine",
+  "version": "0.2.0",
   "private": true,
   "type": "module",
   "exports": {
@@ -18,13 +18,14 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\""
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "balance": "tsc -p tsconfig.build.json && node scripts/balance.ts"
   },
   "dependencies": {
-    "@aullidos/shared": "workspace:*"
+    "@howlsinthedark/shared": "workspace:*"
   },
   "devDependencies": {
-    "@aullidos/tsconfig": "workspace:*",
+    "@howlsinthedark/tsconfig": "workspace:*",
     "fast-check": "^4.10.2",
     "typescript": "^7.0.2",
     "vitest": "^5.0.3"

@@ -4,16 +4,24 @@ import {
   type ClientToServerEvents,
   gameActionSchema,
   type ServerToClientEvents,
-} from "@aullidos/shared";
+} from "@howlsinthedark/shared";
 import { createAdapter } from "@socket.io/redis-adapter";
 import type { Redis } from "ioredis";
 import { Server, type Socket } from "socket.io";
 import type { GameRegistry } from "../game/registry.js";
-import type { GamePublisher, Logger } from "../game/session.js";
+import { type Clock, type GamePublisher, type Logger, systemClock } from "../game/session.js";
+import type { RoomManager } from "../rooms/manager.js";
+import type { SessionManager } from "../sessions/session-manager.js";
+import { registerChatHandlers } from "./chat.js";
+import { endRoomGame, registerStartHandler } from "./game-lifecycle.js";
+import type { TokenBucketOptions } from "./rate-limiter.js";
+import { registerRoomHandlers } from "./rooms.js";
+import { attachRoomToGame, registerSessionHandlers, releaseExpiredSeats } from "./sessions.js";
 
-/** Identity attached to a socket once it joins a game (set by the lobby/auth layer, next milestone). */
+/** Identity attached to a socket once it joins a room (and later a game). */
 export interface SocketData {
   playerId?: string;
+  roomCode?: string;
   gameId?: string;
 }
 
@@ -35,9 +43,14 @@ export const playerRoom = (gameId: string, playerId: string) => `game:${gameId}:
 
 export interface RealtimeDeps {
   registry: GameRegistry;
+  rooms: RoomManager;
+  sessions: SessionManager;
   log: Logger;
   /** When given, uses the Redis adapter so several instances can share rooms. */
   redis?: Redis;
+  /** Time source for chat rate limiting and timestamps (fake in tests). */
+  clock?: Clock;
+  chatRateLimit?: TokenBucketOptions;
 }
 
 export function createRealtime(httpServer: HttpServer, deps: RealtimeDeps) {
@@ -55,11 +68,35 @@ export function createRealtime(httpServer: HttpServer, deps: RealtimeDeps) {
   const [pub, sub] = adapterClients;
   if (pub && sub) io.adapter(createAdapter(pub, sub));
 
-  io.on("connection", (socket) => registerGameHandlers(socket, deps));
+  const session = { io, rooms: deps.rooms, sessions: deps.sessions, registry: deps.registry };
+  const lifecycle = { ...session, log: deps.log };
+  const clock = deps.clock ?? systemClock;
+  const chat = {
+    io,
+    registry: deps.registry,
+    rooms: deps.rooms,
+    now: () => clock.now(),
+    ...(deps.chatRateLimit ? { rateLimit: deps.chatRateLimit } : {}),
+  };
+  const stopReleasing = releaseExpiredSeats(session);
+  const stopEnding = deps.registry.onGameEnded((gameId) => endRoomGame(lifecycle, gameId));
+
+  io.on("connection", (socket) => {
+    registerGameHandlers(socket, deps);
+    registerRoomHandlers(socket, io, deps.rooms, deps.sessions);
+    registerStartHandler(socket, lifecycle);
+    registerSessionHandlers(socket, session);
+    registerChatHandlers(socket, chat);
+  });
 
   return {
     io,
+    /** Marks the room's game as started: seats stop expiring and members join their channels. */
+    attachRoomToGame: (roomCode: string, gameId: string) =>
+      attachRoomToGame(session, roomCode, gameId),
     async close() {
+      stopReleasing();
+      stopEnding();
       io.disconnectSockets(true);
       await new Promise<void>((resolve) => io.close(() => resolve()));
       await Promise.all(adapterClients.map((client) => client.quit().catch(() => undefined)));
@@ -73,6 +110,10 @@ export function socketPublisher(io: IoServer): GamePublisher {
       io.to(playerRoom(gameId, playerId)).emit("game:events", events),
     sendView: (gameId, playerId, message) =>
       io.to(playerRoom(gameId, playerId)).emit("game:view", message),
+    sendChat: (gameId, playerId, message) =>
+      io.to(playerRoom(gameId, playerId)).emit("chat:message", message),
+    sendNarration: (gameId, playerId, lines) =>
+      io.to(playerRoom(gameId, playerId)).emit("game:narration", lines),
   };
 }
 

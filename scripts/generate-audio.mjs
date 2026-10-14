@@ -129,6 +129,174 @@ function voteCast() {
   );
 }
 
+/** Two low thumps (lub-dub) per beat: the last seconds of a phase. */
+function heartbeat() {
+  const rate = 11025;
+  return wav(
+    make(0.9, rate, (t) => {
+      const thump = (start, f, gain) => {
+        const local = t - start;
+        return local < 0 ? 0 : Math.sin(TAU * f * local) * Math.exp(-local * 22) * gain;
+      };
+      return thump(0, 52, 0.9) + thump(0.22, 46, 0.6);
+    }),
+    rate,
+  );
+}
+
+/** A dry clock tick for the final countdown. */
+function tick() {
+  const rate = 22050;
+  const noise = lcg(3);
+  return wav(
+    make(0.08, rate, (t) => (noise() * 0.5 + Math.sin(TAU * 2400 * t)) * Math.exp(-t * 90) * 0.35),
+    rate,
+  );
+}
+
+/** A distant church bell: inharmonic partials with a long decay. */
+function bell() {
+  const rate = 22050;
+  const partials = [
+    [110, 0.5],
+    [220, 0.3],
+    [264, 0.22],
+    [331, 0.16],
+    [440, 0.1],
+    [587, 0.06],
+  ];
+  return wav(
+    make(3.2, rate, (t) => {
+      const strike = Math.min(1, t * 400);
+      return (
+        partials.reduce(
+          (sum, [f, gain], i) =>
+            sum + Math.sin(TAU * f * t) * gain * Math.exp(-t * (1.1 + i * 0.35)),
+          0,
+        ) *
+        strike *
+        0.6
+      );
+    }),
+    rate,
+  );
+}
+
+/** A low snarl that wakes the pack: filtered noise over a growling square-ish tone. */
+function growl() {
+  const rate = 22050;
+  const noise = lcg(11);
+  let lp = 0;
+  return wav(
+    make(1.6, rate, (t) => {
+      const env = Math.sin((Math.PI * t) / 1.6) ** 1.5;
+      lp += 0.08 * (noise() - lp);
+      const rumble = Math.sign(Math.sin(TAU * (70 + 8 * Math.sin(TAU * 7 * t)) * t)) * 0.25;
+      return (rumble + lp * 3) * env * 0.5;
+    }),
+    rate,
+  );
+}
+
+/** Paper whoosh plus a snap: the role card turning over. */
+function cardFlip() {
+  const rate = 22050;
+  const noise = lcg(5);
+  let hp = 0;
+  let last = 0;
+  return wav(
+    make(0.35, rate, (t) => {
+      const n = noise();
+      hp = 0.9 * (hp + n - last);
+      last = n;
+      const whoosh = hp * Math.sin((Math.PI * Math.min(t, 0.25)) / 0.25) * 0.25;
+      const snap =
+        t > 0.24 ? Math.sin(TAU * 1800 * (t - 0.24)) * Math.exp(-(t - 0.24) * 60) * 0.4 : 0;
+      return whoosh + snap;
+    }),
+    rate,
+  );
+}
+
+/** Rising major arpeggio: your side won. */
+function stingerWin() {
+  const rate = 22050;
+  const notes = [392, 494, 587, 784, 988];
+  return wav(
+    make(2.6, rate, (t) =>
+      notes.reduce((sum, f, i) => {
+        const local = t - i * 0.12;
+        return local < 0
+          ? sum
+          : sum +
+              (Math.sin(TAU * f * local) + 0.3 * Math.sin(TAU * 2 * f * local)) *
+                Math.exp(-local * 1.6) *
+                0.12;
+      }, 0),
+    ),
+    rate,
+  );
+}
+
+/** Falling minor line over a low drone: your side lost. */
+function stingerLose() {
+  const rate = 22050;
+  const notes = [440, 415, 349, 294];
+  return wav(
+    make(3, rate, (t) => {
+      const drone = Math.sin(TAU * 73.4 * t) * 0.15 * Math.exp(-t * 0.6);
+      return notes.reduce((sum, f, i) => {
+        const local = t - i * 0.32;
+        return local < 0 ? sum : sum + Math.sin(TAU * f * local) * Math.exp(-local * 2) * 0.16;
+      }, drone);
+    }),
+    rate,
+  );
+}
+
+/** Soft airy swoosh for panels opening (rising) and closing (falling). */
+function swoosh(rising) {
+  const rate = 22050;
+  const noise = lcg(rising ? 13 : 17);
+  let lp = 0;
+  return wav(
+    make(0.28, rate, (t) => {
+      const k = rising ? 0.05 + t * 0.6 : 0.22 - t * 0.6;
+      lp += Math.max(0.02, k) * (noise() - lp);
+      return lp * Math.sin((Math.PI * t) / 0.28) * 0.9;
+    }),
+    rate,
+  );
+}
+
+/** A short wooden knock: picking a target. */
+function select() {
+  const rate = 22050;
+  return wav(
+    make(
+      0.12,
+      rate,
+      (t) => (Math.sin(TAU * 520 * t) + 0.5 * Math.sin(TAU * 1310 * t)) * Math.exp(-t * 45) * 0.4,
+    ),
+    rate,
+  );
+}
+
+/** Two quick soft notes: a chat line arrived. */
+function chatPop() {
+  const rate = 22050;
+  return wav(
+    make(0.25, rate, (t) => {
+      const note = (start, f) => {
+        const local = t - start;
+        return local < 0 ? 0 : Math.sin(TAU * f * local) * Math.exp(-local * 30) * 0.3;
+      };
+      return note(0, 880) + note(0.07, 1175);
+    }),
+    rate,
+  );
+}
+
 mkdirSync(OUT, { recursive: true });
 const files = {
   "ambient-night": night(),
@@ -138,6 +306,17 @@ const files = {
   death: death(),
   dawn: dawn(),
   "vote-cast": voteCast(),
+  heartbeat: heartbeat(),
+  tick: tick(),
+  bell: bell(),
+  growl: growl(),
+  "card-flip": cardFlip(),
+  "stinger-win": stingerWin(),
+  "stinger-lose": stingerLose(),
+  "ui-open": swoosh(true),
+  "ui-close": swoosh(false),
+  select: select(),
+  "chat-pop": chatPop(),
 };
 for (const [name, buffer] of Object.entries(files)) {
   writeFileSync(join(OUT, `${name}.wav`), buffer);

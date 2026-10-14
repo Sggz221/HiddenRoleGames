@@ -1,11 +1,17 @@
 import { createServer } from "node:http";
 import type { AddressInfo } from "node:net";
-import type { AckResponse, ClientToServerEvents, ServerToClientEvents } from "@aullidos/shared";
+import type {
+  AckResponse,
+  ClientToServerEvents,
+  ServerToClientEvents,
+} from "@howlsinthedark/shared";
 import { io as connect, type Socket } from "socket.io-client";
 import { afterEach, beforeEach, describe, expect, it } from "vitest";
 import { GameRegistry } from "../game/registry.js";
 import { MemoryGameStore } from "../game/store.js";
 import { NoopGameHistory } from "../persistence/game-history.js";
+import { RoomManager } from "../rooms/manager.js";
+import { SessionManager } from "../sessions/session-manager.js";
 import { createRealtime, socketPublisher } from "./io.js";
 
 const silentLog = { info: () => {}, warn: () => {}, error: () => {} };
@@ -20,9 +26,19 @@ describe("realtime", () => {
       store: new MemoryGameStore(),
       history: new NoopGameHistory(),
       log: silentLog,
-      publisher: { sendEvents: () => {}, sendView: () => {} },
+      publisher: {
+        sendEvents: () => {},
+        sendView: () => {},
+        sendChat: () => {},
+        sendNarration: () => {},
+      },
     });
-    realtime = createRealtime(httpServer, { registry, log: silentLog });
+    realtime = createRealtime(httpServer, {
+      registry,
+      rooms: new RoomManager(),
+      sessions: new SessionManager(),
+      log: silentLog,
+    });
     socketPublisher(realtime.io);
     await new Promise<void>((resolve) => httpServer.listen(0, resolve));
     const { port } = httpServer.address() as AddressInfo;
