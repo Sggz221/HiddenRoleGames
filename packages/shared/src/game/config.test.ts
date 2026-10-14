@@ -19,6 +19,26 @@ describe("deckIssues", () => {
     ]);
   });
 
+  it("keeps the loner roles out of small tables", () => {
+    const eight = recommendedDeck(8);
+    eight[eight.lastIndexOf("villager")] = "piper";
+    expect(deckIssues(eight)).toEqual([
+      { kind: "roleNeedsPlayers", role: "piper", players: 8, min: 9 },
+    ]);
+    const nine = recommendedDeck(9);
+    nine[nine.lastIndexOf("villager")] = "piper";
+    expect(deckIssues(nine)).toEqual([]);
+
+    const seven = recommendedDeck(7);
+    seven[seven.lastIndexOf("villager")] = "white-werewolf";
+    expect(deckIssues(seven)).toContainEqual({
+      kind: "roleNeedsPlayers",
+      role: "white-werewolf",
+      players: 7,
+      min: 8,
+    });
+  });
+
   it("keeps the developer messages of validateDeck", () => {
     expect(validateDeck(["villager", "villager", "villager", "villager", "villager"])).toEqual([
       "The deck needs at least one wolf",

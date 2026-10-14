@@ -1,14 +1,8 @@
 import type { GameEvent, PlayerId, PlayerView, PublicPlayer } from "@howlsinthedark/shared";
 import { chatAccessFor } from "./chat.js";
+import { choiceOf } from "./choice.js";
 import { pendingActionFor } from "./pending.js";
-import {
-  findPlayer,
-  type GameState,
-  hasPower,
-  isAlive,
-  loverOf,
-  type PlayerState,
-} from "./state.js";
+import { findPlayer, type GameState, isAlive, loverOf, type PlayerState } from "./state.js";
 
 /** Dead players (when allowed) and everyone after the end see the whole board. */
 function isOmniscient(state: GameState, viewer: PlayerState): boolean {
@@ -93,10 +87,8 @@ export function projectFor(state: GameState, viewerId: PlayerId): PlayerView {
           : null,
       foxActive: viewer.role === "fox" ? state.foxActive : null,
       salvadorLast: viewer.role === "salvador" ? state.salvadorLast : null,
-      // Digital adaptation: the Little Girl reads the wolves' chat anonymously (see docs).
-      canSpyWolves:
-        viewer.role === "little-girl" && hasPower(state, viewer) && viewer.side === "village",
       seerResults: viewer.role === "seer" ? state.seerResults : [],
+      choice: choiceOf(state, viewer.id),
       foxResults: viewer.role === "fox" ? state.foxResults : [],
     },
     players,

@@ -24,7 +24,6 @@ const VILLAGE: Record<RoleId, string> = {
   witch: "#6ee7b7",
   hunter: "#fbbf24",
   cupid: "#f9a8d4",
-  "little-girl": "#c4b5fd",
   sister: "#f0abfc",
   fox: "#fb923c",
   salvador: "#93c5fd",

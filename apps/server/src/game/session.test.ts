@@ -21,6 +21,7 @@ const fakeClock: Clock = {
 
 class RecordingPublisher implements GamePublisher {
   views = new Map<string, GameViewMessage>();
+  /** Every view sent, in order (by player id). */
   viewsSent: string[] = [];
   events: { playerId: string; events: GameEventPayload[] }[] = [];
   sendEvents(_gameId: string, playerId: string, events: GameEventPayload[]) {
@@ -118,6 +119,16 @@ describe("GameSession", () => {
       );
       expect(heard(player.id).includes("private.wolvesNoVictim")).toBe(player.role === "werewolf");
     }
+    await session.dispose();
+  });
+
+  it("the Seer acting sends a view to nobody but her (no timing leaks)", async () => {
+    const session = await GameSession.start("g1", config, players, 1, deps());
+    const seer = session.state.players.find((p) => p.role === "seer")!;
+    const target = session.state.players.find((p) => p.id !== seer.id)!;
+    publisher.viewsSent = [];
+    await session.handleAction(seer.id, { type: "seerInspect", target: target.id });
+    expect(publisher.viewsSent).toEqual([seer.id]);
     await session.dispose();
   });
 

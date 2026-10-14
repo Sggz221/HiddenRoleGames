@@ -12,8 +12,7 @@ const GamePage = lazy(() =>
 
 export function App() {
   const { t } = useTranslation();
-  const { resuming, room, playerId, game, narration, connection, choice, clockOffset, chat } =
-    useSession();
+  const { resuming, room, playerId, game, narration, connection, clockOffset, chat } = useSession();
 
   if (resuming && !room) return <Status text={t("home.resuming")} />;
   if (!room || !playerId) return <HomePage />;
@@ -27,7 +26,6 @@ export function App() {
           chat={chat}
           onChat={(channel, text) => session.sendChat(channel, text)}
           narration={narration}
-          choice={choice}
           clockOffset={clockOffset}
           onAction={(action) => session.sendAction(action)}
           onDismissResult={() => session.dismissResult()}

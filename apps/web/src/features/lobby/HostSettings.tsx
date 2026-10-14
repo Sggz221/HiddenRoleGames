@@ -157,12 +157,20 @@ function RoleCounter({
 }) {
   const { t } = useTranslation();
   const name = t(`roles.${role}`);
-  const max = Math.min(ROLES[role].maxCopies, MAX_PLAYERS);
+  const { maxCopies, minPlayers } = ROLES[role];
+  const max = Math.min(maxCopies, MAX_PLAYERS);
   const button =
     "flex size-9 items-center justify-center rounded-lg border border-panel-border transition-colors enabled:hover:border-moon disabled:opacity-30";
   return (
     <li className="flex items-center justify-between gap-3">
-      <span className={count > 0 ? "" : "text-ink-muted"}>{name}</span>
+      <span className={count > 0 ? "" : "text-ink-muted"}>
+        {name}
+        {minPlayers !== undefined && (
+          <span className="ml-2 text-ink-muted text-xs">
+            {t("lobby.settings.minPlayers", { min: minPlayers })}
+          </span>
+        )}
+      </span>
       <span className="flex items-center gap-2">
         <button
           type="button"

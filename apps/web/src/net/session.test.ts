@@ -159,42 +159,19 @@ describe("SessionStore", () => {
     expect(store.getState().game).toBeNull();
   });
 
-  it("measures the clock offset and forgets the choice when the phase changes", async () => {
+  it("measures the clock offset against the server's clock", () => {
     const store = new SessionStore(socket, tokens, () => 1_000);
     socket.fire("game:view", view({ serverNow: 1_250 }));
     expect(store.getState().clockOffset).toBe(250);
-
-    socket.replies.set("game:action", { ok: true });
-    await store.sendAction({ type: "vote", target: "p2" });
-    expect(store.getState().choice).toEqual({ type: "vote", target: "p2" });
-
-    socket.fire("game:view", view({ serverNow: 1_300 })); // same phase: keep it
-    expect(store.getState().choice).not.toBeNull();
-    socket.fire("game:view", view({ phase: { kind: "night", step: "wolves" } }));
-    expect(store.getState().choice).toBeNull();
   });
 
-  it("does not carry a choice into the next phase when the action closed the current one", async () => {
-    const store = new SessionStore(socket, tokens);
-    socket.fire("game:view", view());
-    // The server answers the last vote with the next phase's view before the ack.
-    socket.emitWithAck = async (event: string, ...args: unknown[]) => {
-      socket.sent.push({ event, args });
-      socket.fire("game:view", view({ phase: { kind: "night", step: "seer" } }));
-      return { ok: true };
-    };
-    await store.sendAction({ type: "vote", target: "p2" });
-    expect(store.getState().choice).toBeNull();
-  });
-
-  it("does not remember a rejected action, and passes events on to listeners", async () => {
+  it("reports a rejected action, and passes events on to listeners", async () => {
     const store = new SessionStore(socket, tokens);
     socket.replies.set("game:action", { ok: false, code: "INVALID_TARGET", message: "" });
     await expect(store.sendAction({ type: "vote", target: "p9" })).resolves.toMatchObject({
       ok: false,
       code: "INVALID_TARGET",
     });
-    expect(store.getState().choice).toBeNull();
 
     const received: unknown[] = [];
     store.onGameEvents((events) => received.push(...events));

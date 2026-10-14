@@ -10,15 +10,27 @@ import { nightSteps } from "./advance.js";
 import { findPlayer, type GameState } from "./state.js";
 
 /**
- * Turns one batch of events into what the narrator says, in order. Pass only the events the
+ * Turns one batch of events into what `listener` hears, in order. Pass only the events the
  * listener received (`eventsFor`): the narration is built from them alone, so it can never
  * reveal more than the events themselves. Ballots are told when the vote closes (`votesRevealed`).
+ * Private results are told in the second person to whoever acted and as a witness's account
+ * to everyone else who may see them (the dead, or everyone once the game is over).
  */
-export function narrate(state: GameState, events: readonly GameEventPayload[]): NarrationLine[] {
+export function narrate(
+  state: GameState,
+  events: readonly GameEventPayload[],
+  listener: PlayerId,
+): NarrationLine[] {
   const who = (id: PlayerId): NarratedPlayer => ({ id, name: findPlayer(state, id)?.name ?? id });
   const lines: NarrationLine[] = [];
   const say = (key: NarrationLine["key"], params: NarrationLine["params"] = {}) =>
     lines.push({ key, params });
+  const tell = (
+    actor: PlayerId,
+    own: NarrationLine["key"],
+    witness: NarrationLine["key"],
+    params: NarrationLine["params"] = {},
+  ) => (actor === listener ? say(own, params) : say(witness, { ...params, actor: who(actor) }));
 
   events.forEach((event, index) => {
     switch (event.type) {
@@ -76,24 +88,36 @@ export function narrate(state: GameState, events: readonly GameEventPayload[]): 
         say("private.loversLinked", { players: event.lovers.map(who) });
         break;
       case "seerResult":
-        say("private.seerResult", { player: who(event.target), role: event.role });
+        tell(event.seer, "private.seerResult", "witness.seerResult", {
+          player: who(event.target),
+          role: event.role,
+        });
         break;
       case "wildChildModelChosen":
-        say("private.wildChildModel", { player: who(event.model) });
+        tell(event.child, "private.wildChildModel", "witness.wildChildModel", {
+          player: who(event.model),
+        });
         break;
       case "wildChildTransformed":
-        say("private.wildChildTransformed");
+        tell(event.child, "private.wildChildTransformed", "witness.wildChildTransformed");
         break;
       case "wolfHoundChose":
-        say("private.wolfHoundChose", { side: event.side });
+        tell(event.hound, "private.wolfHoundChose", "witness.wolfHoundChose", {
+          side: event.side,
+        });
         break;
       case "playerInfected":
-        say("private.playerInfected", { player: who(event.player) });
+        if (event.player === listener) say("private.youAreInfected");
+        else say("private.playerInfected", { player: who(event.player) });
         break;
       case "foxResult":
-        say(event.wolfNearby ? "private.foxWolfNearby" : "private.foxNoWolf", {
-          player: who(event.target),
-        });
+        if (event.wolfNearby) {
+          tell(event.fox, "private.foxWolfNearby", "witness.foxWolfNearby", {
+            player: who(event.target),
+          });
+        } else {
+          tell(event.fox, "private.foxNoWolf", "witness.foxNoWolf", { player: who(event.target) });
+        }
         break;
       case "playersCharmed":
         say("private.playersCharmed", { players: event.charmed.map(who) });
@@ -105,7 +129,7 @@ export function narrate(state: GameState, events: readonly GameEventPayload[]): 
         say("elder.villagePowersLost");
         break;
       case "elderResisted":
-        say("private.elderResisted");
+        tell(event.elder, "private.elderResisted", "witness.elderResisted");
         break;
       case "gameEnded":
         say(`end.${event.result.team}`, { players: event.result.winners.map(who) });

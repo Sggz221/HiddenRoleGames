@@ -43,7 +43,7 @@ Decisión completa en [ADR 0004](decisions/0004-chat-por-canales.md).
 | Canal | Escriben | Leen |
 |---|---|---|
 | `general` | Los vivos, de día (y en reacciones: disparo del Cazador, sucesión del Alguacil). En el lobby y al acabar, todos | Todos, vivos y muertos |
-| `wolves` | La manada viva (lobos, infectados, Niño salvaje transformado...), de noche | La manada viva. La **Niña** lo lee **de forma anónima** (`from` y `name` a `null`) mientras conserve su poder. Los muertos si `deadSeeEverything` |
+| `wolves` | La manada viva (lobos, infectados, Niño salvaje transformado...), de noche | La manada viva. Los muertos si `deadSeeEverything` |
 | `dead` | Los muertos | Los muertos |
 | `lovers` | Los dos enamorados vivos | Los enamorados. Los muertos si `deadSeeEverything`. Cupido no |
 
@@ -87,7 +87,7 @@ Decisión completa en [ADR 0003](decisions/0003-reconexion-sessiontoken.md).
 | `hunterShoot` | `target` | Cazador (reacción) |
 | `sheriffSuccessor` | `target` | Alguacil muerto (reacción) |
 | `sheriffTieBreak` | `target: id \| null` | Alguacil, si `voteTieRule = "sheriff"` |
-| `skip` | — | Renunciar a una acción opcional. En el debate: "listo para votar" (el debate acaba cuando lo están todos los vivos) |
+| `skip` | — | Renunciar a una acción opcional; de noche retira lo que el jugador hubiera elegido en ese paso. En el debate: "listo para votar" (el debate acaba cuando lo están todos los vivos) |
 
 - **Qué se puede enviar:** las acciones válidas en cada momento vienen en `view.pending` (`types` y `targets`). El cliente solo tiene que pintar eso.
 - **Cambiar de idea:** reenviar una acción antes de que acabe el temporizador sustituye a la anterior.
@@ -98,11 +98,11 @@ Decisión completa en [ADR 0003](decisions/0003-reconexion-sessiontoken.md).
 
 | Evento | Payload |
 |---|---|
-| `game:view` | `{ view: PlayerView, phaseEndsAt, serverNow }`. Solo se envía cuando la vista de ese jugador cambia |
+| `game:view` | `{ view: PlayerView, phaseEndsAt, serverNow }`. Solo se envía cuando la vista de ese jugador cambia (si no, de noche se sabría cuándo actúa cada rol). `view.you.choice` es lo que el jugador ha elegido en la fase actual (`GameAction` o `null`), así se conserva al recargar |
 | `room:state` | `{ code, hostId, maxPlayers, gameId, players: [{ id, name, connected }] }` a todos los miembros cuando cambia el lobby (entra o sale alguien, cambia el host, empieza o acaba una partida). El jugador que se une lo recibe en el ack |
 | `game:events` | `GameEventPayload[]` ya filtrados para ese jugador, en orden, para animar o narrar. `dawn` marca el fin de la noche; las muertes que siguen en el mismo lote son las de esa noche |
-| `game:narration` | `NarrationLine[]` (`{ key, params }`): lo que dice el narrador sobre ese mismo lote. Se construye solo con los eventos que recibió el jugador. El texto es `narration.<key>` en i18n; `params` trae jugadores (`{ id, name }`), `role`, `side`, `count` y `day` |
-| `chat:message` | `{ id, channel, from, name, text, sentAt }` solo a quien puede leer ese canal. `from`/`name` a `null` cuando el lector no puede saber el autor (Niña) |
+| `game:narration` | `NarrationLine[]` (`{ key, params }`): lo que dice el narrador sobre ese mismo lote. Se construye solo con los eventos que recibió el jugador. El texto es `narration.<key>` en i18n; `params` trae jugadores (`{ id, name }`), `actor` (quien actuó, en las líneas `witness.*`), `role`, `side`, `count` y `day`. Los eventos privados nombran a quien actuó (`seerResult.seer`, `foxResult.fox`, `wildChildModelChosen.child`, `wildChildTransformed.child`, `wolfHoundChose.hound`, `elderResisted.elder`) |
+| `chat:message` | `{ id, channel, from, name, text, sentAt }` solo a quien puede leer ese canal |
 | `error` | `{ code, message }` |
 
 - **Contador:** `phaseEndsAt` y `serverNow` permiten pintarlo bien aunque el reloj del móvil esté desfasado: `restante = phaseEndsAt - (serverNow + (Date.now() - recibidoEn))`.

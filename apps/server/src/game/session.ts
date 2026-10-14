@@ -143,7 +143,7 @@ export class GameSession {
 
   /**
    * Posts a chat line if the engine lets `playerId` write in `channel` right now and delivers
-   * it to the channel's readers (anonymously where the rules say so). Chat never changes the
+   * it to the channel's readers. Chat never changes the
    * game state, so it does not go through the action queue.
    */
   chat(playerId: string, channel: ChatChannel, text: string): AckResponse {
@@ -152,14 +152,16 @@ export class GameSession {
     if (!author || !chatAccessFor(state, playerId).write.includes(channel)) {
       return { ok: false, code: "NOT_ALLOWED", message: "You cannot write in that channel now" };
     }
-    const line = { id: randomUUID(), channel, text, sentAt: this.clock.now() };
-    for (const { id, anonymous } of chatRecipients(state, channel)) {
-      this.deps.publisher.sendChat(this.id, id, {
-        ...line,
-        from: anonymous ? null : author.id,
-        name: anonymous ? null : author.name,
-      });
-    }
+    const line: ChatMessage = {
+      id: randomUUID(),
+      channel,
+      from: author.id,
+      name: author.name,
+      text,
+      sentAt: this.clock.now(),
+    };
+    for (const id of chatRecipients(state, channel))
+      this.deps.publisher.sendChat(this.id, id, line);
     return { ok: true };
   }
 
@@ -220,7 +222,7 @@ export class GameSession {
       if (visible.length) {
         this.deps.publisher.sendEvents(this.id, player.id, visible);
         // The game is the narrator: no player runs it, every seat hears its own version.
-        const lines = narrate(state, visible);
+        const lines = narrate(state, visible, player.id);
         if (lines.length) this.deps.publisher.sendNarration(this.id, player.id, lines);
       }
       if (publishView) this.publishView(player.id);
@@ -228,8 +230,9 @@ export class GameSession {
   }
 
   /**
-   * Sends the player's view only if it changed. Besides saving traffic, this keeps one
-   * player's action from making everyone else's screen react (e.g. a wolf voting at night).
+   * Sends a player their view only if it changed. Broadcasting every view on every action
+   * would leak timing (a villager would see a message arrive the moment the Seer acts) and
+   * would make everyone's screen react to one player's action.
    */
   private publishView(playerId: string): void {
     const message = this.viewFor(playerId);

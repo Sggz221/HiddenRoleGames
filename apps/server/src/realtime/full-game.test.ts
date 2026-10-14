@@ -17,7 +17,7 @@ const BEST_OF_8: RoleId[] = [
   "seer",
   "witch",
   "hunter",
-  "little-girl",
+  "elder",
   "salvador",
   "fox",
 ];
@@ -86,19 +86,14 @@ describe("full game with bots", () => {
     expect(bots.some((bot) => bot.actions.length > 0)).toBe(true);
 
     // Chat: lines flowed and secret channels reached only who may read them.
-    const roleOf = new Map(bots.map((bot) => [bot.playerId, bot.view?.view.you.role]));
     for (const bot of bots) {
       for (const { message, view } of bot.chats) {
-        if (message.from === null) {
-          expect(message.channel).toBe("wolves");
-          expect(roleOf.get(bot.playerId)).toBe("little-girl");
-          expect(message.name).toBeNull();
-        } else {
-          expect(message.name).toBe(bots.find((b) => b.playerId === message.from)?.name);
-        }
-        if (message.channel === "dead" && view?.view.phase.kind !== "ended") {
-          expect(view?.view.you.alive).toBe(false);
-        }
+        expect(message.name).toBe(bots.find((b) => b.playerId === message.from)?.name);
+        const you = view?.view.you;
+        if (!you || view?.view.phase.kind === "ended") continue;
+        if (message.channel === "dead") expect(you.alive).toBe(false);
+        if (message.channel === "wolves") expect(!you.alive || you.side === "wolves").toBe(true);
+        if (message.channel === "lovers") expect(!you.alive || you.lover !== null).toBe(true);
       }
     }
     const general = host.chats.filter(({ message }) => message.channel === "general");

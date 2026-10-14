@@ -49,12 +49,15 @@ export function registerChatHandlers(socket: IoSocket, deps: Deps): void {
     if (channel !== "general") {
       return reply(ack, { ok: false, code: "NOT_ALLOWED", message: "Only general in the lobby" });
     }
-    const name = room.state().players.find((player) => player.id === playerId)?.name ?? null;
+    const member = room.state().players.find((player) => player.id === playerId);
+    if (!member) {
+      return reply(ack, { ok: false, code: "NOT_IN_ROOM", message: "Join a room first" });
+    }
     deps.io.to(roomChannel(roomCode)).emit("chat:message", {
       id: randomUUID(),
       channel,
       from: playerId,
-      name,
+      name: member.name,
       text,
       sentAt: deps.now(),
     });

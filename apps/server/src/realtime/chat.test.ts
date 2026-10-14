@@ -90,31 +90,22 @@ describe("chat", () => {
     async function nightGame() {
       const bots = await server.table(7);
       await bots[0]?.start({
-        roles: [
-          "werewolf",
-          "werewolf",
-          "little-girl",
-          "villager",
-          "villager",
-          "villager",
-          "villager",
-        ],
+        roles: ["werewolf", "werewolf", "villager", "villager", "villager", "villager", "villager"],
         sheriff: false,
       });
       await settle(bots);
       const byRole = (role: string) => bots.filter((bot) => bot.view?.view.you.role === role);
       const [wolfA, wolfB] = byRole("werewolf");
-      const [girl] = byRole("little-girl");
       const villagers = byRole("villager");
-      if (!wolfA || !wolfB || !girl) throw new Error("roles not dealt");
+      if (!wolfA || !wolfB) throw new Error("roles not dealt");
       expect(wolfA.view?.view.phase).toEqual({ kind: "night", step: "wolves" });
-      return { bots, wolfA, wolfB, girl, villagers };
+      return { bots, wolfA, wolfB, villagers };
     }
 
-    it("the wolves talk at night; the Little Girl reads anonymously; villagers read nothing", async () => {
-      const { bots, wolfA, wolfB, girl, villagers } = await nightGame();
+    it("the wolves talk at night and no villager reads them", async () => {
+      const { bots, wolfA, wolfB, villagers } = await nightGame();
       expect(wolfA.view?.view.chat.write).toEqual(["wolves"]);
-      expect(girl.view?.view.chat.read).toContain("wolves");
+      for (const villager of villagers) expect(villager.view?.view.chat.read).toEqual(["general"]);
 
       await expect(wolfA.say("wolves", "a por el panadero")).resolves.toEqual({ ok: true });
       await settle(bots);
@@ -127,17 +118,18 @@ describe("chat", () => {
       };
       expect(lines(wolfA)).toEqual([named]);
       expect(lines(wolfB)).toEqual([named]);
-      expect(lines(girl)).toEqual([{ ...named, from: null, name: null }]);
       for (const villager of villagers) expect(lines(villager)).toEqual([]);
     });
 
     it("nobody may write in general at night, and only the pack in wolves", async () => {
-      const { wolfA, girl, villagers } = await nightGame();
+      const { wolfA, villagers } = await nightGame();
       await expect(villagers[0]?.say("general", "hola?")).resolves.toMatchObject({
         code: "NOT_ALLOWED",
       });
       await expect(wolfA.say("general", "hola")).resolves.toMatchObject({ code: "NOT_ALLOWED" });
-      await expect(girl.say("wolves", "os veo")).resolves.toMatchObject({ code: "NOT_ALLOWED" });
+      await expect(villagers[1]?.say("wolves", "os veo")).resolves.toMatchObject({
+        code: "NOT_ALLOWED",
+      });
       await expect(wolfA.say("dead", "boo")).resolves.toMatchObject({ code: "NOT_ALLOWED" });
     });
 

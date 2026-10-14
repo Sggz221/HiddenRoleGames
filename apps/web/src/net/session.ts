@@ -44,15 +44,13 @@ export interface SessionState {
   narration: NarrationLine[];
   /** Server clock minus ours, measured on each view: the countdown uses the server's time. */
   clockOffset: number;
-  /** What this player chose in the current phase (the server allows changing it until it ends). */
-  choice: GameAction | null;
   /** Chat lines this player may read, oldest first (no history from before joining). */
   chat: ChatMessage[];
 }
 
 export type Result = { ok: true } | { ok: false; code: ErrorCode | "TIMEOUT" };
 
-/** Identifies a phase (and day): a choice belongs to one of them. */
+/** Identifies a phase (and day): the action panel and the clock reset when it changes. */
 export const phaseKey = (game: GameViewMessage): string =>
   `${game.view.day}|${JSON.stringify(game.view.phase)}`;
 
@@ -84,7 +82,6 @@ export class SessionStore {
       game: null,
       narration: [],
       clockOffset: 0,
-      choice: null,
       chat: [],
     };
 
@@ -99,18 +96,12 @@ export class SessionStore {
       const finished = this.state.game?.view.result != null;
       this.update({
         room,
-        ...(started ? { game: null, narration: [], choice: null, chat: [] } : {}),
+        ...(started ? { game: null, narration: [], chat: [] } : {}),
         ...(room.gameId === null && !finished ? { game: null, narration: [] } : {}),
       });
     });
     socket.on("game:view", (game) => {
-      const previous = this.state.game;
-      const samePhase = previous !== null && phaseKey(previous) === phaseKey(game);
-      this.update({
-        game,
-        clockOffset: game.serverNow - this.now(),
-        ...(samePhase ? {} : { choice: null }),
-      });
+      this.update({ game, clockOffset: game.serverNow - this.now() });
     });
     socket.on("chat:message", (message) => {
       // Several tabs or a resend can deliver the same line twice.
@@ -157,17 +148,12 @@ export class SessionStore {
     return this.request<AckResponse>("room:start", options);
   }
 
-  /** Sends an intention; the server checks it against the rules and answers with a new view. */
-  async sendAction(action: GameAction): Promise<Result> {
-    const sentIn = this.state.game && phaseKey(this.state.game);
-    const response = await this.request<AckResponse>("game:action", action);
-    // The action may close the phase (last vote): the next view can arrive before this ack,
-    // and the choice must not leak into the new phase.
-    const current = this.state.game && phaseKey(this.state.game);
-    if (response.ok && current === sentIn) {
-      this.update({ choice: action.type === "skip" ? null : action });
-    }
-    return response;
+  /**
+   * Sends an intention; the server checks it against the rules and answers with a new view,
+   * whose `you.choice` is what this player has chosen (so it survives reloads).
+   */
+  sendAction(action: GameAction): Promise<Result> {
+    return this.request<AckResponse>("game:action", action);
   }
 
   /** Says something in a channel; the server decides whether this player may write there. */
@@ -183,7 +169,7 @@ export class SessionStore {
 
   /** Leaves the end-of-game screen and goes back to the room's lobby. */
   dismissResult(): void {
-    this.update({ game: null, narration: [], choice: null });
+    this.update({ game: null, narration: [] });
   }
 
   /** Raw game events, for sound and animation. */

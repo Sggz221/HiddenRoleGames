@@ -33,6 +33,17 @@ describe("lobby settings", () => {
     expect(startProblems(noWolves, 5)).toEqual([{ kind: "noWolves" }]);
   });
 
+  it("the Piper needs a big enough table", () => {
+    const settings = {
+      ...defaultSettings(8),
+      deck: "custom" as const,
+      counts: { werewolf: 2, piper: 1, villager: 5 },
+    };
+    expect(startProblems(settings, 8)).toEqual([
+      { kind: "roleNeedsPlayers", role: "piper", players: 8, min: 9 },
+    ]);
+  });
+
   it("setCount respects each card's copy limit", () => {
     expect(setCount({}, "seer", 3)).toEqual({ seer: 1 });
     expect(setCount({ sister: 2 }, "sister", 5)).toEqual({ sister: 2 });

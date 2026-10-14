@@ -51,9 +51,9 @@
         "name": "Cupido",
         "text": "Enamora a dos jugadores: si uno muere, el otro le sigue."
       },
-      "little-girl": {
-        "name": "Niña",
-        "text": "Espía la conversación de los lobos sin saber quién habla."
+      "salvador": {
+        "name": "Salvador",
+        "text": "Cada noche protege a alguien de los lobos."
       }
     },
     "features": {
@@ -103,7 +103,6 @@
     "witch": "Bruja",
     "hunter": "Cazador",
     "cupid": "Cupido",
-    "little-girl": "Niña",
     "sister": "Hermana",
     "fox": "Zorro",
     "salvador": "Salvador",
@@ -215,7 +214,17 @@
       "foxWolfNearby": "Tu olfato no falla: hay un lobo junto a {{name}}.",
       "foxNoWolf": "Ningún lobo junto a {{name}}. Has perdido el olfato.",
       "playersCharmed": "Encantados por la flauta: {{names}}.",
-      "elderResisted": "Los lobos te han atacado, pero has resistido."
+      "elderResisted": "Los lobos te han atacado, pero has resistido.",
+      "youAreInfected": "Los lobos te han infectado: ahora eres de la manada, aunque conservas tu carta."
+    },
+    "witness": {
+      "seerResult": "La vidente, {{actor}}, descubre que {{name}} es {{role}}.",
+      "wildChildModel": "{{actor}}, el niño salvaje, toma a {{name}} como modelo.",
+      "wildChildTransformed": "El modelo de {{actor}} ha muerto: el niño salvaje se une a la manada.",
+      "wolfHoundChose": "{{actor}}, el perro lobo, se queda con {{side}}.",
+      "foxWolfNearby": "{{actor}}, el zorro, huele un lobo junto a {{name}}.",
+      "foxNoWolf": "{{actor}}, el zorro, no huele ningún lobo junto a {{name}} y pierde el olfato.",
+      "elderResisted": "{{actor}}, el anciano, resiste el ataque de los lobos."
     },
     "end": {
       "village": "¡La aldea gana! Los lobos han sido expulsados.",
@@ -277,7 +286,8 @@
         "sheriff": "Decide el alguacil"
       },
       "add": "Añadir {{role}}",
-      "remove": "Quitar {{role}}"
+      "remove": "Quitar {{role}}",
+      "minPlayers": "desde {{min}} jugadores"
     },
     "categories": {
       "wolf": "Lobos",
@@ -292,6 +302,7 @@
       "deckSize": "Hay {{cards}} cartas para {{players}} jugadores: tiene que haber una por jugador.",
       "tooManyCopies": "Solo puede haber {{max}} {{role}}.",
       "exactCopies": "{{role}}: tiene que haber exactamente {{required}}.",
+      "roleNeedsPlayers": "{{role}} solo se puede usar con {{min}} jugadores o más.",
       "noWolves": "Hace falta al menos un lobo.",
       "wolvesMajority": "Los lobos tienen que ser menos que el resto ({{wolves}} contra {{others}})."
     }
@@ -373,6 +384,11 @@
       "waitingVotes": "Esperando al resto de votos…",
       "waitingFor": "Esperando a {{name}}…",
       "dead": "Has muerto. Observa en silencio."
+    },
+    "table": {
+      "label": "La mesa: {{count}} jugadores, en el sentido de las agujas del reloj",
+      "alive": "vivos",
+      "direction": "La mesa gira en el sentido de las agujas del reloj: el jugador a tu izquierda es el siguiente."
     },
     "players": {
       "title": "La aldea",
@@ -501,7 +517,6 @@
     "witch": "Tienes una poción para salvar a la víctima de los lobos y otra para matar. Una vez cada una.",
     "hunter": "Si mueres, te llevas a alguien contigo con tu último disparo.",
     "cupid": "La primera noche unes a dos jugadores. Si uno muere, el otro también.",
-    "little-girl": "Espías el chat de la manada sin saber quién escribe. Que no te pillen.",
     "sister": "Conoces a tu hermana desde el principio. Confiad la una en la otra.",
     "fox": "Olfateas a un jugador y a sus vecinos: sabrás si hay un lobo entre ellos.",
     "salvador": "Cada noche proteges a alguien de los lobos, pero no al mismo dos noches seguidas.",
@@ -527,7 +542,6 @@
     "send": "Enviar",
     "readOnly": "Ahora solo puedes leer este canal.",
     "empty": "Aún no hay mensajes.",
-    "anonymous": "Alguien de la manada",
     "unread_one": "{{count}} mensaje sin leer",
     "unread_other": "{{count}} mensajes sin leer"
   }

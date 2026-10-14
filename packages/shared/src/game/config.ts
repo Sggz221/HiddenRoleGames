@@ -51,6 +51,7 @@ export type GameConfigInput = z.input<typeof gameConfigSchema>;
 export type DeckIssue =
   | { kind: "tooManyCopies"; role: RoleId; count: number; max: number }
   | { kind: "exactCopies"; role: RoleId; count: number; required: number }
+  | { kind: "roleNeedsPlayers"; role: RoleId; players: number; min: number }
   | { kind: "noWolves" }
   | { kind: "wolvesMajority"; wolves: number; others: number };
 
@@ -61,10 +62,13 @@ export function deckIssues(roles: readonly RoleId[]): DeckIssue[] {
   for (const role of roles) counts.set(role, (counts.get(role) ?? 0) + 1);
 
   for (const [role, count] of counts) {
-    const { maxCopies, exactCopies } = ROLES[role];
+    const { maxCopies, exactCopies, minPlayers } = ROLES[role];
     if (count > maxCopies) issues.push({ kind: "tooManyCopies", role, count, max: maxCopies });
     if (exactCopies !== undefined && count !== exactCopies) {
       issues.push({ kind: "exactCopies", role, count, required: exactCopies });
+    }
+    if (minPlayers !== undefined && roles.length < minPlayers) {
+      issues.push({ kind: "roleNeedsPlayers", role, players: roles.length, min: minPlayers });
     }
   }
 
@@ -87,6 +91,8 @@ function describeDeckIssue(issue: DeckIssue): string {
       return `Role "${issue.role}" appears ${issue.count} times (max ${issue.max})`;
     case "exactCopies":
       return `Role "${issue.role}" must appear exactly ${issue.required} times`;
+    case "roleNeedsPlayers":
+      return `Role "${issue.role}" needs at least ${issue.min} players (deck has ${issue.players})`;
     case "noWolves":
       return "The deck needs at least one wolf";
     case "wolvesMajority":
@@ -103,7 +109,7 @@ export function recommendedDeck(players: number): RoleId[] {
     throw new RangeError(`players must be between ${MIN_PLAYERS} and ${MAX_PLAYERS}`);
   }
   const wolves = Math.max(1, Math.floor(players / 4));
-  const specials: RoleId[] = ["seer", "witch", "hunter", "cupid", "little-girl", "elder", "fox"];
+  const specials: RoleId[] = ["seer", "witch", "hunter", "cupid", "salvador", "elder", "fox"];
   const deck: RoleId[] = Array.from({ length: wolves }, () => "werewolf");
   for (const role of specials) {
     if (deck.length >= players - 1) break;

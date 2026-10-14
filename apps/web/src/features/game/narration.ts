@@ -6,9 +6,10 @@ import type { TFunction } from "i18next";
  * this only fills it in: names, translated roles and sides, and lists in the locale's format.
  */
 export function narrationText(t: TFunction, line: NarrationLine, locale = "es"): string {
-  const { player, players, role, side, count, day } = line.params;
+  const { actor, player, players, role, side, count, day } = line.params;
   const list = new Intl.ListFormat(locale, { style: "long", type: "conjunction" });
   return t(`narration.${line.key}`, {
+    actor: actor?.name,
     name: player?.name,
     names: players ? list.format(players.map((p) => p.name)) : undefined,
     role: role ? t(`roles.${role}`) : undefined,
