@@ -21,12 +21,15 @@ const fakeClock: Clock = {
 
 class RecordingPublisher implements GamePublisher {
   views = new Map<string, GameViewMessage>();
+  /** Every view sent, in order (by player id). */
+  viewLog: string[] = [];
   events: { playerId: string; events: GameEventPayload[] }[] = [];
   sendEvents(_gameId: string, playerId: string, events: GameEventPayload[]) {
     this.events.push({ playerId, events });
   }
   sendView(_gameId: string, playerId: string, message: GameViewMessage) {
     this.views.set(playerId, message);
+    this.viewLog.push(playerId);
   }
   chats: { playerId: string; message: ChatMessage }[] = [];
   sendChat(_gameId: string, playerId: string, message: ChatMessage) {
@@ -104,6 +107,22 @@ describe("GameSession", () => {
       );
       expect(heard(player.id).includes("private.wolvesNoVictim")).toBe(player.role === "werewolf");
     }
+    await session.dispose();
+  });
+
+  it("at night only who can see the change gets a new view (no timing leaks)", async () => {
+    const session = await GameSession.start("g1", config, players, 1, deps());
+    const seer = session.state.players.find((p) => p.role === "seer")!;
+    const target = session.state.players.find((p) => p.id !== seer.id)!;
+    publisher.viewLog = [];
+    await session.handleAction(seer.id, { type: "seerInspect", target: target.id });
+    expect(publisher.viewLog.filter((id) => id !== seer.id)).toEqual([]);
+
+    await vi.advanceTimersByTimeAsync(10_000); // wolves step
+    const wolf = session.state.players.find((p) => p.role === "werewolf")!;
+    publisher.viewLog = [];
+    await session.handleAction(wolf.id, { type: "wolfVote", target: target.id });
+    expect(publisher.viewLog).toEqual([wolf.id]);
     await session.dispose();
   });
 
