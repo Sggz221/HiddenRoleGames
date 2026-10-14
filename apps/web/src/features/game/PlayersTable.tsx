@@ -55,7 +55,8 @@ export function PlayersTable({
     width,
     height,
     players.map((player) => ({
-      width: player.name.length * charWidth + 2,
+      // "ha votado" (10px) can be wider than a short name.
+      width: Math.max(player.name.length * charWidth + 2, done.has(player.id) ? 58 : 0),
       // "tú" and "ha votado"/"listo" each add a short line under the name.
       height: 16 + (player.id === view.you.id ? 12 : 0) + (done.has(player.id) ? 12 : 0),
     })),
@@ -292,12 +293,12 @@ function Avatar({
           {player.name}
         </span>
         {isYou && (
-          <span className="text-[10px] text-[var(--accent)] leading-none">
+          <span className="whitespace-nowrap text-[10px] text-[var(--accent)] leading-none">
             {t("game.youShort")}
           </span>
         )}
         {done && (
-          <span className="flex items-center gap-0.5 text-[10px] text-emerald-300 leading-none">
+          <span className="flex items-center gap-0.5 whitespace-nowrap text-[10px] text-emerald-300 leading-none">
             <Check aria-hidden="true" className="size-2.5" />
             {t(`game.players.${done}`)}
           </span>

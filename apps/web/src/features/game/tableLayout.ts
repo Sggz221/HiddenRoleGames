@@ -40,6 +40,8 @@ const SAMPLES = 720;
 /** Gap between an avatar and its name (matches the CSS margins). */
 const LABEL_GAP = { vertical: 4, side: 6 };
 const DEFAULT_LABEL: LabelSize = { width: 48, height: 16 };
+/** The fire and the "alive" counter in the middle of the table: names keep clear of it. */
+const CENTRE = { width: 72, height: 96 };
 /** A name is never cut below this (about three letters and the ellipsis). */
 const MIN_LABEL_PX = 28;
 /** Width shares to try, and whether sides facing away from the centre are allowed. */
@@ -114,7 +116,15 @@ export function layoutTable(
           towards: (DIRECTIONS[side].x * inward.x + DIRECTIONS[side].y * inward.y) / length,
         }))
         .sort((a, b) => b.towards - a.towards);
-      const names = choices.filter((_, index) => index !== seat).map((choice) => choice.box);
+      const names = [
+        ...choices.filter((_, index) => index !== seat).map((choice) => choice.box),
+        box(
+          width / 2 - CENTRE.width / 2,
+          height / 2 - CENTRE.height / 2,
+          CENTRE.width,
+          CENTRE.height,
+        ),
+      ];
       const faces = centres.filter((_, index) => index !== seat);
       const crowding = (candidate: Box) =>
         names.reduce((sum, other) => sum + overlapArea(candidate, other), 0) +

@@ -90,7 +90,14 @@ describe("round table", () => {
             16,
           ),
         );
+        const centre = {
+          left: width / 2 - 36,
+          top: height / 2 - 48,
+          right: width / 2 + 36,
+          bottom: height / 2 + 48,
+        };
         boxes.forEach((box, i) => {
+          expect(overlapArea(box, centre), `${count}: ${NAMES[i]} on the centre`).toBe(0);
           for (const [j, other] of boxes.entries()) {
             if (j > i) expect(overlapArea(box, other), `${count}: ${NAMES[i]}/${NAMES[j]}`).toBe(0);
           }
