@@ -9,7 +9,9 @@ import { AnimatePresence, motion } from "motion/react";
 import { type FormEvent, useEffect, useRef, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { audioManager } from "../../audio/audioManager";
+import { VillagerAvatar } from "../../components/avatar/VillagerAvatar";
 import type { Result } from "../../net/session";
+import { seatColor } from "./PlayersTable";
 
 interface Props {
   view: PlayerView;
@@ -175,20 +177,32 @@ function Messages({ messages, view }: { messages: ChatMessage[]; view: PlayerVie
               initial={{ opacity: 0, y: 10, scale: 0.96 }}
               animate={{ opacity: 1, y: 0, scale: 1 }}
               transition={{ type: "spring", stiffness: 400, damping: 30 }}
-              className={`max-w-[85%] rounded-2xl px-3 py-2 text-sm ${mine ? "self-end bg-[var(--accent)]/20" : "self-start bg-white/8"}`}
+              className={`flex max-w-[85%] items-end gap-2 ${mine ? "self-end" : "self-start"}`}
             >
               {!mine && (
-                <p
-                  className="font-semibold text-xs"
-                  style={{
-                    color:
-                      seat === undefined ? undefined : `hsl(${(seat * 47 + 200) % 360} 70% 75%)`,
-                  }}
+                <span
+                  className="relative size-7 shrink-0 overflow-hidden rounded-full"
+                  style={{ background: seat === undefined ? undefined : seatColor(seat) }}
                 >
-                  {message.name}
-                </p>
+                  <VillagerAvatar id={message.from} className="size-full" />
+                </span>
               )}
-              <p className="break-words">{message.text}</p>
+              <div
+                className={`min-w-0 rounded-2xl px-3 py-2 text-sm ${mine ? "bg-[var(--accent)]/20" : "bg-white/8"}`}
+              >
+                {!mine && (
+                  <p
+                    className="font-semibold text-xs"
+                    style={{
+                      color:
+                        seat === undefined ? undefined : `hsl(${(seat * 47 + 200) % 360} 70% 75%)`,
+                    }}
+                  >
+                    {message.name}
+                  </p>
+                )}
+                <p className="break-words">{message.text}</p>
+              </div>
             </motion.li>
           );
         })}

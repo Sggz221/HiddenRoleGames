@@ -1,4 +1,4 @@
-# ADR 0006: Roles que no encajan online: fuera la Niña, mínimo de jugadores para los solitarios
+# ADR 0007: Roles que no encajan online: fuera la Niña, mínimo de jugadores para los solitarios
 
 - **Estado:** aceptada
 - **Fecha:** 2026-10-14

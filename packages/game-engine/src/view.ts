@@ -1,8 +1,8 @@
 import type { GameEvent, PlayerId, PlayerView, PublicPlayer } from "@howlsinthedark/shared";
 import { chatAccessFor } from "./chat.js";
 import { choiceOf } from "./choice.js";
-import { pendingActionFor, witchHealable } from "./pending.js";
-import { findPlayer, type GameState, hasPower, loverOf, type PlayerState } from "./state.js";
+import { pendingActionFor } from "./pending.js";
+import { findPlayer, type GameState, isAlive, loverOf, type PlayerState } from "./state.js";
 
 /** Dead players (when allowed) and everyone after the end see the whole board. */
 function isOmniscient(state: GameState, viewer: PlayerState): boolean {
@@ -57,7 +57,14 @@ export function projectFor(state: GameState, viewerId: PlayerId): PlayerView {
   const { phase } = state;
   const isVoteStep = phase.kind === "day" && phase.step !== "debate";
   const isWolfStep = phase.kind === "night" && phase.step === "wolves";
-  const isWitchStep = phase.kind === "night" && phase.step === "witch";
+  // Ballots stay secret while the vote is open (no bandwagons, nothing to read into them).
+  const votes = !isVoteStep
+    ? {}
+    : omniscient
+      ? { ...state.votes }
+      : viewer.id in state.votes
+        ? { [viewer.id]: state.votes[viewer.id] ?? null }
+        : {};
 
   return {
     day: state.day,
@@ -86,12 +93,9 @@ export function projectFor(state: GameState, viewerId: PlayerId): PlayerView {
     },
     players,
     pending: pendingActionFor(state, viewer.id),
-    votes: isVoteStep ? { ...state.votes } : {},
+    votes,
+    voted: phase.kind === "day" ? Object.keys(state.votes).filter((id) => isAlive(state, id)) : [],
     wolfVotes: isWolfStep && (inPack || omniscient) ? { ...state.night.wolfVotes } : null,
-    nightVictims:
-      isWitchStep && viewer.role === "witch" && hasPower(state, viewer) && !state.witchHealUsed
-        ? witchHealable(state)
-        : null,
     result: state.result,
     chat: chatAccessFor(state, viewer.id),
   };

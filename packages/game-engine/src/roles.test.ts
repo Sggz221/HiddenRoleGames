@@ -10,6 +10,7 @@ import {
   everyoneVotes,
   setup,
 } from "./test-utils.js";
+import { projectFor } from "./view.js";
 
 const V = "villager" as const;
 
@@ -25,11 +26,48 @@ describe("Witch", () => {
     expect(state.witchHealUsed && state.witchPoisonUsed).toBe(true);
   });
 
-  it("can only heal tonight's wolf victims and each potion only once", () => {
+  it("does not learn the victim: she may heal any living player, herself included", () => {
+    let { state } = setup(["werewolf", "witch", V, V, V, V]);
+    state = act(state, "p0", { type: "wolfVote", target: "p1" });
+    state = advanceTo(state, { kind: "night", step: "witch" });
+    const view = projectFor(state, "p1");
+    expect(view).not.toHaveProperty("nightVictims");
+    expect(view.pending?.targets).toEqual(["p0", "p1", "p2", "p3", "p4", "p5"]);
+    state = act(state, "p1", { type: "witch", heal: "p1", poison: null });
+    state = advanceTo(state, { kind: "day" });
+    expect(alive(state, "p1")).toBe(true);
+    expect(state.witchHealUsed).toBe(true);
+  });
+
+  it("spends the healing potion on a wrong guess and the victim dies", () => {
     let { state } = setup(["werewolf", "witch", V, V, V, V]);
     state = act(state, "p0", { type: "wolfVote", target: "p2" });
     state = advanceTo(state, { kind: "night", step: "witch" });
-    expect(applyAction(state, "p1", { type: "witch", heal: "p3", poison: null }).ok).toBe(false);
+    state = act(state, "p1", { type: "witch", heal: "p3", poison: null });
+    state = advanceTo(state, { kind: "day" });
+    expect(alive(state, "p2")).toBe(false);
+    expect(alive(state, "p3")).toBe(true);
+    expect(state.witchHealUsed).toBe(true);
+  });
+
+  it("saves the White Werewolf's victim too", () => {
+    let { state } = setup(["werewolf", "white-werewolf", "witch", V, V, V, V, V]);
+    state = advanceTo(state, { kind: "night", step: "white-werewolf" });
+    state = act(state, "p1", { type: "whiteWolfKill", target: "p0" });
+    state = advanceTo(state, { kind: "night", step: "witch" });
+    state = act(state, "p2", { type: "witch", heal: "p0", poison: null });
+    state = advanceTo(state, { kind: "day" });
+    expect(alive(state, "p0")).toBe(true);
+  });
+
+  it("cannot heal and poison the same player, and each potion works only once", () => {
+    let { state } = setup(["werewolf", "witch", V, V, V, V]);
+    state = act(state, "p0", { type: "wolfVote", target: "p2" });
+    state = advanceTo(state, { kind: "night", step: "witch" });
+    expect(applyAction(state, "p1", { type: "witch", heal: "p3", poison: "p3" })).toMatchObject({
+      ok: false,
+      error: { code: "DUPLICATE_TARGET" },
+    });
     state = act(state, "p1", { type: "witch", heal: null, poison: "p4" });
     state = advanceToNext(state, { kind: "night", step: "witch" });
     expect(applyAction(state, "p1", { type: "witch", heal: null, poison: "p3" })).toMatchObject({
@@ -115,7 +153,7 @@ describe("Elder", () => {
 });
 
 describe("Infected Father of the Wolves", () => {
-  it("turns the victim into a wolf instead of killing; the Witch cannot cure it", () => {
+  it("turns the victim into a wolf instead of killing; the Witch's potion cannot undo it", () => {
     let { state } = setup(["werewolf", "infected-father", "witch", "seer", V, V, V, V, V]);
     state = advanceTo(state, { kind: "night", step: "wolves" });
     state = act(state, "p0", { type: "wolfVote", target: "p3" });
@@ -123,7 +161,7 @@ describe("Infected Father of the Wolves", () => {
     state = act(state, "p1", { type: "infect", infect: true });
     state = advance(state);
     expect(state.phase).toEqual({ kind: "night", step: "witch" });
-    expect(applyAction(state, "p2", { type: "witch", heal: "p3", poison: null }).ok).toBe(false);
+    state = act(state, "p2", { type: "witch", heal: "p3", poison: null });
     state = advanceTo(state, { kind: "day" });
 
     const seer = state.players.find((p) => p.id === "p3")!;

@@ -77,13 +77,11 @@ function botAction(view: PlayerView, rng: RngCursor): GameAction | null {
     case "infect":
       return { type, infect: rng.float() < 0.5 };
     case "witch": {
-      const victims = view.nightVictims ?? [];
       const heal =
-        view.you.witchPotions?.heal && victims.length && rng.float() < 0.5
-          ? rng.pick(victims)
-          : null;
-      const poison =
+        view.you.witchPotions?.heal && targets.length && rng.float() < 0.3 ? target() : null;
+      const poisoned =
         view.you.witchPotions?.poison && targets.length && rng.float() < 0.3 ? target() : null;
+      const poison = poisoned === heal ? null : poisoned;
       return { type, heal, poison };
     }
     case "sheriffTieBreak":
@@ -117,7 +115,8 @@ function assertNoLeaks(state: GameState, view: PlayerView): void {
     }
   }
   if (view.wolfVotes) expect(inPack).toBe(true);
-  if (view.nightVictims) expect(viewer.role).toBe("witch");
+  // Ballots are secret while the vote is open: the living only see their own.
+  if (viewer.alive) expect(Object.keys(view.votes).every((id) => id === viewer.id)).toBe(true);
 }
 
 function assertEventsPrivate(state: GameState, viewerId: string, events: GameEvent[]): void {
@@ -193,5 +192,6 @@ describe("random games with bots", () => {
       }),
       { numRuns: 300 },
     );
-  });
+    // 300 whole games: well over the default 5 s on slower CI runners.
+  }, 30_000);
 });

@@ -59,12 +59,12 @@ Los personajes con poderes nocturnos "se despiertan" **por turnos y siempre en e
 ### El día
 
 1. **Elección del Alguacil** (solo el primer día, si el anfitrión lo activó).
-2. **Debate** (3 min en ritmo normal). Los vivos hablan en el chat de la aldea.
+2. **Debate** (3 min en ritmo normal). Los vivos hablan en el chat de la aldea. Cada uno puede pulsar **"Listo para votar"**; si **todos los vivos** lo pulsan, el debate termina antes de tiempo.
 3. **Votación** (1 min). Cada vivo vota a otro jugador o se abstiene.
    - **No puedes votarte a ti mismo** (salvo en la elección de Alguacil).
-   - Los votos son **públicos**: todos ven quién vota a quién, en directo.
-   - Puedes cambiar el voto hasta que acabe el tiempo. Si **todos los vivos han votado**, la votación se cierra sola.
-   - Expulsan al más votado. El voto del Alguacil vale **doble**.
+   - **El voto es secreto hasta el cierre:** mientras se vota, cada uno ve solo su propio voto y **quién ha votado ya** (no a quién). Al cerrarse, se revelan todas las papeletas a la vez y el narrador cuenta quién votó a quién.
+   - Puedes cambiar el voto hasta que acabe el tiempo. Si **todos los vivos han votado** (o se han abstenido), la votación se cierra sola.
+   - Expulsan al más votado, en ese mismo momento. El voto del Alguacil vale **doble**.
 4. Después, si nadie ha ganado, cae la noche.
 
 ### Empates en la votación (lo elige el anfitrión)
@@ -77,7 +77,7 @@ Los personajes con poderes nocturnos "se despiertan" **por turnos y siempre en e
 
 - Se elige el primer día por mayoría. Si hay empate, se decide al azar.
 - Su voto **cuenta doble**.
-- Si muere, **nombra sucesor** entre los vivos. Si no lo hace a tiempo, se elige uno al azar. Si con su muerte la partida ya ha terminado, no se nombra a nadie.
+- La elección de Alguacil **no expulsa a nadie**. Si muere, **nombra sucesor** entre los vivos. Si no lo hace a tiempo, se elige uno al azar. Si con su muerte la partida ya ha terminado, no se nombra a nadie.
 
 ## 4. Los personajes
 
@@ -88,7 +88,7 @@ Los lobos **se conocen entre sí** (ven una huella roja en sus compañeros) y ti
 | Personaje | Qué hace |
 |---|---|
 | **Lobo** | Cada noche vota con la manada a quién comerse. Muere el más votado; si hay empate, se decide al azar; si nadie vota, no muere nadie. No pueden elegir a otro miembro de la manada. |
-| **Padre de los lobos** | Es un lobo más. **Una vez por partida** puede **infectar** a la víctima en vez de matarla: esa persona no muere, se pasa a la manada en secreto y **conserva su carta y sus poderes** (una vidente infectada sigue viendo cartas, pero ahora trabaja para los lobos). Si la víctima es el Anciano, la infección no funciona: el ataque sigue como uno normal y el poder se gasta. Si el Salvador protegía a la víctima, no hay infección y el poder **no** se gasta. |
+| **Padre de los lobos** | Es un lobo más. **Una vez por partida** puede **infectar** a la víctima en vez de matarla: esa persona no muere, se pasa a la manada en secreto y **conserva su carta y sus poderes** (una vidente infectada sigue viendo cartas, pero ahora trabaja para los lobos). La poción de vida de la bruja no deshace la infección. Si la víctima es el Anciano, la infección no funciona: el ataque sigue como uno normal y el poder se gasta. Si el Salvador protegía a la víctima, no hay infección y el poder **no** se gasta. |
 | **Gran lobo feroz** | Es un lobo más. **Mientras no haya muerto ningún miembro de la manada**, cada noche mata a una **segunda víctima** (que no sea lobo ni la víctima de la manada). |
 
 ### 🏡 El pueblo
@@ -97,7 +97,7 @@ Los lobos **se conocen entre sí** (ven una huella roja en sus compañeros) y ti
 |---|---|
 | **Aldeano** | No tiene poder. Su arma es el debate y el voto. |
 | **Vidente** | Cada noche ve la **carta** de un jugador. Una persona infectada sigue mostrando su carta original. |
-| **Bruja** | Tiene **dos pociones de un solo uso**: una de **vida** (salva a quien hayan atacado los lobos esa noche, ella incluida) y una de **muerte** (mata a cualquier jugador vivo). Puede usar las dos la misma noche. Ve a las víctimas de los lobos aunque el Salvador las esté protegiendo. |
+| **Bruja** | Juega **a ciegas**: no sabe a quién han atacado. Tiene **dos pociones de un solo uso**: una de **vida**, que protege a quien ella elija (ella incluida) de **cualquier ataque de lobos** esa noche (manada, Gran lobo feroz y Lobo blanco) y **se gasta aunque no ataquen a esa persona**; y una de **muerte**, que mata a cualquier jugador vivo. Puede usar las dos la misma noche, pero **no sobre la misma persona**. |
 | **Cazador** | Cuando muere, **por cualquier causa**, puede **disparar** a otro jugador y llevárselo con él. Puede no disparar. Al apuntar, todos sabrán que era el cazador. |
 | **Cupido** | La primera noche **enamora a dos jugadores** (puede elegirse a sí mismo). Los enamorados se conocen y tienen un **chat privado**. Si uno muere, el otro **muere de pena**. Si son de bandos distintos, abandonan su bando: solo ganan si son **los dos últimos vivos**. Si Cupido no elige, no hay pareja. |
 | **Hermanas** (siempre van las dos) | Se conocen desde el principio: cada una ve la carta de la otra. |
@@ -128,7 +128,7 @@ Los lobos **se conocen entre sí** (ven una huella roja en sus compañeros) y ti
 
 ### ¿Por qué el Flautista y el Lobo blanco piden mesas grandes?
 
-Se simularon miles de partidas con el motor real. En mesas pequeñas el **Flautista ganaba antes de que el pueblo hubiera podido debatir** (hacia la 2.ª noche) y el **Lobo blanco dejaba a la manada casi sin opciones** (los lobos ganaban solo un 6-9 % de las veces). Con 9 jugadores (Flautista) y 8 (Lobo blanco) los tres bandos ganan al menos 1 de cada 5 partidas y el solitario no gana antes que los demás. Detalle en `docs/decisions/0006-roles-online.md`.
+Se simularon miles de partidas con el motor real. En mesas pequeñas el **Flautista ganaba antes de que el pueblo hubiera podido debatir** (hacia la 2.ª noche) y el **Lobo blanco dejaba a la manada casi sin opciones** (los lobos ganaban solo un 6-9 % de las veces). Con 9 jugadores (Flautista) y 8 (Lobo blanco) los tres bandos ganan al menos 1 de cada 5 partidas y el solitario no gana antes que los demás. Detalle en `docs/decisions/0007-roles-online.md`.
 
 ## 5. Cómo se gana
 
@@ -148,14 +148,13 @@ Por seguridad, si se llega al **día 40** sin ganador, la partida termina sin ga
 
 | Quién | Qué sabe |
 |---|---|
-| **Todos** | Su propia carta, quién está vivo, quién es Alguacil, los votos del día, las muertes (con lo que se revele), los gruñidos del oso y lo que cuenta el narrador. |
+| **Todos** | Su propia carta, quién está vivo, quién es Alguacil, quién ha votado ya (y, al cerrarse cada votación, todas las papeletas), las muertes (con lo que se revele), los gruñidos del oso y lo que cuenta el narrador. |
 | **Los lobos** | Quién más es de la manada y los votos de la manada durante su turno. |
 | **Los enamorados y Cupido** | Quiénes son los enamorados (corazón). |
 | **El Flautista y los encantados** | Quién está encantado (destellos). |
 | **La Vidente** | Las cartas que ha visto. |
 | **Las Hermanas** | La carta de la otra hermana. |
-| **La Bruja (en su turno)** | Quién ha sido atacado esa noche. |
-| **Los muertos** | **Todo**: todas las cartas, todos los secretos, y pueden leer los chats de la manada y de los enamorados. A cambio, ya no pueden hablar con los vivos. |
+| **Los muertos** | **Todo**: todas las cartas, todos los secretos, los votos en directo, y pueden leer los chats de la manada y de los enamorados. A cambio, ya no pueden hablar con los vivos. |
 | **Al terminar** | Todos ven todas las cartas y todos los chats. |
 
 **Lo que nadie ve:** a quién ha mirado la vidente, a quién protege el salvador, qué ha hecho la bruja, etc. Tampoco se puede deducir por tiempos: los turnos de noche duran siempre lo mismo y el servidor no manda nada a quien no le toca.
@@ -196,7 +195,8 @@ Antes y después de la partida solo existe el chat de la sala, para todos.
 ## 9. Casos raros
 
 - **Bruja y Salvador salvan a la misma persona**: sigue viva (no se anulan entre sí).
-- **La Bruja cura a alguien que el Salvador ya protegía**: la poción se gasta igual (ella no sabe que estaba protegido).
+- **La Bruja protege a alguien a quien nadie ataca**: la poción de vida se gasta igual (no sabe quién es la víctima).
+- **La Bruja protege a alguien que el Lobo blanco ataca**: sobrevive (la poción frena cualquier ataque de lobos; el Salvador, en cambio, no frena al Lobo blanco).
 - **Los lobos atacan al Anciano protegido por el Salvador**: no muere y **no** gasta su vida extra.
 - **El Cazador es además Alguacil**: primero dispara y después nombra sucesor.
 - **El Cazador mata a un enamorado**: su pareja muere de pena en ese momento.
@@ -211,7 +211,7 @@ Antes y después de la partida solo existe el chat de la sala, para todos.
 Son reglas que funcionan así a propósito, pero que tienen alternativas razonables:
 
 1. **El pueblo gana aunque el Flautista siga vivo**, si ya no quedan lobos.
-2. **Los votos del día son públicos y en directo.** Se podría ocultar quién vota a quién hasta el final de la votación.
+2. **La Bruja juega a ciegas.** En el juego de mesa ve a la víctima; aquí elige a quién proteger sin saberlo, y su poción frena también al Lobo blanco.
 3. **Los enamorados tienen chat privado a todas horas.** Es una ayuda grande, sobre todo para una pareja mixta.
 4. **La manada solo puede hablar de noche.** De día tiene que disimular en el chat de la aldea como todos.
 5. **Las Hermanas se conocen pero no tienen chat propio.**

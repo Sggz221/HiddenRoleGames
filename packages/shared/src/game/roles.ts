@@ -47,7 +47,7 @@ export interface RoleInfo {
   readonly exactCopies?: number;
   /**
    * Smallest table the card is allowed at. Loner roles win too fast (or break the pack) at
-   * small tables; values come from `packages/game-engine/scripts/balance.ts` (ADR 0006).
+   * small tables; values come from `packages/game-engine/scripts/balance.ts` (ADR 0007).
    */
   readonly minPlayers?: number;
 }

@@ -5,6 +5,7 @@ import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
 import { audioManager } from "../../audio/audioManager";
 import { Popover } from "../../components/Popover";
+import { VolumeControls } from "../../components/VolumeControls";
 import { formatClock, remainingSeconds } from "./model";
 import { motionPreference, useReduceMotionSetting } from "./preferences";
 import { ROLE_ICONS } from "./roleIcons";
@@ -213,6 +214,7 @@ function SettingsMenu({ onReplayReveal }: { onReplayReveal: () => void }) {
       panelClassName="w-64"
       trigger={<SlidersHorizontal aria-hidden="true" className="size-5" />}
     >
+      <VolumeControls className="mb-4 border-panel-border border-b pb-4" />
       <label className="flex items-center justify-between gap-3">
         <span>{t("game.reduceMotion")}</span>
         <input

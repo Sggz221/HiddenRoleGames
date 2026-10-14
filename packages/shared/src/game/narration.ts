@@ -50,6 +50,8 @@ export const NARRATION_KEYS = [
   "sheriff.none",
   "sheriff.changed",
   "sheriff.vacant",
+  "vote.ballot",
+  "vote.abstained",
   "vote.eliminated",
   "vote.tie",
   "vote.nobody",

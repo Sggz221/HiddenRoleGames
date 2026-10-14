@@ -1,7 +1,7 @@
 /**
  * Balance simulation for the loner roles (Piper, White Werewolf). Plays thousands of games with
  * the real engine and naive players, and reports, per table size, how often each team wins and
- * on which day. Used to set `minPlayers` in `packages/shared/src/game/roles.ts` (ADR 0006).
+ * on which day. Used to set `minPlayers` in `packages/shared/src/game/roles.ts` (ADR 0007).
  *
  *   pnpm --filter @howlsinthedark/game-engine balance [games-per-size] [from-to]   (e.g. 1000 5-14)
  *
@@ -68,12 +68,11 @@ function choose(view: PlayerView, random: () => number): GameAction | null {
     case "infect":
       return { type, infect: random() < 0.5 };
     case "witch": {
-      const heal =
-        view.you.witchPotions?.heal && random() < 0.5
-          ? (pick(view.nightVictims ?? []) ?? null)
-          : null;
-      const poison = view.you.witchPotions?.poison && random() < 0.2 ? (target ?? null) : null;
-      return { type, heal, poison };
+      // She works blind: the healing potion shields a random player for the night.
+      const heal = view.you.witchPotions?.heal && random() < 0.3 ? (target ?? null) : null;
+      const poison =
+        view.you.witchPotions?.poison && random() < 0.2 ? (pick(pending.targets) ?? null) : null;
+      return { type, heal, poison: poison === heal ? null : poison };
     }
     case "whiteWolfKill":
       // The White Werewolf betrays the pack whenever he can.

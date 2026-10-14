@@ -20,7 +20,10 @@ export type GameEventPayload =
   /** The night is over; the deaths it caused follow in the same batch. */
   | { type: "dawn"; day: number }
   | { type: "playerDied"; player: PlayerId; cause: PublicDeathCause; role?: RoleId; side?: Side }
-  | { type: "voteCast"; voter: PlayerId; target: PlayerId | null }
+  /** Someone voted (or changed their vote). Who they voted for stays secret until the close. */
+  | { type: "voteCast"; voter: PlayerId }
+  /** A day vote closed: every ballot (`null` = abstained), right before its result. */
+  | { type: "votesRevealed"; votes: Record<PlayerId, PlayerId | null> }
   | { type: "voteResult"; eliminated: PlayerId | null; tied: PlayerId[] }
   | { type: "runoffStarted"; candidates: PlayerId[] }
   | { type: "sheriffElected"; player: PlayerId | null }

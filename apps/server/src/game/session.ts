@@ -73,9 +73,9 @@ export class GameSession {
   private queue: Promise<unknown> = Promise.resolve();
   private timer: unknown = null;
   private disposed = false;
-  /** Last view published to each player (serialized), to send only what changed. */
-  private readonly sentViews = new Map<string, string>();
   private readonly clock: Clock;
+  /** Last view published to each player, to skip resending one that did not change. */
+  private readonly lastViews = new Map<string, string>();
 
   private constructor(
     private snapshot: GameSnapshot,
@@ -231,13 +231,14 @@ export class GameSession {
 
   /**
    * Sends a player their view only if it changed. Broadcasting every view on every action
-   * would leak timing: a villager would see a message arrive the moment the Seer acts.
+   * would leak timing (a villager would see a message arrive the moment the Seer acts) and
+   * would make everyone's screen react to one player's action.
    */
   private publishView(playerId: string): void {
     const message = this.viewFor(playerId);
     const key = JSON.stringify([message.view, message.phaseEndsAt]);
-    if (this.sentViews.get(playerId) === key) return;
-    this.sentViews.set(playerId, key);
+    if (this.lastViews.get(playerId) === key) return;
+    this.lastViews.set(playerId, key);
     this.deps.publisher.sendView(this.id, playerId, message);
   }
 

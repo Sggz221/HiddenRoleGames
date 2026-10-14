@@ -10,22 +10,15 @@ import {
   useState,
 } from "react";
 import { useTranslation } from "react-i18next";
+import { VillagerAvatar } from "../../components/avatar/VillagerAvatar";
 import { ClawMark } from "../../components/ClawMark";
 import { tally } from "./model";
 import { ROLE_ICONS } from "./roleIcons";
 import { type LabelSide, layoutTable } from "./tableLayout";
 import type { ActionController } from "./useActionController";
 
-/** Seat colour: stable per seat, spread around the wheel. */
+/** Seat colour: stable per seat, spread around the wheel. Backdrop of the portrait. */
 export const seatColor = (seat: number) => `hsl(${(seat * 47 + 200) % 360} 42% 34%)`;
-
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .map((part) => part[0] ?? "")
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
 
 /** Size before the first measurement (and on the server): a phone-sized table. */
 const FALLBACK_SIZE = { width: 320, height: 427 };
@@ -34,7 +27,7 @@ const FALLBACK_SIZE = { width: 320, height: 427 };
 const clawsDrawn = new Set<PlayerId>();
 
 /**
- * The round table: one circle per player, in seat order, seat 0 at the top and clockwise.
+ * The round table: one villager portrait per player, in seat order, seat 0 at the top and clockwise.
  * Everyone sees the same table (it never turns towards the viewer), so "the player to your
  * left" means the same for all. When the server lets you pick, the valid targets breathe and
  * a tap chooses; votes land on the circles as dots. Dead players turn grey with a red claw
@@ -51,6 +44,9 @@ export function PlayersTable({
   const table = useRef<HTMLDivElement>(null);
   const { width, height } = useElementSize(table, FALLBACK_SIZE);
   const players = [...view.players].sort((a, b) => a.seat - b.seat);
+  // Ballots are secret until the close: the table only shows who is done.
+  const done = new Set(view.phase.kind === "day" ? view.voted : []);
+  const doneLabel = view.phase.kind === "day" && view.phase.step === "debate" ? "ready" : "voted";
   // Names are 12px on narrow tables and 14px on wide ones; "tú" adds a line.
   const nameSize = width < 600 ? 12 : 14;
   const charWidth = nameSize * 0.55;
@@ -60,7 +56,8 @@ export function PlayersTable({
     height,
     players.map((player) => ({
       width: player.name.length * charWidth + 2,
-      height: player.id === view.you.id ? 28 : 16,
+      // "tú" and "ha votado"/"listo" each add a short line under the name.
+      height: 16 + (player.id === view.you.id ? 12 : 0) + (done.has(player.id) ? 12 : 0),
     })),
   );
 
@@ -97,6 +94,7 @@ export function PlayersTable({
                 nameSize={nameSize}
                 isYou={player.id === view.you.id}
                 voters={votersOf(player.id).map(seatOf)}
+                done={done.has(player.id) ? doneLabel : null}
                 pickable={controller.canPick(player.id)}
                 picked={controller.isPicked(player.id)}
                 onPick={() => controller.pick(player.id)}
@@ -146,6 +144,7 @@ function Avatar({
   nameSize,
   isYou,
   voters,
+  done,
   pickable,
   picked,
   onPick,
@@ -160,6 +159,8 @@ function Avatar({
   isYou: boolean;
   /** Seats of the players voting for this one. */
   voters: number[];
+  /** Has voted, or (in the debate) is ready to vote; `null` = not yet. */
+  done: "voted" | "ready" | null;
   pickable: boolean;
   picked: boolean;
   onPick: () => void;
@@ -188,7 +189,7 @@ function Avatar({
         onFocus={() => setPeek(true)}
         onBlur={() => setPeek(false)}
         aria-pressed={pickable ? picked : undefined}
-        aria-label={avatarLabel(t, player, isYou)}
+        aria-label={avatarLabel(t, player, isYou, done)}
         whileTap={pickable ? { scale: 0.9 } : {}}
         animate={pickable && !picked ? { scale: [1, 1.06, 1] } : { scale: 1 }}
         transition={
@@ -196,7 +197,7 @@ function Avatar({
             ? { duration: 1.6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }
             : { duration: 0.3 }
         }
-        className={`relative flex size-full items-center justify-center rounded-full font-semibold text-white shadow-lg ring-offset-2 ring-offset-transparent transition-[box-shadow] ${
+        className={`relative flex size-full items-center justify-center rounded-full shadow-lg ring-offset-2 ring-offset-transparent transition-[box-shadow] ${
           picked
             ? "ring-4 ring-[var(--accent)]"
             : pickable
@@ -208,14 +209,13 @@ function Avatar({
                   : "ring-1 ring-white/20"
         } ${pickable ? "cursor-pointer" : "cursor-default"}`}
         style={{
-          fontSize: Math.round(size * 0.34),
           boxShadow: picked ? "0 0 24px -2px var(--accent)" : undefined,
         }}
       >
         {/* The face turns grey on death; the claw on top keeps its red. */}
         <motion.span
           aria-hidden="true"
-          className="absolute inset-0 flex items-center justify-center rounded-full"
+          className="absolute inset-0 overflow-hidden rounded-full"
           style={{
             background: `radial-gradient(circle at 30% 25%, rgb(255 255 255 / 0.25), transparent 55%), ${seatColor(player.seat)}`,
           }}
@@ -225,7 +225,7 @@ function Avatar({
           }}
           transition={{ duration: 0.6 }}
         >
-          {initials(player.name)}
+          <VillagerAvatar id={player.id} className="size-full" />
         </motion.span>
 
         {!player.alive && (
@@ -294,6 +294,12 @@ function Avatar({
         {isYou && (
           <span className="text-[10px] text-[var(--accent)] leading-none">
             {t("game.youShort")}
+          </span>
+        )}
+        {done && (
+          <span className="flex items-center gap-0.5 text-[10px] text-emerald-300 leading-none">
+            <Check aria-hidden="true" className="size-2.5" />
+            {t(`game.players.${done}`)}
           </span>
         )}
         {/* Who voted for this player: one dot per voter, in their seat colour. */}
@@ -380,6 +386,7 @@ function avatarLabel(
   t: ReturnType<typeof useTranslation>["t"],
   player: PublicPlayer,
   isYou: boolean,
+  done: "voted" | "ready" | null,
 ): string {
   const parts = [player.name];
   if (isYou) parts.push(`(${t("game.youShort")})`);
@@ -388,6 +395,7 @@ function avatarLabel(
       player.role ? t("game.dead", { role: t(`roles.${player.role}`) }) : t("game.players.dead"),
     );
   if (player.isSheriff) parts.push(t("game.players.sheriff"));
+  if (done) parts.push(t(`game.players.${done}`));
   if (player.isWolfAlly) parts.push(t("game.players.wolfAlly"));
   if (player.isLover) parts.push(t("game.players.lover"));
   if (player.charmed) parts.push(t("game.players.charmed"));

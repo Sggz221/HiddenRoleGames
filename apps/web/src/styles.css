@@ -66,6 +66,61 @@
   }
 }
 
+/* Campfire: flames flicker from their base, embers and smoke rise and fade. */
+@keyframes flicker {
+  0%,
+  100% {
+    transform: scale(1, 1) skewX(0deg);
+  }
+  25% {
+    transform: scale(0.94, 1.12) skewX(-3deg);
+  }
+  50% {
+    transform: scale(1.05, 0.92) skewX(2deg);
+  }
+  75% {
+    transform: scale(0.97, 1.07) skewX(3deg);
+  }
+}
+
+@utility animate-flicker {
+  transform-box: fill-box;
+  transform-origin: 50% 100%;
+  animation: flicker 0.9s ease-in-out infinite;
+}
+
+@keyframes rise {
+  from {
+    transform: translate(0, 0) scale(0.6);
+    opacity: 0.9;
+  }
+  to {
+    transform: translate(18px, -150px) scale(1.8);
+    opacity: 0;
+  }
+}
+
+@utility animate-rise {
+  transform-box: fill-box;
+  transform-origin: center;
+  animation: rise 5s ease-out infinite;
+}
+
+@keyframes ember {
+  from {
+    transform: translate(0, 0);
+    opacity: 1;
+  }
+  to {
+    transform: translate(-10px, -80px);
+    opacity: 0;
+  }
+}
+
+@utility animate-ember {
+  animation: ember 2.2s ease-out infinite;
+}
+
 @utility animate-fog {
   animation: fog-drift 18s ease-in-out infinite;
 }
@@ -76,7 +131,8 @@
 
 /*
  * Game screen: the clock writes the colours of the hour (--sky-top, --sky-bottom, --land,
- * --glow, --stars, --windows) and the player's role writes --accent, --on-accent and --tint.
+ * --glow, --stars, --windows, --fire, --smoke and the scenery's --sc-*) and the player's
+ * role writes --accent, --on-accent and --tint. Defaults: midnight.
  */
 :root {
   --sky-top: #04060e;
@@ -85,6 +141,21 @@
   --glow: #1b1640;
   --stars: 1;
   --windows: 1;
+  --fire: 1;
+  --smoke: 0;
+  --sc-ridge: #0f1427;
+  --sc-pines: #0c1224;
+  --sc-forest: #090e18;
+  --sc-bark: #0f0c12;
+  --sc-meadow: #121a1c;
+  --sc-grass: #161f1e;
+  --sc-tuft: #0d1314;
+  --sc-blade: #21302d;
+  --sc-path: #2d2937;
+  --sc-stone: #282837;
+  --sc-wall: #414058;
+  --sc-timber: #15111a;
+  --sc-roof: #201a26;
   --accent: #f4e9c8;
   --on-accent: #0b1020;
   --tint: #0b1020;

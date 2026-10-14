@@ -1,6 +1,6 @@
 import type { GameAction, GameEvent, NightStep, PlayerId } from "@howlsinthedark/shared";
 import { packIds } from "./deaths.js";
-import { pendingActionFor, witchHealable } from "./pending.js";
+import { pendingActionFor } from "./pending.js";
 import { ALL, Draft, type GameState, to } from "./state.js";
 
 export type EngineErrorCode = "NOT_ALLOWED" | "INVALID_TARGET" | "DUPLICATE_TARGET" | "POTION_USED";
@@ -52,12 +52,15 @@ function record(state: GameState, actor: PlayerId, action: GameAction) {
       // Passing withdraws whatever the player had chosen in this step.
       if (s.phase.kind === "reaction") s.decisionChoice = null;
       if (s.phase.kind === "night") clearNightIntent(s, s.phase.step);
+      // In the debate, skipping means "ready to vote": the debate ends once everyone is.
+      if (s.phase.kind === "day" && s.phase.step === "debate") s.votes[actor] = null;
       break;
 
     case "vote":
       requireTarget(action.target);
       s.votes[actor] = action.target;
-      draft.emit({ type: "voteCast", voter: actor, target: action.target }, ALL);
+      // Everyone hears that a vote was cast; the ballot itself is revealed at the close.
+      draft.emit({ type: "voteCast", voter: actor }, ALL);
       break;
 
     case "cupidLink": {
@@ -113,15 +116,18 @@ function record(state: GameState, actor: PlayerId, action: GameAction) {
       break;
 
     case "witch": {
+      // She does not learn tonight's victims: the healing potion protects whoever she picks
+      // (herself included) and is spent even if nobody attacked them.
       if (action.heal !== null) {
         if (s.witchHealUsed) throw new EngineError("POTION_USED", "Healing potion already used");
-        if (!witchHealable(s).includes(action.heal)) {
-          throw new EngineError("INVALID_TARGET", "Only tonight's wolf victims can be healed");
-        }
+        requireTarget(action.heal);
       }
       if (action.poison !== null) {
         if (s.witchPoisonUsed) throw new EngineError("POTION_USED", "Poison already used");
         requireTarget(action.poison);
+      }
+      if (action.heal !== null && action.heal === action.poison) {
+        throw new EngineError("DUPLICATE_TARGET", "Cannot heal and poison the same player");
       }
       night.witchHeal = action.heal;
       night.witchPoison = action.poison;

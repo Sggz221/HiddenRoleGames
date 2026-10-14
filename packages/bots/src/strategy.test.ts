@@ -43,7 +43,7 @@ function view(
     pending,
     votes: {},
     wolfVotes: null,
-    nightVictims: null,
+    voted: [],
     result: null,
     chat: { write: [], read: ["general"] },
     ...extra,
@@ -91,20 +91,23 @@ describe("chooseAction", () => {
     }
   });
 
-  it("the Witch only heals tonight's victims and only with potions left", () => {
+  it("the Witch heals a living player blindly and only with potions left", () => {
     for (let seed = 0; seed < 50; seed++) {
       const action = chooseAction(
         view(
           { types: ["witch", "skip"], targets: ["a", "b", "c"] },
           { role: "witch", witchPotions: { heal: true, poison: false } },
-          { nightVictims: ["c"] },
         ),
         createRng(seed),
       );
       if (action?.type !== "witch") throw new Error("expected witch");
-      expect([null, "c"]).toContain(action.heal);
+      expect([null, "a", "b", "c"]).toContain(action.heal);
       expect(action.poison).toBeNull();
     }
+  });
+
+  it("leaves the debate to the timer (a bare skip is never chosen)", () => {
+    expect(chooseAction(view({ types: ["skip"], targets: [] }), createRng(1))).toBeNull();
   });
 
   it("skips a targeted action with no targets when allowed", () => {

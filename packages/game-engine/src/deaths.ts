@@ -120,6 +120,7 @@ export function resolveDawn(draft: Draft): void {
     if (isAlive(state, victim)) kill(draft, victim, "rust");
   }
 
+  // The Witch's healing potion saves its target from every wolf attack of the night.
   const healed = night.witchHeal;
   for (const [victim, cause] of [
     [night.wolvesVictim, "wolves"],
@@ -131,8 +132,9 @@ export function resolveDawn(draft: Draft): void {
     kill(draft, victim, cause);
   }
 
-  if (night.whiteWolfVictim && isAlive(state, night.whiteWolfVictim)) {
-    kill(draft, night.whiteWolfVictim, "white-werewolf");
+  const betrayed = night.whiteWolfVictim;
+  if (betrayed && betrayed !== healed && isAlive(state, betrayed)) {
+    kill(draft, betrayed, "white-werewolf");
   }
   if (night.witchPoison && isAlive(state, night.witchPoison)) {
     kill(draft, night.witchPoison, "poison");

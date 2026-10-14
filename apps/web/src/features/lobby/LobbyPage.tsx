@@ -4,6 +4,8 @@ import { Check, Copy, Crown, LogOut, QrCode, Share2, WifiOff } from "lucide-reac
 import { useEffect, useState } from "react";
 import { useTranslation } from "react-i18next";
 import { AudioToggle } from "../../components/AudioToggle";
+import { VillagerAvatar } from "../../components/avatar/VillagerAvatar";
+import { VolumeControls } from "../../components/VolumeControls";
 import { session } from "../../net/client";
 import type { Connection } from "../../net/session";
 import { readStored, writeStored } from "../../net/storage";
@@ -65,11 +67,20 @@ export function LobbyPage({ room, playerId, connection }: Props) {
           {room.players.map((player) => (
             <li
               key={player.id}
-              className="flex items-center gap-2 rounded-xl border border-panel-border bg-panel px-3 py-2"
+              className="flex items-center gap-3 rounded-xl border border-panel-border bg-panel px-3 py-2"
             >
-              {player.id === room.hostId && (
-                <Crown aria-label={t("lobby.host")} className="size-4 shrink-0 text-moon" />
-              )}
+              <span
+                className={`relative size-10 shrink-0 rounded-full bg-white/10 ring-1 ring-white/15 ${player.connected ? "" : "opacity-50 grayscale"}`}
+              >
+                <span className="absolute inset-0 overflow-hidden rounded-full">
+                  <VillagerAvatar id={player.id} className="size-full" />
+                </span>
+                {player.id === room.hostId && (
+                  <span className="-top-1 -right-1 absolute flex size-5 items-center justify-center rounded-full bg-black/70">
+                    <Crown aria-label={t("lobby.host")} className="size-3 text-moon" />
+                  </span>
+                )}
+              </span>
               <span className={`truncate ${player.connected ? "" : "text-ink-muted"}`}>
                 {player.name}
               </span>
@@ -100,8 +111,9 @@ export function LobbyPage({ room, playerId, connection }: Props) {
         </p>
       )}
 
-      <footer className="mt-auto flex justify-center pt-4">
+      <footer className="mt-auto flex flex-wrap items-center justify-center gap-4 pt-4">
         <AudioToggle />
+        <VolumeControls className="w-56" />
       </footer>
     </div>
   );

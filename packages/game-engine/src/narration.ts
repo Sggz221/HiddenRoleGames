@@ -12,7 +12,7 @@ import { findPlayer, type GameState } from "./state.js";
 /**
  * Turns one batch of events into what `listener` hears, in order. Pass only the events the
  * listener received (`eventsFor`): the narration is built from them alone, so it can never
- * reveal more than the events themselves. Votes as they are cast are left to the UI.
+ * reveal more than the events themselves. Ballots are told when the vote closes (`votesRevealed`).
  * Private results are told in the second person to whoever acted and as a witness's account
  * to everyone else who may see them (the dead, or everyone once the game is over).
  */
@@ -60,6 +60,9 @@ export function narrate(
       }
       case "voteCast":
       case "wolfVoteCast":
+        break;
+      case "votesRevealed":
+        narrateBallots(event.votes, say, who);
         break;
       case "voteResult":
         if (event.eliminated) say("vote.eliminated", { player: who(event.eliminated) });
@@ -169,6 +172,24 @@ function narratePhase(
       // Announced by `gameEnded`, which carries the winners.
       break;
   }
+}
+
+/** One line per voted player (most voted first), then the abstentions. */
+function narrateBallots(
+  votes: Record<PlayerId, PlayerId | null>,
+  say: (key: NarrationLine["key"], params?: NarrationLine["params"]) => void,
+  who: (id: PlayerId) => NarratedPlayer,
+): void {
+  const byTarget = new Map<PlayerId | null, PlayerId[]>();
+  for (const [voter, target] of Object.entries(votes)) {
+    byTarget.set(target, [...(byTarget.get(target) ?? []), voter]);
+  }
+  const ranked = [...byTarget].sort((a, b) => b[1].length - a[1].length);
+  for (const [target, voters] of ranked) {
+    if (target) say("vote.ballot", { player: who(target), players: voters.map(who) });
+  }
+  const abstained = byTarget.get(null);
+  if (abstained?.length) say("vote.abstained", { players: abstained.map(who) });
 }
 
 function assertNever(value: never): never {

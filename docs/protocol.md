@@ -87,10 +87,12 @@ Decisión completa en [ADR 0003](decisions/0003-reconexion-sessiontoken.md).
 | `hunterShoot` | `target` | Cazador (reacción) |
 | `sheriffSuccessor` | `target` | Alguacil muerto (reacción) |
 | `sheriffTieBreak` | `target: id \| null` | Alguacil, si `voteTieRule = "sheriff"` |
-| `skip` | — | Renunciar a una acción opcional. Retira lo que el jugador hubiera elegido en ese paso |
+| `skip` | — | Renunciar a una acción opcional; de noche retira lo que el jugador hubiera elegido en ese paso. En el debate: "listo para votar" (el debate acaba cuando lo están todos los vivos) |
 
 - **Qué se puede enviar:** las acciones válidas en cada momento vienen en `view.pending` (`types` y `targets`). El cliente solo tiene que pintar eso.
 - **Cambiar de idea:** reenviar una acción antes de que acabe el temporizador sustituye a la anterior.
+- **Votos secretos:** durante una votación `view.votes` solo trae el voto propio (todos para los muertos con `deadSeeEverything`) y `view.voted` dice quién ha votado ya (en el debate, quién está listo). El evento `voteCast { voter }` no lleva destino; al cerrar llega `votesRevealed { votes }` con todas las papeletas, antes de `voteResult`/`sheriffElected`.
+- **Bruja:** no recibe a las víctimas de la noche; `heal` acepta cualquier jugador vivo (ella incluida) y no puede coincidir con `poison` (`DUPLICATE_TARGET`).
 
 ## Servidor → cliente
 

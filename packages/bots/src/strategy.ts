@@ -39,7 +39,8 @@ export function chooseAction(view: PlayerView, rng: Rng): GameAction | null {
   const canSkip = pending.types.includes("skip");
   const type = pending.types.find((candidate) => candidate !== "skip");
   const skip: GameAction | null = canSkip ? { type: "skip" } : null;
-  if (!type) return skip;
+  // Only "skip" means "ready to end the debate": bots let the humans (and the timer) decide.
+  if (!type) return null;
 
   const allies = new Set(view.players.filter((p) => p.isWolfAlly).map((p) => p.id));
   const inPack = view.you.side === "wolves" && view.you.alive;
@@ -56,9 +57,10 @@ export function chooseAction(view: PlayerView, rng: Rng): GameAction | null {
       return { type, infect: rng() < 0.5 };
     case "witch": {
       const potions = view.you.witchPotions;
-      const heal =
-        potions?.heal && rng() < 0.5 ? (pick(rng, view.nightVictims ?? []) ?? null) : null;
-      const poison = potions?.poison && rng() < 0.3 ? (target ?? null) : null;
+      // She does not know tonight's victim: a blind guess, now and then.
+      const heal = potions?.heal && rng() < 0.3 ? (pick(rng, pending.targets) ?? null) : null;
+      const poisoned = potions?.poison && rng() < 0.3 ? (target ?? null) : null;
+      const poison = poisoned === heal ? null : poisoned;
       return { type, heal, poison };
     }
     case "cupidLink": {

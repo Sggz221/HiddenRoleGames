@@ -84,7 +84,10 @@ export interface GameState {
   seerResults: { target: PlayerId; role: RoleId }[];
   foxResults: { target: PlayerId; wolfNearby: boolean }[];
   night: NightInputs;
-  /** Votes of the current day vote step (sheriff election, vote or runoff). */
+  /**
+   * Votes of the current day step (sheriff election, vote or runoff). In the debate an entry
+   * (always `null`) means the player is ready to go to the vote.
+   */
   votes: Record<PlayerId, PlayerId | null>;
   runoffCandidates: PlayerId[];
   /** Interrupting decisions; the head one is the current `reaction` phase. */
