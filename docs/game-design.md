@@ -1,6 +1,6 @@
 # Diseño del juego
 
-Especificación de las reglas que implementa `packages/game-engine`. Basado en la edición "Best Of" del juego de mesa (mecánicas; nombres y textos propios). Si una regla cambia aquí, cambia también en el motor y en sus tests.
+Especificación de las reglas que implementa `packages/game-engine` (versión para jugadores: [`reglas.md`](reglas.md)). Basado en la edición "Best Of" del juego de mesa (mecánicas; nombres y textos propios). Si una regla cambia aquí, cambia también en el motor y en sus tests.
 
 ## Ciclo de partida
 
