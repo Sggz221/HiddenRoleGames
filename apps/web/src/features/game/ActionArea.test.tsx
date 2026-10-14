@@ -23,8 +23,8 @@ function view(pending: PendingAction | null, extra: Partial<PlayerView> = {}): P
     players,
     pending,
     votes: {},
+    voted: [],
     wolfVotes: null,
-    nightVictims: null,
     result: null,
     you: { id: "p0", alive: true, witchPotions: null },
     ...extra,
@@ -58,17 +58,40 @@ describe("game action area", () => {
     expect(html).toContain("Pasar");
   });
 
-  it("day votes can abstain and mark the current choice", () => {
+  it("day votes can abstain, mark the current choice and count who is done", () => {
     const html = render(
       view(
         { types: ["vote"], targets: ["p1", "p2"] },
-        { phase: { kind: "day", step: "vote" }, votes: { p0: "p2", p1: "p2" } },
+        { phase: { kind: "day", step: "vote" }, votes: { p0: "p2" }, voted: ["p0", "p1"] },
       ),
       { type: "vote", target: "p2" },
     );
     expect(html).toContain("Abstenerme");
     expect(html).toContain("Has elegido: Carla");
     expect(html).toMatch(/aria-pressed="true"[^>]*aria-label="Carla/);
+    expect(html).toContain("2 de 3 han votado");
+    expect(html).toContain("Bea, ha votado");
+    expect(html).toContain("Los votos se revelan al final");
+  });
+
+  it("the debate offers a clear button to go to the vote, and counts who is ready", () => {
+    const debate = { phase: { kind: "day", step: "debate" } } as const;
+    let html = render(view({ types: ["skip"], targets: [] }, { ...debate, voted: ["p1"] }));
+    expect(html).toContain("Listo para votar");
+    expect(html).toContain("1 de 3 listos para votar");
+    html = render(view({ types: ["skip"], targets: [] }, { ...debate, voted: ["p0", "p1"] }));
+    expect(html).toContain("Listo. Esperando al resto");
+  });
+
+  it("the sheriff election says it eliminates nobody", () => {
+    const html = render(
+      view(
+        { types: ["vote"], targets: ["p0", "p1", "p2"] },
+        { phase: { kind: "day", step: "sheriff-election" } },
+      ),
+    );
+    expect(html).toContain("¿Quién debe ser el alguacil?");
+    expect(html).toContain("no elimina a nadie");
   });
 
   it("the pack's prompt uses the wolves' typeface", () => {
@@ -84,12 +107,11 @@ describe("game action area", () => {
     expect(html).toContain("Confirmar");
   });
 
-  it("the Witch chooses potions in the dock, not on the table", () => {
+  it("the Witch chooses potions in the dock, for any living player, without knowing the victim", () => {
     const html = render(
       view(
-        { types: ["witch", "skip"], targets: ["p1", "p2"] },
+        { types: ["witch", "skip"], targets: ["p0", "p1", "p2"] },
         {
-          nightVictims: ["p2"],
           you: {
             id: "p0",
             alive: true,
@@ -100,7 +122,10 @@ describe("game action area", () => {
     );
     expect(pickable(html)).toEqual([]);
     expect(html).toContain("Poción de vida");
+    expect(html).toContain("No sabes a quién han atacado");
+    for (const name of ["Ana", "Bea", "Carla"]) expect(html).toContain(`>${name}</button>`);
     expect(html).toContain("Ya la has usado.");
+    expect(html).not.toContain("Confirmar");
   });
 
   it("with nothing to do, says what is going on; the dead show their known card", () => {

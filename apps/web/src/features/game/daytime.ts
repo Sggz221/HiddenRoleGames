@@ -164,3 +164,21 @@ export const formatHour = (hour: number): string => {
   const minutes = Math.floor((((hour % 24) + 24) % 24) * 60);
   return `${String(Math.floor(minutes / 60)).padStart(2, "0")}:${String(minutes % 60).padStart(2, "0")}`;
 };
+
+/** `hour` moved by whole days so it lies within 12 h of `from`: 23:00 → 01:00 goes forward. */
+export function nearestHour(hour: number, from: number): number {
+  let next = hour;
+  while (next < from - 12) next += 24;
+  while (next > from + 12) next -= 24;
+  return next;
+}
+
+/**
+ * One frame of the sky's glide towards `target`: exponential smoothing with time constant
+ * `tau` seconds. Frame-rate independent, so a jump between phases eases in smoothly and the
+ * steady creep within a phase is followed with a negligible lag.
+ */
+export function glide(current: number, target: number, dtSeconds: number, tau = 0.6): number {
+  if (dtSeconds <= 0) return current;
+  return current + (target - current) * (1 - Math.exp(-dtSeconds / tau));
+}

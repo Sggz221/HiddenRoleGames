@@ -68,11 +68,14 @@ export function advancePhase(state: GameState): { state: GameState; events: Game
   return draft.finish();
 }
 
-/** Whether the server may skip the rest of the timer. Never true at night (timing leaks). */
+/**
+ * Whether the server may skip the rest of the timer: a decision was taken, or every living
+ * player has voted (in the debate: is ready to vote). Never true at night (timing leaks).
+ */
 export function canAdvanceEarly(state: GameState): boolean {
   const { phase } = state;
   if (phase.kind === "reaction") return state.decisionChoice !== undefined;
-  if (phase.kind !== "day" || phase.step === "debate") return false;
+  if (phase.kind !== "day") return false;
   return alivePlayers(state).every((player) => player.id in state.votes);
 }
 
@@ -319,6 +322,7 @@ function finishDayStep(draft: Draft, step: DayStep): void {
   const { state } = draft;
   switch (step) {
     case "sheriff-election": {
+      revealVotes(draft);
       const votes = validVotes(
         state,
         alivePlayers(state).map((p) => p.id),
@@ -361,8 +365,18 @@ function validVotes(state: GameState, candidates: PlayerId[]): [PlayerId, Player
   );
 }
 
+/** Closes a vote: every living player's ballot becomes public, abstentions included. */
+function revealVotes(draft: Draft): void {
+  const { state } = draft;
+  const votes = Object.fromEntries(
+    Object.entries(state.votes).filter(([voter]) => isAlive(state, voter)),
+  );
+  draft.emit({ type: "votesRevealed", votes }, ALL);
+}
+
 function resolveVote(draft: Draft, candidates: PlayerId[], isRunoff: boolean): void {
   const { state } = draft;
+  revealVotes(draft);
   const weight = (voter: PlayerId) => (voter === state.sheriff ? 2 : 1);
   const tied = topCandidates(
     validVotes(state, candidates).map(([voter, target]) => [target, weight(voter)] as const),

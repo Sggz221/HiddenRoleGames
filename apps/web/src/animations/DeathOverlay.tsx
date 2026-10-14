@@ -1,5 +1,5 @@
 import type { PlayerView } from "@howlsinthedark/shared";
-import { Skull, Sun } from "lucide-react";
+import { Gavel, Skull, Star, Sun } from "lucide-react";
 import { AnimatePresence, motion, useReducedMotion } from "motion/react";
 import { useEffect, useSyncExternalStore } from "react";
 import { useTranslation } from "react-i18next";
@@ -7,7 +7,43 @@ import type { SceneQueue } from "./queue";
 import type { Scene } from "./scenes";
 
 /** Seconds a scene stays before moving on by itself (a tap skips it). */
-const sceneSeconds = (scene: Scene) => 2.5 + scene.deaths.length * 1.5;
+const sceneSeconds = (scene: Scene) => 3 + scene.deaths.length * 1.5;
+
+type T = ReturnType<typeof useTranslation>["t"];
+
+function sceneTitle(t: T, scene: Scene): string {
+  switch (scene.kind) {
+    case "dawn":
+      return t("game.overlay.dawn");
+    case "vote":
+      return t("game.overlay.vote");
+    case "sheriff":
+      return t("game.overlay.sheriff");
+    case "deaths":
+      return t("game.overlay.deaths");
+  }
+}
+
+/** The line under the title when nobody died (or what the vote decided instead). */
+function sceneMessage(t: T, scene: Scene, names: (ids: string[]) => string): string | null {
+  switch (scene.kind) {
+    case "dawn":
+      return scene.deaths.length ? null : t("game.overlay.nobody");
+    case "vote":
+      if (scene.outcome === "tie") return t("game.overlay.voteTie", { names: names(scene.tied) });
+      if (scene.outcome === "runoff")
+        return t("game.overlay.voteRunoff", { names: names(scene.tied) });
+      return scene.deaths.length ? null : t("game.overlay.voteNobody");
+    case "sheriff":
+      return scene.player
+        ? t("game.overlay.sheriffElected", { name: names([scene.player]) })
+        : t("game.overlay.sheriffNone");
+    case "deaths":
+      return null;
+  }
+}
+
+const SCENE_ICONS = { dawn: Sun, vote: Gavel, sheriff: Star, deaths: null } as const;
 
 /**
  * Announces dawns and deaths full screen, one by one. Tapping anywhere skips. The board
@@ -18,6 +54,8 @@ export function DeathOverlay({ queue, view }: { queue: SceneQueue; view: PlayerV
   const scene = useSyncExternalStore(queue.subscribe, queue.current);
   const reduce = useReducedMotion();
   const name = (id: string) => view.players.find((player) => player.id === id)?.name ?? id;
+  const names = (ids: string[]) =>
+    new Intl.ListFormat("es", { style: "long", type: "conjunction" }).format(ids.map(name));
 
   useEffect(() => {
     if (!scene) return;
@@ -45,12 +83,13 @@ export function DeathOverlay({ queue, view }: { queue: SceneQueue; view: PlayerV
           className="glass-strong fixed inset-0 z-50 flex flex-col items-center justify-center gap-6 rounded-none border-0 px-6 text-center"
         >
           <h2 id="overlay-title" className="flex items-center gap-3 font-display text-3xl">
-            {scene.kind === "dawn" && <Sun aria-hidden="true" className="size-8 text-amber-200" />}
-            {scene.kind === "dawn" ? t("game.overlay.dawn") : t("game.overlay.deaths")}
+            <SceneIcon scene={scene} />
+            {sceneTitle(t, scene)}
           </h2>
-          {scene.deaths.length === 0 ? (
-            <p className="text-lg text-ink-muted">{t("game.overlay.nobody")}</p>
-          ) : (
+          {sceneMessage(t, scene, names) && (
+            <p className="max-w-md text-lg text-ink/85">{sceneMessage(t, scene, names)}</p>
+          )}
+          {scene.deaths.length > 0 && (
             <ul className="flex w-full max-w-sm flex-col gap-3" aria-live="polite">
               {scene.deaths.map((death, index) => (
                 <motion.li
@@ -92,4 +131,9 @@ export function DeathOverlay({ queue, view }: { queue: SceneQueue; view: PlayerV
       )}
     </AnimatePresence>
   );
+}
+
+function SceneIcon({ scene }: { scene: Scene }) {
+  const Icon = SCENE_ICONS[scene.kind];
+  return Icon ? <Icon aria-hidden="true" className="size-8 text-amber-200" /> : null;
 }

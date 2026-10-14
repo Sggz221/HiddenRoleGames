@@ -1,5 +1,14 @@
 import { describe, expect, it } from "vitest";
-import { dialAngle, formatHour, gameHour, isDaylight, paletteAt, SCENERY_PARTS } from "./daytime";
+import {
+  dialAngle,
+  formatHour,
+  gameHour,
+  glide,
+  isDaylight,
+  nearestHour,
+  paletteAt,
+  SCENERY_PARTS,
+} from "./daytime";
 
 const channels = (hex: string) => [1, 3, 5].map((i) => Number.parseInt(hex.slice(i, i + 2), 16));
 
@@ -141,5 +150,23 @@ describe("campfire", () => {
       const { fire, smoke } = paletteAt(hour);
       expect(fire + smoke, `hour ${hour}`).toBeLessThanOrEqual(1);
     }
+  });
+});
+
+describe("sky motion", () => {
+  it("always moves forward through midnight", () => {
+    expect(nearestHour(1, 23)).toBe(25);
+    expect(nearestHour(23, 1)).toBe(-1);
+    expect(nearestHour(10, 9)).toBe(10);
+  });
+
+  it("glides towards the target the same way at any frame rate", () => {
+    let fast = 0;
+    for (let i = 0; i < 60; i++) fast = glide(fast, 1, 1 / 60);
+    const slow = glide(glide(0, 1, 0.5), 1, 0.5);
+    expect(fast).toBeCloseTo(slow, 6);
+    expect(fast).toBeGreaterThan(0.75);
+    expect(fast).toBeLessThan(1);
+    expect(glide(0.3, 1, 0)).toBe(0.3);
   });
 });

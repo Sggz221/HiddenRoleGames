@@ -87,16 +87,18 @@ Decisión completa en [ADR 0003](decisions/0003-reconexion-sessiontoken.md).
 | `hunterShoot` | `target` | Cazador (reacción) |
 | `sheriffSuccessor` | `target` | Alguacil muerto (reacción) |
 | `sheriffTieBreak` | `target: id \| null` | Alguacil, si `voteTieRule = "sheriff"` |
-| `skip` | — | Renunciar a una acción opcional |
+| `skip` | — | Renunciar a una acción opcional. En el debate: "listo para votar" (el debate acaba cuando lo están todos los vivos) |
 
 - **Qué se puede enviar:** las acciones válidas en cada momento vienen en `view.pending` (`types` y `targets`). El cliente solo tiene que pintar eso.
 - **Cambiar de idea:** reenviar una acción antes de que acabe el temporizador sustituye a la anterior.
+- **Votos secretos:** durante una votación `view.votes` solo trae el voto propio (todos para los muertos con `deadSeeEverything`) y `view.voted` dice quién ha votado ya (en el debate, quién está listo). El evento `voteCast { voter }` no lleva destino; al cerrar llega `votesRevealed { votes }` con todas las papeletas, antes de `voteResult`/`sheriffElected`.
+- **Bruja:** no recibe a las víctimas de la noche; `heal` acepta cualquier jugador vivo (ella incluida) y no puede coincidir con `poison` (`DUPLICATE_TARGET`).
 
 ## Servidor → cliente
 
 | Evento | Payload |
 |---|---|
-| `game:view` | `{ view: PlayerView, phaseEndsAt, serverNow }` |
+| `game:view` | `{ view: PlayerView, phaseEndsAt, serverNow }`. Solo se envía cuando la vista de ese jugador cambia |
 | `room:state` | `{ code, hostId, maxPlayers, gameId, players: [{ id, name, connected }] }` a todos los miembros cuando cambia el lobby (entra o sale alguien, cambia el host, empieza o acaba una partida). El jugador que se une lo recibe en el ack |
 | `game:events` | `GameEventPayload[]` ya filtrados para ese jugador, en orden, para animar o narrar. `dawn` marca el fin de la noche; las muertes que siguen en el mismo lote son las de esa noche |
 | `game:narration` | `NarrationLine[]` (`{ key, params }`): lo que dice el narrador sobre ese mismo lote. Se construye solo con los eventos que recibió el jugador. El texto es `narration.<key>` en i18n; `params` trae jugadores (`{ id, name }`), `role`, `side`, `count` y `day` |

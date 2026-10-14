@@ -5,7 +5,7 @@ import { LobbyPage } from "../features/lobby/LobbyPage";
 import { session } from "../net/client";
 import { useSession } from "../net/useSession";
 
-// The game screen brings Motion and GSAP: loaded only when a game starts, not on the home.
+// The game screen brings Motion: loaded only when a game starts, not on the home.
 const GamePage = lazy(() =>
   import("../features/game/GamePage").then((module) => ({ default: module.GamePage })),
 );

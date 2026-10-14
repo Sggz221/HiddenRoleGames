@@ -8,6 +8,10 @@ const STARS = Array.from({ length: 70 }, (_, i) => {
   return { x, y, r, delay: (i % 7) * 0.6 };
 });
 
+/** Sun and moon move by `transform` (composited), from the clock's viewport coordinates. */
+const SUN_AT = "translate3d(var(--sun-x, 50vw), var(--sun-y, 70vh), 0)";
+const MOON_AT = "translate3d(var(--moon-x, 50vw), var(--moon-y, 20vh), 0)";
+
 /** Repeatable noise in [0, 1): the scenery is identical on every render and device. */
 const noise = (i: number, salt: number) => {
   const v = Math.sin(i * 12.9898 + salt * 78.233) * 43758.5453;
@@ -115,15 +119,14 @@ export function Landscape() {
   return (
     <div aria-hidden="true" className="pointer-events-none fixed inset-0 -z-10 overflow-hidden">
       <div
-        className="absolute inset-0 transition-[background] duration-1000"
+        className="absolute inset-0"
         style={{ background: "linear-gradient(to bottom, var(--sky-top), var(--sky-bottom) 72%)" }}
       />
       {/* Warm haze around the sun at dawn and dusk. */}
       <div
-        className="absolute size-[60vmax] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-60 blur-3xl"
+        className="absolute top-0 left-0 size-[60vmax] -translate-x-1/2 -translate-y-1/2 rounded-full opacity-60 blur-3xl will-change-transform"
         style={{
-          left: "var(--sun-x)",
-          top: "var(--sun-y)",
+          transform: SUN_AT,
           background: "radial-gradient(circle, var(--glow), transparent 65%)",
           opacity: "calc(var(--sun-up) * 0.7)",
         }}
@@ -150,12 +153,12 @@ export function Landscape() {
       </svg>
 
       <div
-        className="absolute size-16 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#fde68a] shadow-[0_0_80px_30px_rgb(253_230_138/0.45)] sm:size-24"
-        style={{ left: "var(--sun-x)", top: "var(--sun-y)", opacity: "var(--sun-up)" }}
+        className="absolute top-0 left-0 size-16 -translate-x-1/2 -translate-y-1/2 rounded-full bg-[#fde68a] shadow-[0_0_80px_30px_rgb(253_230_138/0.45)] will-change-transform sm:size-24"
+        style={{ transform: SUN_AT, opacity: "var(--sun-up)" }}
       />
       <div
-        className="absolute size-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-moon shadow-[0_0_50px_10px_rgb(244_233_200/0.25)] sm:size-20"
-        style={{ left: "var(--moon-x)", top: "var(--moon-y)", opacity: "var(--moon-up)" }}
+        className="absolute top-0 left-0 size-12 -translate-x-1/2 -translate-y-1/2 rounded-full bg-moon shadow-[0_0_50px_10px_rgb(244_233_200/0.25)] will-change-transform sm:size-20"
+        style={{ transform: MOON_AT, opacity: "var(--moon-up)" }}
       >
         <span className="absolute top-[22%] left-[30%] size-[18%] rounded-full bg-black/10" />
         <span className="absolute top-[55%] left-[55%] size-[12%] rounded-full bg-black/10" />

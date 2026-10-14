@@ -125,17 +125,22 @@ describe("narration: day", () => {
     return advance(state);
   };
 
-  it("calls the vote and announces who is eliminated, then night falls again", () => {
+  it("reveals the ballots, announces who is eliminated, then night falls again", () => {
     let state = atVote();
     state = everyoneVotes(state, "p2");
     const [, lines] = step(state, "p3");
     expect(keys(lines)).toEqual([
+      "vote.ballot",
+      "vote.abstained",
       "vote.eliminated",
       "death.vote.role",
       "night.falls",
       "night.wakes.seer",
     ]);
-    expect(lines[2]?.params.day).toBe(2);
+    expect(lines[0]?.params.player?.id).toBe("p2");
+    expect(lines[0]?.params.players?.map((p) => p.id)).toEqual(["p0", "p1", "p3", "p4", "p5"]);
+    expect(lines[1]?.params.players?.map((p) => p.id)).toEqual(["p2"]);
+    expect(lines[4]?.params.day).toBe(2);
   });
 
   it("a tie with no elimination names the tied players", () => {
@@ -143,7 +148,8 @@ describe("narration: day", () => {
     state = act(state, "p0", { type: "vote", target: "p2" });
     state = act(state, "p1", { type: "vote", target: "p3" });
     const [, lines] = step(state, "p4");
-    expect(lines[0]).toEqual({
+    expect(keys(lines).slice(0, 2)).toEqual(["vote.ballot", "vote.ballot"]);
+    expect(lines[2]).toEqual({
       key: "vote.tie",
       params: {
         players: [
@@ -159,7 +165,7 @@ describe("narration: day", () => {
     state = act(state, "p0", { type: "vote", target: "p2" });
     state = act(state, "p1", { type: "vote", target: "p3" });
     const [, lines] = step(state, "p4");
-    expect(keys(lines)).toEqual(["vote.runoff"]);
+    expect(keys(lines)).toEqual(["vote.ballot", "vote.ballot", "vote.runoff"]);
   });
 
   it("nobody voted", () => {
@@ -175,7 +181,8 @@ describe("narration: day", () => {
     expect(keys(lines)).toEqual(["dawn.nobody", "day.sheriffElection"]);
     state = everyoneVotes(state, "p3");
     [, lines] = step(state, "p4");
-    expect(lines).toEqual([
+    expect(keys(lines).slice(0, 2)).toEqual(["vote.ballot", "vote.abstained"]);
+    expect(lines.slice(2)).toEqual([
       { key: "sheriff.elected", params: { player: { id: "p3", name: "Player 3" } } },
       { key: "day.debate", params: { day: 1 } },
     ]);
@@ -201,8 +208,14 @@ describe("narration: end of the game", () => {
     state = advance(state);
     state = everyoneVotes(state, "p0");
     const [, lines] = step(state, "p2");
-    expect(keys(lines)).toEqual(["vote.eliminated", "death.vote.role", "end.village"]);
-    expect(lines[2]?.params.players?.map((p) => p.id)).toEqual(["p1", "p2", "p3", "p4"]);
+    expect(keys(lines)).toEqual([
+      "vote.ballot",
+      "vote.abstained",
+      "vote.eliminated",
+      "death.vote.role",
+      "end.village",
+    ]);
+    expect(lines[4]?.params.players?.map((p) => p.id)).toEqual(["p1", "p2", "p3", "p4"]);
   });
 });
 

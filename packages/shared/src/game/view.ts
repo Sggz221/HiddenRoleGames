@@ -56,12 +56,15 @@ export interface PlayerView {
   you: SelfView;
   players: PublicPlayer[];
   pending: PendingAction | null;
-  /** Public day votes of the current vote step. */
+  /**
+   * Day votes of the current vote step. Ballots are secret until the vote closes: the living
+   * only see their own (the dead see all when `deadSeeEverything`); `voted` says who is done.
+   */
   votes: Record<PlayerId, PlayerId | null>;
+  /** Who has voted in this day step (in the debate: who asked to go to the vote now). */
+  voted: PlayerId[];
   /** Wolf votes, only for pack members during the wolves step. */
   wolfVotes: Record<PlayerId, PlayerId> | null;
-  /** Tonight's wolf victims, only for the Witch during her step. */
-  nightVictims: PlayerId[] | null;
   result: GameResult | null;
   /** Chat channels the viewer may write to / read right now. */
   chat: ChatAccess;
