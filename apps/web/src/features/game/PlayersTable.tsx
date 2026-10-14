@@ -230,10 +230,7 @@ function Avatar({
         </motion.span>
 
         {!player.alive && (
-          <ClawMark
-            className="absolute inset-0 size-full rotate-[-8deg] scale-110"
-            draw={drawClaw}
-          />
+          <ClawMark className="absolute inset-0 size-full scale-105" draw={drawClaw} />
         )}
 
         <AnimatePresence>
