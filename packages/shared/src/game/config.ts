@@ -103,7 +103,7 @@ export function recommendedDeck(players: number): RoleId[] {
     throw new RangeError(`players must be between ${MIN_PLAYERS} and ${MAX_PLAYERS}`);
   }
   const wolves = Math.max(1, Math.floor(players / 4));
-  const specials: RoleId[] = ["seer", "witch", "hunter", "cupid", "little-girl", "elder", "fox"];
+  const specials: RoleId[] = ["seer", "witch", "hunter", "cupid", "salvador", "elder", "fox"];
   const deck: RoleId[] = Array.from({ length: wolves }, () => "werewolf");
   for (const role of specials) {
     if (deck.length >= players - 1) break;

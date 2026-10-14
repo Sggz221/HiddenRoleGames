@@ -43,7 +43,7 @@ Decisión completa en [ADR 0004](decisions/0004-chat-por-canales.md).
 | Canal | Escriben | Leen |
 |---|---|---|
 | `general` | Los vivos, de día (y en reacciones: disparo del Cazador, sucesión del Alguacil). En el lobby y al acabar, todos | Todos, vivos y muertos |
-| `wolves` | La manada viva (lobos, infectados, Niño salvaje transformado...), de noche | La manada viva. La **Niña** lo lee **de forma anónima** (`from` y `name` a `null`) mientras conserve su poder. Los muertos si `deadSeeEverything` |
+| `wolves` | La manada viva (lobos, infectados, Niño salvaje transformado...), de noche | La manada viva. Los muertos si `deadSeeEverything` |
 | `dead` | Los muertos | Los muertos |
 | `lovers` | Los dos enamorados vivos | Los enamorados. Los muertos si `deadSeeEverything`. Cupido no |
 
@@ -100,7 +100,7 @@ Decisión completa en [ADR 0003](decisions/0003-reconexion-sessiontoken.md).
 | `room:state` | `{ code, hostId, maxPlayers, gameId, players: [{ id, name, connected }] }` a todos los miembros cuando cambia el lobby (entra o sale alguien, cambia el host, empieza o acaba una partida). El jugador que se une lo recibe en el ack |
 | `game:events` | `GameEventPayload[]` ya filtrados para ese jugador, en orden, para animar o narrar. `dawn` marca el fin de la noche; las muertes que siguen en el mismo lote son las de esa noche |
 | `game:narration` | `NarrationLine[]` (`{ key, params }`): lo que dice el narrador sobre ese mismo lote. Se construye solo con los eventos que recibió el jugador. El texto es `narration.<key>` en i18n; `params` trae jugadores (`{ id, name }`), `role`, `side`, `count` y `day` |
-| `chat:message` | `{ id, channel, from, name, text, sentAt }` solo a quien puede leer ese canal. `from`/`name` a `null` cuando el lector no puede saber el autor (Niña) |
+| `chat:message` | `{ id, channel, from, name, text, sentAt }` solo a quien puede leer ese canal |
 | `error` | `{ code, message }` |
 
 - **Contador:** `phaseEndsAt` y `serverNow` permiten pintarlo bien aunque el reloj del móvil esté desfasado: `restante = phaseEndsAt - (serverNow + (Date.now() - recibidoEn))`.

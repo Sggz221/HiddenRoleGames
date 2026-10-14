@@ -79,9 +79,6 @@ export function projectFor(state: GameState, viewerId: PlayerId): PlayerView {
           : null,
       foxActive: viewer.role === "fox" ? state.foxActive : null,
       salvadorLast: viewer.role === "salvador" ? state.salvadorLast : null,
-      // Digital adaptation: the Little Girl reads the wolves' chat anonymously (see docs).
-      canSpyWolves:
-        viewer.role === "little-girl" && hasPower(state, viewer) && viewer.side === "village",
       seerResults: viewer.role === "seer" ? state.seerResults : [],
       foxResults: viewer.role === "fox" ? state.foxResults : [],
     },

@@ -149,7 +149,7 @@ export function ChatDrawer({ view, messages, onSend }: Props) {
 function Messages({ messages, view }: { messages: ChatMessage[]; view: PlayerView }) {
   const { t } = useTranslation();
   const list = useRef<HTMLOListElement>(null);
-  const seatOf = (id: string | null) => view.players.find((player) => player.id === id)?.seat;
+  const seatOf = (id: string) => view.players.find((player) => player.id === id)?.seat;
 
   // biome-ignore lint/correctness/useExhaustiveDependencies: follow the newest message
   useEffect(() => {
@@ -185,7 +185,7 @@ function Messages({ messages, view }: { messages: ChatMessage[]; view: PlayerVie
                       seat === undefined ? undefined : `hsl(${(seat * 47 + 200) % 360} 70% 75%)`,
                   }}
                 >
-                  {message.name ?? t("chat.anonymous")}
+                  {message.name}
                 </p>
               )}
               <p className="break-words">{message.text}</p>

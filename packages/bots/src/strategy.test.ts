@@ -34,7 +34,6 @@ function view(
       witchPotions: null,
       foxActive: null,
       salvadorLast: null,
-      canSpyWolves: false,
       seerResults: [],
       foxResults: [],
       ...you,

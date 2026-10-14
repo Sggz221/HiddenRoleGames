@@ -4,7 +4,8 @@ import type { PlayerId } from "./game/actions.js";
 /**
  * - `general`: everyone reads; the living write during the day (and everyone in the lobby
  *   or once the game is over).
- * - `wolves`: the living pack, at night. The Little Girl reads it anonymously.
+ * - `wolves`: the living pack writes at night and reads any time; the dead read it when
+ *   `deadSeeEverything` is on.
  * - `dead`: the dead, any time.
  * - `lovers`: the two living lovers, any time.
  *
@@ -41,9 +42,8 @@ export interface ChatMessage {
   /** Unique per server process; lets clients drop duplicates (several tabs, resends). */
   id: string;
   channel: ChatChannel;
-  /** `null` when the receiver may not know the author (the Little Girl spying on the wolves). */
-  from: PlayerId | null;
-  name: string | null;
+  from: PlayerId;
+  name: string;
   text: string;
   /** Server clock (epoch ms). */
   sentAt: number;

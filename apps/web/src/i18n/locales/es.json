@@ -51,9 +51,9 @@
         "name": "Cupido",
         "text": "Enamora a dos jugadores: si uno muere, el otro le sigue."
       },
-      "little-girl": {
-        "name": "Niña",
-        "text": "Espía la conversación de los lobos sin saber quién habla."
+      "salvador": {
+        "name": "Salvador",
+        "text": "Cada noche protege a alguien de los lobos."
       }
     },
     "features": {
@@ -101,7 +101,6 @@
     "witch": "Bruja",
     "hunter": "Cazador",
     "cupid": "Cupido",
-    "little-girl": "Niña",
     "sister": "Hermana",
     "fox": "Zorro",
     "salvador": "Salvador",
@@ -474,7 +473,6 @@
     "witch": "Tienes una poción para salvar a la víctima de los lobos y otra para matar. Una vez cada una.",
     "hunter": "Si mueres, te llevas a alguien contigo con tu último disparo.",
     "cupid": "La primera noche unes a dos jugadores. Si uno muere, el otro también.",
-    "little-girl": "Espías el chat de la manada sin saber quién escribe. Que no te pillen.",
     "sister": "Conoces a tu hermana desde el principio. Confiad la una en la otra.",
     "fox": "Olfateas a un jugador y a sus vecinos: sabrás si hay un lobo entre ellos.",
     "salvador": "Cada noche proteges a alguien de los lobos, pero no al mismo dos noches seguidas.",
@@ -500,7 +498,6 @@
     "send": "Enviar",
     "readOnly": "Ahora solo puedes leer este canal.",
     "empty": "Aún no hay mensajes.",
-    "anonymous": "Alguien de la manada",
     "unread_one": "{{count}} mensaje sin leer",
     "unread_other": "{{count}} mensajes sin leer"
   }

@@ -43,7 +43,6 @@ export interface SelfView {
   foxActive: boolean | null;
   /** Last player the Salvador protected (cannot be protected again tonight); Salvador only. */
   salvadorLast: PlayerId | null;
-  canSpyWolves: boolean;
   seerResults: { target: PlayerId; role: RoleId }[];
   foxResults: { target: PlayerId; wolfNearby: boolean }[];
 }

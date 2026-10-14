@@ -1,6 +1,6 @@
 export { type ActionResult, applyAction, EngineError, type EngineErrorCode } from "./actions.js";
 export { advancePhase, canAdvanceEarly, nightSteps, phaseDurationSeconds } from "./advance.js";
-export { type ChatRecipient, chatAccessFor, chatRecipients } from "./chat.js";
+export { chatAccessFor, chatRecipients } from "./chat.js";
 export { createGame, type NewPlayer } from "./create.js";
 export { narrate } from "./narration.js";
 export { pendingActionFor } from "./pending.js";

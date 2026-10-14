@@ -2,7 +2,6 @@ import { APP_NAME, ROLE_IDS } from "@howlsinthedark/shared";
 import {
   Crosshair,
   Eye,
-  EyeOff,
   FlaskConical,
   Heart,
   type LucideIcon,
@@ -26,7 +25,7 @@ const ROLES = [
   { id: "witch", icon: FlaskConical, accent: "text-emerald-300" },
   { id: "hunter", icon: Crosshair, accent: "text-amber-300" },
   { id: "cupid", icon: Heart, accent: "text-pink-300" },
-  { id: "little-girl", icon: EyeOff, accent: "text-violet-300" },
+  { id: "salvador", icon: Shield, accent: "text-violet-300" },
 ] as const satisfies readonly { id: string; icon: LucideIcon; accent: string }[];
 
 const FEATURES = [

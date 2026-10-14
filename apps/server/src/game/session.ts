@@ -141,7 +141,7 @@ export class GameSession {
 
   /**
    * Posts a chat line if the engine lets `playerId` write in `channel` right now and delivers
-   * it to the channel's readers (anonymously where the rules say so). Chat never changes the
+   * it to the channel's readers. Chat never changes the
    * game state, so it does not go through the action queue.
    */
   chat(playerId: string, channel: ChatChannel, text: string): AckResponse {
@@ -150,14 +150,16 @@ export class GameSession {
     if (!author || !chatAccessFor(state, playerId).write.includes(channel)) {
       return { ok: false, code: "NOT_ALLOWED", message: "You cannot write in that channel now" };
     }
-    const line = { id: randomUUID(), channel, text, sentAt: this.clock.now() };
-    for (const { id, anonymous } of chatRecipients(state, channel)) {
-      this.deps.publisher.sendChat(this.id, id, {
-        ...line,
-        from: anonymous ? null : author.id,
-        name: anonymous ? null : author.name,
-      });
-    }
+    const line: ChatMessage = {
+      id: randomUUID(),
+      channel,
+      from: author.id,
+      name: author.name,
+      text,
+      sentAt: this.clock.now(),
+    };
+    for (const id of chatRecipients(state, channel))
+      this.deps.publisher.sendChat(this.id, id, line);
     return { ok: true };
   }
 

@@ -10,18 +10,9 @@ const kill = (state: GameState, id: PlayerId): GameState => ({
   players: state.players.map((p) => (p.id === id ? { ...p, alive: false } : p)),
 });
 
-const readers = (state: GameState, channel: Parameters<typeof chatRecipients>[1]) =>
-  chatRecipients(state, channel).map((r) => r.id);
+const readers = chatRecipients;
 
-const DECK = [
-  "werewolf",
-  "werewolf",
-  "seer",
-  "little-girl",
-  "cupid",
-  "villager",
-  "villager",
-] as const;
+const DECK = ["werewolf", "werewolf", "seer", "hunter", "cupid", "villager", "villager"] as const;
 
 /** Night 1 with p4 (Cupid) having linked p2 (Seer) and p5 (villager). */
 function nightWithLovers(): GameState {
@@ -45,20 +36,23 @@ describe("chat channels", () => {
     expect(chatAccessFor(state, "p6").write).toEqual(["general"]);
   });
 
-  it("the Little Girl reads the wolves anonymously; wolves see each other's names", () => {
+  it("only the living pack reads the wolves; no villager ever does", () => {
     const state = nightWithLovers();
-    const recipients = chatRecipients(state, "wolves");
-    expect(recipients).toEqual([
-      { id: "p0", anonymous: false },
-      { id: "p1", anonymous: false },
-      { id: idOf(state, "little-girl"), anonymous: true },
-    ]);
-    expect(chatAccessFor(state, "p3").write).not.toContain("wolves");
+    expect(readers(state, "wolves")).toEqual(["p0", "p1"]);
+    for (const id of ["p2", "p3", "p4", "p5", "p6"]) {
+      expect(chatAccessFor(state, id).read).not.toContain("wolves");
+      expect(chatAccessFor(state, id).write).not.toContain("wolves");
+    }
   });
 
-  it("the Little Girl stops spying when the village loses its powers", () => {
-    const state = { ...nightWithLovers(), villagePowersLost: true };
-    expect(readers(state, "wolves")).toEqual(["p0", "p1"]);
+  it("a living player never reads the dead channel nor someone else's lovers channel", () => {
+    const state = kill(nightWithLovers(), "p3");
+    for (const id of ["p0", "p1", "p2", "p4", "p5", "p6"]) {
+      expect(chatAccessFor(state, id).read).not.toContain("dead");
+    }
+    for (const id of ["p0", "p1", "p4", "p6"]) {
+      expect(chatAccessFor(state, id).read).not.toContain("lovers");
+    }
   });
 
   it("an infected villager joins the pack's channel with names", () => {
@@ -69,7 +63,7 @@ describe("chat channels", () => {
         p.id === "p6" ? { ...p, side: "wolves" as const, infected: true } : p,
       ),
     };
-    expect(chatRecipients(state, "wolves")).toContainEqual({ id: "p6", anonymous: false });
+    expect(readers(state, "wolves")).toContain("p6");
     expect(chatAccessFor(state, "p6").write).toContain("wolves");
   });
 
@@ -87,7 +81,7 @@ describe("chat channels", () => {
       read: ["general", "wolves", "dead", "lovers"],
     });
     expect(readers(state, "dead")).toEqual(["p6"]);
-    expect(chatRecipients(state, "wolves")).toContainEqual({ id: "p6", anonymous: false });
+    expect(readers(state, "wolves")).toContain("p6");
   });
 
   it("without deadSeeEverything the dead only read general and dead", () => {
@@ -113,7 +107,7 @@ describe("chat channels", () => {
       write: ["general"],
       read: ["general", "wolves", "dead", "lovers"],
     });
-    expect(chatRecipients(state, "general").every((r) => !r.anonymous)).toBe(true);
+    expect(readers(state, "wolves")).toHaveLength(state.players.length);
   });
 
   it("is part of the player's view", () => {

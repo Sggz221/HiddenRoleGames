@@ -14,6 +14,7 @@ El juego necesita hablar en grupo: todos de día, la manada de noche, los muerto
 2. **La membresía es una regla del juego, así que vive en el motor.** `chatAccessFor(state, player)` y `chatRecipients(state, channel)` son funciones puras de `packages/game-engine`. La misma función alimenta `view.chat` (lo que pinta el cliente) y la comprobación del servidor, para que nunca discrepen.
 3. **`GameSession.chat` es el puente:** valida que el autor puede escribir, calcula los lectores con el estado actual y entrega un mensaje por jugador a su canal privado de Socket.IO. No pasa por la cola de acciones porque no cambia el estado.
 4. **Anonimato por receptor:** cada lector recibe su propia copia. La Niña recibe las líneas de los lobos con `from` y `name` a `null`.
+   *Actualización 2026-10-14:* la Niña se retiró del juego (ADR 0006), así que ya no hay lectores anónimos y `from`/`name` siempre van rellenos.
 5. **Lobby:** antes y después de la partida solo hay `general`, difundido a la sala sin pasar por el motor.
 6. **Protección básica:** esquema Zod (300 caracteres, sin caracteres de control ni marcas bidi) y un *token bucket* por socket (ráfaga de 5, 1 cada 2 s).
 

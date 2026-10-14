@@ -58,12 +58,11 @@ Los pasos de puro reconocimiento (enamorados, hermanas, encantados, domador de o
 | Bruja | Una poción de vida (solo para las víctimas de lobos de esa noche, incluida ella) y una de muerte (cualquier jugador vivo). Puede usar las dos en la misma noche. |
 | Cazador | Al morir, por cualquier causa, dispara a otro jugador (reacción). Puede no disparar. |
 | Cupido | La noche 1 enamora a dos jugadores (puede incluirse). Si uno muere, el otro muere de pena. Si son de bandos distintos, solo ganan juntos siendo los dos últimos supervivientes. |
-| Niña | Adaptación digital: lee el chat de los lobos de forma **anónima** (`canSpyWolves`) mientras conserve su poder. Ver canales en `docs/protocol.md`. |
 | Hermanas (2) | Se conocen entre sí desde el inicio. Podrán tener un canal de chat propio. |
 | Zorro | Señala a un jugador y sabe si hay algún lobo entre él y sus vecinos vivos más cercanos. Si no hay ninguno, pierde el poder para siempre. Es opcional cada noche. |
 | Salvador | Cada noche protege a un jugador (él mismo incluido), que sobrevive al ataque de la manada y del Gran lobo feroz y no puede ser infectado esa noche (el poder del Padre no se gasta). No puede proteger al mismo jugador dos noches seguidas; si no protege a nadie, la restricción se reinicia. No frena veneno, Lobo blanco ni muertes de día. Si la Bruja cura a la misma víctima, sigue viva (no se anulan). |
 | Caballero de la espada oxidada | Si lo matan los lobos de la manada, el primer lobo vivo a su izquierda muere en el siguiente amanecer (causa pública "óxido"). |
-| Anciano | Resiste el primer ataque de lobos. Si lo mata el pueblo (voto, veneno o disparo), los aldeanos pierden sus poderes: Vidente, Bruja, Cazador, Niña, Zorro, Salvador, Caballero y Domador. |
+| Anciano | Resiste el primer ataque de lobos. Si lo mata el pueblo (voto, veneno o disparo), los aldeanos pierden sus poderes: Vidente, Bruja, Cazador, Zorro, Salvador, Caballero y Domador. |
 | Domador de osos | Cada mañana el oso gruñe (evento público) si uno de sus vecinos vivos es lobo. Si el domador está infectado, gruñe siempre. |
 
 ### Ambiguos
