@@ -3,23 +3,16 @@ import { Check, Heart, PawPrint, Skull, Sparkles, Star } from "lucide-react";
 import { AnimatePresence, motion } from "motion/react";
 import { type ReactNode, useState } from "react";
 import { useTranslation } from "react-i18next";
+import { VillagerAvatar } from "../../components/avatar/VillagerAvatar";
 import { tally } from "./model";
 import { ROLE_ICONS } from "./roleIcons";
 import type { ActionController } from "./useActionController";
 
-/** Seat colour: stable per seat, spread around the wheel. */
+/** Seat colour: stable per seat, spread around the wheel. Backdrop of the portrait. */
 export const seatColor = (seat: number) => `hsl(${(seat * 47 + 200) % 360} 42% 34%)`;
 
-const initials = (name: string) =>
-  name
-    .split(/\s+/)
-    .map((part) => part[0] ?? "")
-    .join("")
-    .slice(0, 2)
-    .toUpperCase();
-
 /**
- * The table: one circle per player. When the server lets you pick, the valid targets
+ * The table: one villager portrait per player. When the server lets you pick, the valid targets
  * breathe and a tap chooses; votes land on the circles as dots. Dead players turn grey,
  * and hovering (or tapping) them reveals their card if it is known.
  */
@@ -111,7 +104,7 @@ function Avatar({
             ? { duration: 1.6, repeat: Number.POSITIVE_INFINITY, ease: "easeInOut" }
             : { duration: 0.6 }
         }
-        className={`relative flex size-14 items-center justify-center rounded-full font-semibold text-lg sm:size-16 text-white shadow-lg ring-offset-2 ring-offset-transparent transition-[box-shadow] ${
+        className={`relative flex size-16 items-center justify-center rounded-full shadow-lg sm:size-[4.5rem] ring-offset-2 ring-offset-transparent transition-[box-shadow] ${
           picked
             ? "ring-4 ring-[var(--accent)]"
             : pickable
@@ -125,7 +118,9 @@ function Avatar({
           boxShadow: picked ? "0 0 24px -2px var(--accent)" : undefined,
         }}
       >
-        {initials(player.name)}
+        <span className="absolute inset-0 overflow-hidden rounded-full">
+          <VillagerAvatar id={player.id} className="size-full" />
+        </span>
 
         <AnimatePresence>
           {!player.alive && (

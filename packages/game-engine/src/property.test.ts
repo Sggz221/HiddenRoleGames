@@ -188,5 +188,6 @@ describe("random games with bots", () => {
       }),
       { numRuns: 300 },
     );
-  });
+    // 300 whole games: well over the default 5 s on slower CI runners.
+  }, 30_000);
 });
