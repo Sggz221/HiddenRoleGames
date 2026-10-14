@@ -83,7 +83,7 @@ Los pasos de puro reconocimiento (enamorados, hermanas, encantados, domador de o
 
 - **Elección:** se elige por mayoría simple el primer día (si `sheriff` está activo). Los empates se deciden con el RNG.
 - **Voto:** cuenta doble.
-- **Muerte:** al morir nombra sucesor (reacción). Si no lo hace a tiempo, se elige al azar.
+- **Muerte:** al morir nombra sucesor (reacción). Si no lo hace a tiempo, se elige al azar. Si con esa muerte la partida ya está decidida, no se nombra sucesor.
 
 ## Votaciones
 
@@ -91,7 +91,7 @@ Los pasos de puro reconocimiento (enamorados, hermanas, encantados, domador de o
 - **Empate**, según `voteTieRule`:
   - `runoff` (por defecto): nueva votación entre los empatados. Si vuelve a haber empate, no muere nadie.
   - `no-elimination`: no muere nadie.
-  - `sheriff`: decide el Alguacil. Si no hay Alguacil, se aplica `runoff`.
+  - `sheriff`: decide el Alguacil (el resultado se anuncia cuando decide; si no elige, no muere nadie). Si no hay Alguacil, se aplica `runoff`.
 - **Cierre anticipado:** el día puede cerrarse antes si todos los vivos han votado.
 
 ## Muertes y revelación

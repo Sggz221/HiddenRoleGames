@@ -133,6 +133,10 @@ function continueFlow(draft: Draft): void {
     endGame(draft, state.result);
     return;
   }
+  // Once the game is decided a new Sheriff changes nothing: nobody waits for one to be named.
+  if (state.decisions.length && evaluateWinner(state)) {
+    state.decisions = state.decisions.filter((pending) => pending.kind !== "sheriff-successor");
+  }
   const [decision] = state.decisions;
   if (decision) {
     delete state.decisionChoice;
@@ -384,7 +388,7 @@ function resolveVote(draft: Draft, candidates: PlayerId[], isRunoff: boolean): v
     const rule = state.config.voteTieRule;
     const sheriffAlive = isAlive(state, state.sheriff);
     if (rule === "sheriff" && sheriffAlive && state.sheriff) {
-      draft.emit({ type: "voteResult", eliminated: null, tied }, ALL);
+      // No result yet: the Sheriff's reaction announces the tie and its outcome follows.
       state.decisions.push({ kind: "sheriff-tiebreak", actor: state.sheriff, candidates: tied });
     } else if (rule === "no-elimination") {
       draft.emit({ type: "voteResult", eliminated: null, tied }, ALL);
@@ -431,6 +435,8 @@ function resolveDecision(draft: Draft): void {
     if (choice && decision.candidates.includes(choice) && isAlive(state, choice)) {
       draft.emit({ type: "voteResult", eliminated: choice, tied: [] }, ALL);
       kill(draft, choice, "vote");
+    } else {
+      draft.emit({ type: "voteResult", eliminated: null, tied: decision.candidates }, ALL);
     }
   }
 
