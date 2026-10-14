@@ -45,30 +45,31 @@ export interface RoleInfo {
   readonly maxCopies: number;
   /** Exact number of copies required when present (only the two sisters). */
   readonly exactCopies?: number;
+  /**
+   * Smallest table the card is allowed at. Loner roles win too fast (or break the pack) at
+   * small tables; values come from `packages/game-engine/scripts/balance.ts` (ADR 0006).
+   */
+  readonly minPlayers?: number;
 }
 
 const info = (
   id: RoleId,
   category: RoleCategory,
   initialSide: Side,
-  maxCopies = 1,
-  exactCopies?: number,
-): RoleInfo =>
-  exactCopies === undefined
-    ? { id, category, initialSide, maxCopies }
-    : { id, category, initialSide, maxCopies, exactCopies };
+  extra: { maxCopies?: number; exactCopies?: number; minPlayers?: number } = {},
+): RoleInfo => ({ id, category, initialSide, maxCopies: 1, ...extra });
 
 export const ROLES: Readonly<Record<RoleId, RoleInfo>> = {
-  villager: info("villager", "villager", "village", Number.POSITIVE_INFINITY),
-  werewolf: info("werewolf", "wolf", "wolves", Number.POSITIVE_INFINITY),
+  villager: info("villager", "villager", "village", { maxCopies: Number.POSITIVE_INFINITY }),
+  werewolf: info("werewolf", "wolf", "wolves", { maxCopies: Number.POSITIVE_INFINITY }),
   "infected-father": info("infected-father", "wolf", "wolves"),
   "big-bad-wolf": info("big-bad-wolf", "wolf", "wolves"),
-  "white-werewolf": info("white-werewolf", "loner", "wolves"),
+  "white-werewolf": info("white-werewolf", "loner", "wolves", { minPlayers: 8 }),
   seer: info("seer", "villager", "village"),
   witch: info("witch", "villager", "village"),
   hunter: info("hunter", "villager", "village"),
   cupid: info("cupid", "villager", "village"),
-  sister: info("sister", "villager", "village", 2, 2),
+  sister: info("sister", "villager", "village", { maxCopies: 2, exactCopies: 2 }),
   fox: info("fox", "villager", "village"),
   salvador: info("salvador", "villager", "village"),
   knight: info("knight", "villager", "village"),
@@ -76,7 +77,7 @@ export const ROLES: Readonly<Record<RoleId, RoleInfo>> = {
   "bear-tamer": info("bear-tamer", "villager", "village"),
   "wild-child": info("wild-child", "ambiguous", "village"),
   "wolf-hound": info("wolf-hound", "ambiguous", "village"),
-  piper: info("piper", "loner", "village"),
+  piper: info("piper", "loner", "village", { minPlayers: 9 }),
   angel: info("angel", "loner", "village"),
 };
 

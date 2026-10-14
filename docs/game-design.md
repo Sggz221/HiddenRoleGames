@@ -47,7 +47,7 @@ Los pasos de puro reconocimiento (enamorados, hermanas, encantados, domador de o
 | Lobo | Vota víctima con la manada. La víctima es la más votada; los empates se deciden con el RNG con semilla. No puede elegir a un miembro de la manada. |
 | Padre de los lobos | Una vez por partida puede infectar a la víctima en lugar de matarla. El infectado pasa a la manada pero conserva su carta y sus poderes. La Bruja no puede curarlo. Si la víctima es el Anciano, la infección no surte efecto: el ataque sigue como uno normal y se gasta el poder. |
 | Gran lobo feroz | Mientras no haya muerto ningún miembro de la manada, mata a una segunda víctima (que no sea lobo ni la víctima de la manada). |
-| Lobo blanco | Forma parte de la manada, pero en las noches pares puede matar a otro lobo. Solo gana si es el último superviviente. Mientras esté vivo entre lobos, la manada no gana. |
+| Lobo blanco | Solo con 8 jugadores o más (ADR 0006). Forma parte de la manada, pero en las noches pares puede matar a otro lobo. Solo gana si es el último superviviente. Mientras esté vivo entre lobos, la manada no gana. |
 
 ### Aldeanos
 
@@ -76,7 +76,7 @@ Los pasos de puro reconocimiento (enamorados, hermanas, encantados, domador de o
 
 | Rol | Regla implementada |
 |---|---|
-| Flautista | Cada noche encanta a hasta dos jugadores nuevos (no a sí mismo). Gana si todos los demás vivos están encantados. Si lo infectan, pierde su objetivo y su poder. |
+| Flautista | Solo con 9 jugadores o más (ADR 0006). Cada noche encanta a hasta dos jugadores nuevos (no a sí mismo). Gana si todos los demás vivos están encantados. Si lo infectan, pierde su objetivo y su poder. |
 | Ángel | La partida empieza con un día de votación. Gana al instante si muere en el primer turno: votado el día 0, o muerto por lobos o veneno la noche 1. Después es un aldeano normal. Si está enamorado, renuncia a su objetivo. |
 
 ### Alguacil

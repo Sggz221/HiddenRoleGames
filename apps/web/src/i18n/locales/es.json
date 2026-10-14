@@ -272,7 +272,8 @@
         "sheriff": "Decide el alguacil"
       },
       "add": "Añadir {{role}}",
-      "remove": "Quitar {{role}}"
+      "remove": "Quitar {{role}}",
+      "minPlayers": "desde {{min}} jugadores"
     },
     "categories": {
       "wolf": "Lobos",
@@ -287,6 +288,7 @@
       "deckSize": "Hay {{cards}} cartas para {{players}} jugadores: tiene que haber una por jugador.",
       "tooManyCopies": "Solo puede haber {{max}} {{role}}.",
       "exactCopies": "{{role}}: tiene que haber exactamente {{required}}.",
+      "roleNeedsPlayers": "{{role}} solo se puede usar con {{min}} jugadores o más.",
       "noWolves": "Hace falta al menos un lobo.",
       "wolvesMajority": "Los lobos tienen que ser menos que el resto ({{wolves}} contra {{others}})."
     }

@@ -174,6 +174,11 @@ function problemText(t: TFunction, problem: StartProblem): string {
         required: problem.required,
         role: t(`roles.${problem.role}`),
       });
+    case "roleNeedsPlayers":
+      return t("lobby.problems.roleNeedsPlayers", {
+        min: problem.min,
+        role: t(`roles.${problem.role}`),
+      });
     case "noWolves":
       return t("lobby.problems.noWolves");
     case "wolvesMajority":

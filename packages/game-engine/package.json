@@ -18,7 +18,8 @@
     "typecheck": "tsc --noEmit",
     "test": "vitest run",
     "test:coverage": "vitest run --coverage",
-    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\""
+    "clean": "node -e \"require('node:fs').rmSync('dist',{recursive:true,force:true})\"",
+    "balance": "tsc -p tsconfig.build.json && node scripts/balance.ts"
   },
   "dependencies": {
     "@howlsinthedark/shared": "workspace:*"

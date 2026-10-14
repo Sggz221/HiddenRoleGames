@@ -53,6 +53,7 @@ describe("night steps", () => {
       "wild-child",
       "fox",
       "piper",
+      "villager",
     ]);
     expect(nightSteps(state, 1)).toEqual([
       "cupid",

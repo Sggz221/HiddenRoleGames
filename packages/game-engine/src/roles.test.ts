@@ -161,19 +161,21 @@ describe("Big Bad Wolf", () => {
 
 describe("White Werewolf", () => {
   it("kills a wolf every other night and wins as the sole survivor", () => {
-    let { state } = setup(["werewolf", "white-werewolf", V, V, V, V]);
+    let { state } = setup(["werewolf", "white-werewolf", V, V, V, V, V, V]);
     state = act(state, "p0", { type: "wolfVote", target: "p2" });
     state = advanceTo(state, { kind: "night", step: "white-werewolf" });
     expect(state.day).toBe(2);
     state = act(state, "p1", { type: "whiteWolfKill", target: "p0" });
-    for (const id of ["p3", "p4", "p5"]) state.players.find((p) => p.id === id)!.alive = false;
+    for (const id of ["p3", "p4", "p5", "p6", "p7"])
+      state.players.find((p) => p.id === id)!.alive = false;
     state = advanceTo(state, { kind: "ended" });
     expect(state.result).toEqual({ team: "white-werewolf", winners: ["p1"] });
   });
 
   it("does not let the pack win while he is still alive among them", () => {
-    let { state } = setup(["werewolf", "white-werewolf", V, V, V, V]);
-    for (const id of ["p3", "p4", "p5"]) state.players.find((p) => p.id === id)!.alive = false;
+    let { state } = setup(["werewolf", "white-werewolf", V, V, V, V, V, V]);
+    for (const id of ["p3", "p4", "p5", "p6", "p7"])
+      state.players.find((p) => p.id === id)!.alive = false;
     state = act(state, "p0", { type: "wolfVote", target: "p2" });
     state = advanceTo(state, { kind: "day" });
     expect(state.result).toBeNull();
@@ -251,7 +253,9 @@ describe("Wolf Hound", () => {
 
 describe("Piper", () => {
   it("wins when every other living player is charmed", () => {
-    let { state } = setup(["piper", "werewolf", V, V, V]);
+    let { state } = setup(["piper", "werewolf", V, V, V, V, V, V, V]);
+    for (const id of ["p5", "p6", "p7", "p8"])
+      state.players.find((p) => p.id === id)!.alive = false;
     state = advanceTo(state, { kind: "night", step: "piper" });
     state = act(state, "p0", { type: "piperCharm", targets: ["p1", "p2"] });
     state = advanceToNext(state, { kind: "night", step: "piper" });
